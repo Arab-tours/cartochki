@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Карточки лексики к срезу 1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Amiri:wght@400;700&display=swap">
+<style>
+:root{--bg:#eef3ea;--ink:#16261c;--mute:#53665a;--sea:#0b5a30;--gold:#8a6a12;--card:#f8fbf5;--line:#cddac8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a12;--ink:#e8efe6;--mute:#9db5a4;--sea:#13663d;--gold:#e0bd62;--card:#14241a;--line:#244030}}
+:root[data-theme="dark"]{--bg:#0d1a12;--ink:#e8efe6;--mute:#9db5a4;--sea:#13663d;--gold:#e0bd62;--card:#14241a;--line:#244030}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Literata,Georgia,serif;min-height:100%}
+.wrap{max-width:620px;margin:0 auto;padding:0 20px}
+header{background:var(--sea);color:#fff;padding:44px 0 30px}
+h1{font-size:clamp(30px,8vw,46px);line-height:1.1;margin:0 0 10px}
+header p{margin:0;opacity:.92;font-size:18px}
+.ar{font-family:Amiri,"Traditional Arabic",serif;direction:rtl}
+.menu{display:grid;gap:12px;padding:24px 0 40px}
+.cat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;text-align:left;font:inherit;color:inherit;cursor:pointer;display:flex;gap:14px;align-items:center}
+.cat:hover,.cat:focus-visible{border-color:var(--gold);outline:none}
+.cat b{display:block;font-size:18px}.cat small{color:var(--mute);font-size:14px}
+.n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--sea);color:#fff;text-align:center;line-height:34px;font-weight:700}
+.cnt{margin-left:auto;color:var(--gold);font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:10px}
+.lnk{background:none;border:0;color:var(--sea);font:inherit;font-weight:600;cursor:pointer;padding:6px 0}
+:root[data-theme="dark"] .lnk{color:#8fd6a8}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .lnk{color:#8fd6a8}}
+h2{margin:0 0 4px;font-size:22px;color:var(--sea)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 6px}.bar i{display:block;height:100%;background:var(--sea);width:0;transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:14px}
+.flip{perspective:900px;margin:18px 0}
+.face{min-height:250px;background:var(--card);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;width:100%;font:inherit;color:inherit}
+.face:focus-visible{outline:2px solid var(--gold)}
+.face .big{font-size:clamp(34px,10vw,52px);line-height:1.4}
+.face .ru{font-size:clamp(24px,6vw,30px);font-weight:600}
+.face .hint{margin-top:14px;color:var(--mute);font-size:14px}
+.ans{border-color:var(--gold)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.b{font:inherit;font-weight:600;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.b.ok{background:var(--sea);color:#fff;border-color:var(--sea)}
+.b:disabled{opacity:.4}
+.tools{display:flex;gap:16px;flex-wrap:wrap;margin-top:18px}
+.done{text-align:center;padding:40px 0}.done .big{font-size:48px;color:var(--gold);font-weight:700}
+[hidden]{display:none!important}
+</style></head><body>
+<header><div class="wrap"><h1>Карточки лексики к срезу 1</h1><p>Выберите категорию и проверьте себя.</p></div></header>
+<main class="wrap">
+<div id="menu" class="menu"></div>
+<div id="study" hidden>
+ <div class="top"><button class="lnk" id="back">← Категории</button><button class="lnk" id="dir"></button></div>
+ <h2 id="ct"></h2>
+ <div class="bar"><i id="pb"></i></div>
+ <div class="meta"><span id="pos"></span><span id="sc"></span></div>
+ <div class="flip"><button class="face" id="face" aria-live="polite"></button></div>
+ <div class="row"><button class="b" id="no">Ещё раз</button><button class="b ok" id="yes">Знаю</button></div>
+ <div class="tools"><button class="lnk" id="shuf">Перемешать</button><button class="lnk" id="prev">Назад</button><button class="lnk" id="restart">Сначала</button></div>
+</div>
+<div id="end" class="done" hidden><div class="big" id="endn"></div><p id="endt"></p><div class="row"><button class="b" id="again">Повторить сначала</button><button class="b ok" id="miss">Только ошибки</button></div><p><button class="lnk" id="back2">← Категории</button></p></div>
+</main>
+<script>
+const C=[
+["Глаголы, подобные правильным","первая слабая (мисаль)",
+`وَضَعَ · يَضَعُ|класть, ставить, составлять
+وَقَعَ · يَقَعُ|происходить, случаться
+وَجَدَ · يَجِدُ|находить
+وَعَدَ · يَعِدُ|обещать
+وَصَلَ · يَصِلُ|прибывать
+وَصَفَ · يَصِفُ|описывать, характеризовать
+وَثِقَ · يَثِقُ بِـ|доверять
+وَرِثَ · يَرِثُ|наследовать
+وَزَنَ · يَزِنُ|взвешивать
+وَقَفَ · يَقِفُ|стоять, останавливаться
+وَجَبَ · يَجِبُ عَلَى|быть обязательным, «должен»`],
+["Правильные глаголы","",
+`فَهِمَ · يَفْهَمُ|понимать
+بَحَثَ · يَبْحَثُ عَنْ|искать
+أَقْنَعَ · يُقْنِعُ|убеждать (IV)
+أَعْجَبَ · يُعْجِبُ|нравиться (IV)
+أَمْكَنَ · يُمْكِنُ|быть возможным (IV)
+تَحَدَّثَ · يَتَحَدَّثُ عَنْ|говорить, рассказывать о (V)
+اِنْتَظَرَ · يَنْتَظِرُ|ждать (VIII)
+شَاهَدَ · يُشَاهِدُ|смотреть (III)`],
+["Существительные и прилагательные","",
+`خُطَّة|план
+جَدِيد|новый
+مَطَار|аэропорт
+صَبَاح|утро
+بَاكِر|ранний
+حَدَث · أَحْدَاث|событие, случай
+نَهَار|день
+مِنْطَقَة|регион
+صِفَة|качество, характеристика
+عَامّ|общий
+خِزَانَة|шкаф
+شَيْء · أَشْيَاء|вещь
+رَجُل|человек, мужчина
+فِلْم|фильм
+بَلَد · بُلْدَان|страна
+ثَقَافَة|культура
+غَنِيّ|богатый
+تَارِيخ|история
+قَدِيم|древний
+كَرِيم|благородный, щедрый
+كَلِمَة|слово
+قَامُوس|словарь
+صَدِيق · أَصْدِقَاء|друг
+رِحْلَة|рейс, поездка
+مَدِينَة|город
+بَيْت|дом
+سَفَر|поездка
+عَرَبِيّ|арабский
+حَقِيبَة · حَقَائِب|чемодан, сумка
+كِتَاب|книга
+مَكْتَبَة · مَكْتَبَات|библиотека
+طَبَق · أَطْبَاق|тарелка
+شَوْكَة · شَوْكَات|вилка
+مِلْعَقَة · مَلَاعِق|ложка
+مَائِدَة|стол
+عُنْف|насилие
+حُكُومَة|правительство
+سَيَّارَة|машина
+مَكَان|место
+بَعِيد|далёкий
+مَوْقِف|позиция
+مَوْضُوعِيَّة|объективность
+غَدًا|завтра`],
+["Фразы и выражения","",
+`لَا بُدَّ مِنْ|необходимо
+يَجِبُ عَلَى|должен
+فِي وَضَحِ النَّهَارِ|средь бела дня
+بِصِفَةٍ عَامَّةٍ|в целом
+لَيْسَ فِي وُسْعِهَا أَنْ|ей не под силу
+عَلَى يَقِينٍ مِنْ|быть убеждённым в
+عَلَى ثِقَةٍ بِأَنَّ|быть уверенным, что
+ذُو + род. п.|обладающий (ذُو ثَقَافَةٍ)
+ذُو سَعَةِ صَدْرٍ|великодушный
+عَلَى مَتْنِ|на борту
+أَحَدُ / إِحْدَى + род. п.|один из
+مَرَّةً ثَانِيَةً|ещё раз
+غَيْرُ بَعِيدٍ مِنْ|недалеко от
+غَيْرُ المَعْرُوفِ|неизвестный
+قُرْبَ|около, возле`],
+["Масдары глаголов, подобных правильным","",
+`وُصُول|прибытие (وَصَلَ)
+وَصْف|описание (وَصَفَ)
+وُثُوق|доверие (وَثِقَ)
+ثِقَة|уверенность, доверие (وَثِقَ)
+وَضْع|положение, ситуация (وَضَعَ)
+يَقِين|убеждённость (يَقِنَ)`],
+["Причастия глаголов, подобных правильным","",
+`مَوْجُود|существующий, находящийся (страд., وَجَدَ)
+مَوْصُوف|описываемый, характеризуемый (страд., وَصَفَ)
+مَوْضُوع|тема, предмет (страд., وَضَعَ)`],
+["Остальные причастия","",
+`طَالِب|студент (действ., طَلَبَ)
+مُشْكِلَة|проблема (действ., أَشْكَلَ)
+مَعْرُوف|известный (страд., عَرَفَ)
+مَعْلُومَات|сведения (страд., عَلِمَ)`]
+].map(c=>({t:c[0],s:c[1],w:c[2].split("\n").map(l=>{const i=l.lastIndexOf("|");return{a:l.slice(0,i),r:l.slice(i+1)}})}));
+const $=i=>document.getElementById(i);
+let cat,deck,i,flipped,know,rev=false,full;
+const menu=$("menu");
+C.forEach((c,k)=>{const b=document.createElement("button");b.className="cat";b.innerHTML=`<span class="n">${k+1}</span><span><b>${c.t}</b><small>${c.s||"карточки"}</small></span><span class="cnt">${c.w.length}</span>`;b.onclick=()=>open(k);menu.appendChild(b)});
+function show(id){["menu","study","end"].forEach(x=>$(x).hidden=x!==id)}
+function open(k){cat=C[k];full=cat.w.slice();start(full)}
+function start(list){deck=list.slice();i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
+function draw(){
+ if(i>=deck.length){const m=deck.length-know;$("endn").textContent=`${know} из ${deck.length}`;$("endt").textContent=m?`Ещё раз: ${m}`:"Всё знаете!";$("miss").disabled=!m;show("end");return}
+ const d=deck[i],f=$("face");
+ const ar=`<div class="big ar">${d.a}</div>`,ru=`<div class="ru">${d.r}</div>`;
+ const q=rev?ru:ar,a=rev?ar:ru;
+ f.className="face"+(flipped?" ans":"");
+ f.innerHTML=flipped?a:q+`<div class="hint">Нажмите, чтобы увидеть ответ</div>`;
+ $("pb").style.width=(i/deck.length*100)+"%";
+ $("pos").textContent=`${i+1} / ${deck.length}`;$("sc").textContent=`Знаю: ${know}`;
+ $("dir").textContent=rev?"Русский → арабский":"Арабский → русский";
+ $("yes").disabled=$("no").disabled=!flipped;
+}
+const next=ok=>{if(ok)know++;else deck[i].m=1;i++;flipped=false;draw()};
+$("face").onclick=()=>{flipped=!flipped;draw()};
+$("yes").onclick=()=>{deck[i].m=0;next(1)};$("no").onclick=()=>next(0);
+$("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
+$("back").onclick=$("back2").onclick=()=>show("menu");
+$("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw()};
+$("prev").onclick=()=>{if(i>0){i--;flipped=false;draw()}};
+$("restart").onclick=()=>start(full);
+$("again").onclick=()=>start(full);
+$("miss").onclick=()=>{const m=deck.filter(d=>d.m);start(m)};
+</script></body></html>
