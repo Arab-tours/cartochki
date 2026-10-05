@@ -54,7 +54,7 @@ h2{margin:0 0 4px;font-size:22px;color:var(--sea)}
  <div class="row"><button class="b" id="no">Ещё раз</button><button class="b ok" id="yes">Знаю</button></div>
  <div class="tools"><button class="lnk" id="shuf">Перемешать</button><button class="lnk" id="prev">Назад</button><button class="lnk" id="restart">Сначала</button></div>
 </div>
-<div id="end" class="done" hidden><div class="big" id="endn"></div><p id="endt"></p><div class="row"><button class="b" id="again">Повторить сначала</button><button class="b ok" id="miss">Только ошибки</button></div><p><button class="lnk" id="back2">← Категории</button></p></div>
+<div id="end" class="done" hidden><div class="big" id="endn"></div><p id="endt"></p><div class="row" id="endrow"><button class="b" id="again">Повторить сначала</button><button class="b ok" id="miss">Только ошибки</button></div><p><button class="lnk" id="back2">← Категории</button></p></div>
 </main>
 <script>
 const C=[
@@ -314,35 +314,45 @@ const X=[
 ].map(P);
 const $=i=>document.getElementById(i);
 let cat,deck,i,flipped,know,rev=false,full;
+let miss={};try{miss=JSON.parse(localStorage.getItem("miss")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("miss",JSON.stringify(miss))}catch(e){}};
+let mm=false;
 const menu=$("menu");let cur=C;
 function mk(h,f){const b=document.createElement("button");b.className="cat";b.innerHTML=h;b.onclick=f;menu.appendChild(b)}
 function home(){cur=C;menu.innerHTML="";C.forEach((c,k)=>mk(`<span class="n">${k+1}</span><span><b>${c.t}</b><small>${c.s||"карточки"}</small></span><span class="cnt">${c.w.length}</span>`,()=>open(k)));
-mk(`<span class="n">+</span><span><b>Дополнительное</b><small>4 набора</small></span><span class="cnt">${X.reduce((a,c)=>a+c.w.length,0)}</span>`,extra)}
+mk(`<span class="n">+</span><span><b>Дополнительное</b><small>4 набора</small></span><span class="cnt">${X.reduce((a,c)=>a+c.w.length,0)}</span>`,extra);
+mk(`<span class="n">!</span><span><b>Слова, которые вьебал</b><small>слово уходит после 3 верных ответов подряд</small></span><span class="cnt">${Object.keys(miss).length}</span>`,openMiss)}
 function extra(){cur=X;menu.innerHTML="";mk(`<span><b>← Все категории</b></span>`,home);X.forEach((c,k)=>mk(`<span class="n">${k+1}</span><span><b>${c.t}</b><small>${c.s}</small></span><span class="cnt">${c.w.length}</span>`,()=>open(k)))}
 home();
 function show(id){["menu","study","end"].forEach(x=>$(x).hidden=x!==id)}
 function open(k){cat=cur[k];full=cat.w.slice();start(full)}
-function start(list){deck=list.slice();i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
+function endMsg(big,txt,btns){const e=$("endn");e.textContent=big;e.style.fontSize=btns?"":"30px";$("endt").textContent=txt;$("endrow").hidden=!btns;show("end")}
+function win(){endMsg("молодец батракан, иди учи грамматику","",0)}
+function openMiss(){cur=C;const w=Object.values(miss);if(!w.length){endMsg("Пока пусто","Нажми «Ещё раз» на любой карточке — слово попадёт сюда.",0);return}
+mm=true;cat={t:"Слова, которые вьебал"};deck=w.sort(()=>Math.random()-.5);i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
+function start(list){mm=false;deck=list.slice();i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
 function draw(){
- if(i>=deck.length){const m=deck.length-know;$("endn").textContent=`${know} из ${deck.length}`;$("endt").textContent=m?`Ещё раз: ${m}`:"Всё знаете!";$("miss").disabled=!m;show("end");return}
+ if(mm&&i>=deck.length){deck=Object.values(miss).sort(()=>Math.random()-.5);i=0;if(!deck.length){win();return}}
+ if(i>=deck.length){const m=deck.length-know;$("miss").disabled=!m;endMsg(`${know} из ${deck.length}`,m?`Ещё раз: ${m}`:"Всё знаете!",1);return}
  const d=deck[i],f=$("face");
  const ar=`<div class="big ar">${d.a}</div>`,ru=`<div class="ru">${d.r}</div>`;
  const q=rev?ru:ar,a=rev?ar:ru;
  f.className="face"+(flipped?" ans":"");
  f.innerHTML=flipped?a:q+`<div class="hint">Нажмите, чтобы увидеть ответ</div>`;
  $("pb").style.width=(i/deck.length*100)+"%";
- $("pos").textContent=`${i+1} / ${deck.length}`;$("sc").textContent=`Знаю: ${know}`;
+ $("pos").textContent=`${i+1} / ${deck.length}`;$("sc").textContent=mm?`Подряд: ${d.n||0} / 3`:`Знаю: ${know}`;
  $("dir").textContent=rev?"Русский → арабский":"Арабский → русский";
  $("yes").disabled=$("no").disabled=!flipped;
 }
 const next=ok=>{if(ok)know++;else deck[i].m=1;i++;flipped=false;draw()};
 $("face").onclick=()=>{flipped=!flipped;draw()};
-$("yes").onclick=()=>{deck[i].m=0;next(1)};$("no").onclick=()=>next(0);
+$("yes").onclick=()=>{const d=deck[i];d.m=0;if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a];save()}next(1)};
+$("no").onclick=()=>{const d=deck[i];if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};save();next(0)};
 $("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
-$("back").onclick=$("back2").onclick=()=>show("menu");
+$("back").onclick=$("back2").onclick=()=>{cur===X?extra():home();show("menu")};
 $("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw()};
 $("prev").onclick=()=>{if(i>0){i--;flipped=false;draw()}};
-$("restart").onclick=()=>start(full);
+$("restart").onclick=()=>mm?openMiss():start(full);
 $("again").onclick=()=>start(full);
 $("miss").onclick=()=>{const m=deck.filter(d=>d.m);start(m)};
 </script></body></html>
