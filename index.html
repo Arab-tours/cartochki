@@ -48,24 +48,38 @@ input,textarea{width:100%;font:inherit;padding:12px;border:1px solid var(--line)
 .rd{border-color:#c0392b!important}.yl{border-color:#d4a017!important}.gn{border-color:#1e8449!important}
 .face.rd{background:rgba(192,57,43,.16)}.face.yl{background:rgba(212,160,23,.18)}.face.gn{background:rgba(30,132,73,.16)}
 .tc ul{margin:6px 0 0;padding-left:20px}.tc small{color:var(--mute)}
+body{background:var(--bg) radial-gradient(circle at 10% 0,rgba(138,106,18,.08),transparent 40%)}
+header{background:linear-gradient(135deg,#0b5a30,#12804a 55%,#0b4a28);position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.2);border-bottom:4px solid #c9a227}
+header::before{content:"";position:absolute;inset:0;opacity:.13;background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 22px),repeating-linear-gradient(-45deg,#fff 0 1px,transparent 1px 22px)}
+header .wrap{position:relative}.hd{font-size:24px;color:#f0dc9a;margin:0 0 6px}
+.ar2{display:block;font-family:Amiri,"Traditional Arabic",serif;direction:rtl;text-align:left;font-size:13px;opacity:.85;font-weight:400;line-height:1.5}
+.tx{flex:1}.cat small{display:block}.cat{box-shadow:0 2px 6px rgba(0,0,0,.07);transition:transform .15s,box-shadow .15s,border-color .15s}
+.cat:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,.13)}.cat.dis{opacity:.55;cursor:default}.cat.dis:hover{transform:none;box-shadow:none}
+.cat.kl{border-color:#555}.cat.kl .n{background:#222}.n{box-shadow:0 0 0 4px rgba(201,162,39,.25);font-size:18px}
+.face{box-shadow:0 10px 26px rgba(0,0,0,.12)}.b{transition:transform .1s}.b:active{transform:scale(.96)}
+.nav small{font-size:11px;color:#fff;text-align:center}.hint small{margin-top:4px}
+.bk{border-color:#6b6b6b!important}.face.bk,.dr.bk,.tc.bk{background:#1b1b1b;color:#fff}.tc.bk small,.dr.bk small{color:#bbb}
+.ft{text-align:center;color:var(--mute);padding:26px 0;font-size:22px}
+.wel{font-size:24px;font-weight:700;color:#f0dc9a;margin:0 0 12px}.wel small{color:#fff;font-weight:400}
+.ac{display:block;padding:5px 0}.ac input{width:auto;margin:0 10px 0 0}details{margin:10px 0}summary{cursor:pointer}
 </style></head><body>
-<header><div class="wrap"><h1>Карточки лексики к срезу 1</h1><p>Выберите категорию и проверьте себя.</p><div id="nav" class="nav" hidden></div></div></header>
+<header><div class="wrap"><div id="wel" class="wel" hidden></div><h1>Карточки лексики к срезу 1</h1><div class="ar hd">بِطَاقَاتُ مُفْرَدَاتِ الاِخْتِبَارِ الأَوَّلِ</div><p>Выберите категорию и проверьте себя.<small class="ar2" style="color:#fff">اِخْتَرِ القِسْمَ وَاخْتَبِرْ نَفْسَكَ</small></p><div id="nav" class="nav" hidden></div></div></header>
 <main class="wrap">
-<div id="login" class="lg"><p>Введи своё имя латиницей:</p><input id="nm" autocapitalize="off" autocomplete="off" placeholder="Dima, Grisha, Misha…"><button class="b ok" id="go" style="width:100%">Войти</button><p id="err" class="er"></p></div>
+<div id="login" class="lg"><p>Введи своё имя латиницей:<small class="ar2">اُكْتُبِ اسْمَكَ بِالحُرُوفِ اللَّاتِينِيَّةِ</small></p><input id="nm" autocapitalize="off" autocomplete="off" placeholder="Имя"><button class="b ok" id="go" style="width:100%">Войти<small class="ar2" style="text-align:center">دُخُولٌ</small></button><p id="err" class="er"></p></div>
 <div id="menu" class="menu" hidden></div>
-<div id="dict" hidden><input id="dq" placeholder="Поиск: арабский или русский"><div id="dres"></div></div>
-<div id="teach" hidden><h2>Успеваемость</h2><p id="tn" class="mu"></p><div id="tl"></div><details><summary>Вставить код ученика</summary><textarea id="ic" rows="3"></textarea><button class="b" id="ib">Добавить</button></details></div>
+<div id="dict" hidden><h2>Словарь<small class="ar2">القَامُوسُ</small></h2><input id="dq" placeholder="Поиск: арабский или русский"><div id="dres"></div></div>
+<div id="teach" hidden><h2>Успеваемость<small class="ar2">التَّحْصِيلُ الدِّرَاسِيُّ</small></h2><p id="tn" class="mu"></p><details><summary><b>Доступ для учеников</b></summary><div id="acc"></div></details><div id="tsum"></div><select id="ts" style="width:auto;padding:8px"><option value="a">По активности</option><option value="p">По точности</option><option value="e">По числу ошибок</option></select> <button class="b" id="csv" style="padding:8px 12px">Скопировать таблицу</button><div id="tk"></div><div id="tl"></div><details><summary>Вставить код ученика</summary><textarea id="ic" rows="3"></textarea><button class="b" id="ib">Добавить</button></details></div>
 <div id="study" hidden>
- <div class="top"><button class="lnk" id="back">← Категории</button><button class="lnk" id="dir"></button></div>
+ <div class="top"><button class="lnk" id="back">← Категории<small class="ar2">الأَقْسَامُ</small></button><button class="lnk" id="dir"></button></div>
  <h2 id="ct"></h2>
  <div class="bar"><i id="pb"></i></div>
  <div class="meta"><span id="pos"></span><span id="sc"></span></div>
  <div class="flip"><button class="face" id="face" aria-live="polite"></button></div>
- <div class="row"><button class="b" id="no">Ещё раз</button><button class="b ok" id="yes">Знаю</button></div>
- <div class="tools"><button class="lnk" id="shuf">Перемешать</button><button class="lnk" id="prev">Назад</button><button class="lnk" id="restart">Сначала</button></div>
+ <div class="row"><button class="b" id="no">Ещё раз<small class="ar2" style="text-align:center">مَرَّةً أُخْرَى</small></button><button class="b ok" id="yes">Знаю<small class="ar2" style="text-align:center">أَعْرِفُ</small></button></div>
+ <div class="tools"><button class="lnk" id="shuf">Перемешать<small class="ar2">خَلْطٌ</small></button><button class="lnk" id="prev">Назад<small class="ar2">السَّابِقُ</small></button><button class="lnk" id="restart">Сначала<small class="ar2">مِنَ البِدَايَةِ</small></button></div>
 </div>
 <div id="end" class="done" hidden><div class="big" id="endn"></div><p id="endt"></p><div class="row" id="endrow"><button class="b" id="again">Повторить сначала</button><button class="b ok" id="miss">Только ошибки</button></div><p><button class="lnk" id="back2">← Категории</button></p></div>
-</main>
+</main><div class="ft ar">العِلْمُ نُورٌ</div>
 <script>
 const C=[
 ["Глаголы, подобные правильным","первая слабая (мисаль)",
@@ -325,9 +339,9 @@ const X=[
 const $=i=>document.getElementById(i);
 let cat,deck,i,flipped,know,rev=false,full;
 const IDX={},ALLW=[];[...C,...X].forEach(c=>c.w.forEach(w=>{if(!IDX[w.a]){IDX[w.a]=w.r;ALLW.push(w)}}));
-const NAMES={dima:"Дима",grisha:"Гриша",misha:"Миша",egor:"Егор",nikita:"Никита",arman:"Арман",polina:"Полина",kristina:"Кристина",nastya:"Настя",slava:"Слава",ustaz:"Устаз"};
+const NAMES={dima:"Дима",grisha:"Гриша",misha:"Миша",egor:"Егор",nikita:"Никита",arman:"Арман",madina228:"Полина",kristina:"Кристина",nastya:"Настя",slava:"Слава",ustaz:"Устаз"};
 const AL={yegor:"egor",nastia:"nastya",dimka:"dima"},TEACH="ustaz";
-let me=null,S=null,miss={},DB=null,pt,live={},unsub;
+let me=null,S=null,miss={},DB=null,pt,live={},unsub,L={};
 const FB="https://arabic-819da-default-rtdb.firebaseio.com";/* URL Firebase Realtime Database, напр. https://xxx-default-rtdb.europe-west1.firebasedatabase.app */
 const enc=k=>k.replace(/[.$#\[\]\/%]/g,c=>"%"+c.charCodeAt(0).toString(16).padStart(2,"0")),dec=k=>k.replace(/%([0-9a-f]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));
 const mapk=(o,f)=>{const r={};for(const k in o||{})r[f(k)]=o[k];return r};
@@ -338,42 +352,74 @@ collection:p=>({onSnapshot:(f,er)=>{const go=async()=>{try{const d=(await(await 
 const dbp=(async()=>{try{DB=window.claude?await claude.use("db"):null}catch(e){}if(!DB&&FB)DB=restDB(FB)})();
 const blank=()=>({t:{n:0,ok:0,last:0},c:{},w:{},m:{}});
 const ld=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
-const st=a=>{const w=S&&S.w[a];return !w?"":w.x>=3?"rd":w.x>=1?"yl":w.r>0?"gn":""};
+const cl=w=>!w?"":w.x>5?"bk":w.x>=3?"rd":w.x>=1?"yl":w.r>0?"gn":"";const st=a=>cl(S&&S.w[a]);
 function push(){if(!DB||!me||me===TEACH)return;clearTimeout(pt);pt=setTimeout(()=>{try{DB.doc("progress/"+me).set(S).catch(()=>{})}catch(e){}},800)}
 const save=()=>{if(!me||me===TEACH)return;S.m=miss;S.t.last=Date.now();try{localStorage.setItem("p_"+me,JSON.stringify(S))}catch(e){}push()};
 function rec(d,ok){const w=S.w[d.a]||(S.w[d.a]={r:0,x:0});ok?w.r++:w.x++;S.t.n++;if(ok)S.t.ok++;const c=S.c[cat.t]||(S.c[cat.t]={n:0,ok:0});c.n++;if(ok)c.ok++}
 let mm=false;
 const menu=$("menu");let cur=C;
-function mk(h,f){const b=document.createElement("button");b.className="cat";b.innerHTML=h;b.onclick=f;menu.appendChild(b)}
-function home(){cur=C;menu.innerHTML="";C.forEach((c,k)=>mk(`<span class="n">${k+1}</span><span><b>${c.t}</b><small>${c.s||"карточки"}</small></span><span class="cnt">${c.w.length}</span>`,()=>open(k)));
-mk(`<span class="n">+</span><span><b>Дополнительное</b><small>4 набора</small></span><span class="cnt">${X.reduce((a,c)=>a+c.w.length,0)}</span>`,extra);
-mk(`<span class="n">!</span><span><b>Слова, которые вьебал</b><small>слово уходит после 3 верных ответов подряд</small></span><span class="cnt">${Object.keys(miss).length}</span>`,openMiss);
-if(me&&me!==TEACH&&!DB)mk(`<span class="n">↗</span><span><b>Код прогресса для учителя</b><small>скопируй и отправь учителю</small></span>`,()=>{const c=btoa(unescape(encodeURIComponent(JSON.stringify({...S,me}))));navigator.clipboard?navigator.clipboard.writeText(c).then(()=>alert("Код скопирован — отправь учителю"),()=>prompt("Скопируй код:",c)):prompt("Скопируй код:",c)})}
-function extra(){cur=X;menu.innerHTML="";mk(`<span><b>← Все категории</b></span>`,home);X.forEach((c,k)=>mk(`<span class="n">${k+1}</span><span><b>${c.t}</b><small>${c.s}</small></span><span class="cnt">${c.w.length}</span>`,()=>open(k)))}
+const D={"Срез 1: 1 и 2 урок":"الاِخْتِبَارُ الأَوَّلُ: الدَّرْسُ الأَوَّلُ وَالثَّانِي","Срез 2":"الاِخْتِبَارُ الثَّانِي","Слова-убийцы":"كَلِمَاتٌ قَاتِلَةٌ","Слова, которые вьебал":"كَلِمَاتٌ لَمْ أَحْفَظْهَا","Дополнительное":"إِضَافِيٌّ","← Назад":"رُجُوعٌ","Карточки":"البِطَاقَاتُ","Словарь":"القَامُوسُ","Учитель":"المُعَلِّمُ","Выйти":"خُرُوجٌ",
+"Глаголы, подобные правильным":"الأَفْعَالُ المِثَالُ","Правильные глаголы":"الأَفْعَالُ الصَّحِيحَةُ","Существительные и прилагательные":"الأَسْمَاءُ وَالصِّفَاتُ","Фразы и выражения":"العِبَارَاتُ وَالتَّعْبِيرَاتُ","Масдары глаголов, подобных правильным":"مَصَادِرُ الأَفْعَالِ المِثَالِ","Причастия глаголов, подобных правильным":"المُشْتَقَّاتُ مِنَ المِثَالِ","Остальные причастия":"بَاقِي المُشْتَقَّاتِ",
+"Все глаголы":"كُلُّ الأَفْعَالِ","Слова 34-37":"كَلِمَاتُ الصَّفَحَاتِ ٣٤-٣٧","Сноски":"الحَوَاشِي","Слова из текстов":"كَلِمَاتٌ مِنَ النُّصُوصِ"};
+const lk=k=>me!==TEACH&&L[k];
+function mi(k,h,f,c){lk(k)?mk(h.replace(/<span class="cnt">[^<]*<\/span>$/,'<span class="cnt">🔒</span>'),0,"dis "+(c||"")):mk(h,f,c)}
+function mk(h,f,c){const b=document.createElement("button");b.className="cat "+(c||"");b.innerHTML=h;if(f)b.onclick=f;else b.disabled=true;menu.appendChild(b)}
+const U=(n,ru,sub,cnt)=>`<span class="n">${n}</span><span class="tx"><b>${ru}</b><small class="ar2">${D[ru]||""}</small>${sub?`<small>${sub}</small>`:""}</span><span class="cnt">${cnt}</span>`;
+const BK=()=>`<span class="tx"><b>← Назад</b><small class="ar2">${D["← Назад"]}</small></span>`;
+const kn=()=>S?ALLW.filter(w=>(S.w[w.a]||{}).x>5).length:0;
+function home(){cur=0;menu.innerHTML="";
+mi("s1",U("📘","Срез 1: 1 и 2 урок","все слова уроков 1-2",ALLW.length),s1);
+mk(U("📙","Срез 2","","скоро"),0,"dis");
+mi("kill",U("☠️","Слова-убийцы","ошибся больше 5 раз",kn()),openKill,"kl");
+if(me&&me!==TEACH&&!DB)mk(`<span class="n">↗</span><span class="tx"><b>Код прогресса для учителя</b><small>скопируй и отправь учителю</small></span>`,()=>{const c=btoa(unescape(encodeURIComponent(JSON.stringify({...S,me}))));navigator.clipboard?navigator.clipboard.writeText(c).then(()=>alert("Код скопирован — отправь учителю"),()=>prompt("Скопируй код:",c)):prompt("Скопируй код:",c)})}
+function s1(){cur=C;menu.innerHTML="";mk(BK(),home);C.forEach((c,k)=>mi("c"+k,U(k+1,c.t,c.s,c.w.length),()=>open(k)));
+mi("ex",U("+","Дополнительное","4 набора",X.reduce((a,c)=>a+c.w.length,0)),extra);
+mi("miss",U("!","Слова, которые вьебал","3 верных подряд, чтобы ушло",Object.keys(miss).length),openMiss)}
+function extra(){cur=X;menu.innerHTML="";mk(BK(),s1);X.forEach((c,k)=>mi("x"+k,U(k+1,c.t,c.s,c.w.length),()=>open(k)))}
+function openKill(){cur=0;const w=ALLW.filter(x=>(S.w[x.a]||{}).x>5);if(!w.length){endMsg("Пока нет слов-убийц","Сюда попадают слова, в которых ошибся больше 5 раз.",0);return}
+cat={t:"Слова-убийцы"};full=w;start(full)}
 home();
 function show(id){["login","menu","study","end","dict","teach"].forEach(x=>$(x).hidden=x!==id);navr(id)}
-function navr(id){const n=$("nav");n.hidden=!me;if(!me)return;n.innerHTML="";const b=(l,f,on)=>{const e=document.createElement("button");e.textContent=l;if(on)e.className="on";e.onclick=f;n.appendChild(e)};
+function navr(id){const n=$("nav"),w=$("wel");w.hidden=!me;if(me)w.innerHTML=`Добро пожаловать, ${NAMES[me]}!<small class="ar2">أَهْلًا وَسَهْلًا</small>`;n.hidden=!me;if(!me)return;n.innerHTML="";const b=(l,f,on)=>{const e=document.createElement("button");e.innerHTML=l+`<small class="ar2">${D[l]||""}</small>`;if(on)e.className="on";e.onclick=f;n.appendChild(e)};
 if(me===TEACH)b("Учитель",teachv,id==="teach");
-b("Карточки",()=>{home();show("menu")},["menu","study","end"].includes(id));b("Словарь",dictv,id==="dict");b("Выйти ("+NAMES[me]+")",logout)}
+b("Карточки",()=>{home();show("menu")},["menu","study","end"].includes(id));if(!lk("dict"))b("Словарь",dictv,id==="dict");b("Выйти",logout)}
 const nz=t=>t.replace(/[\u064B-\u065F\u0670\u0640]/g,"").replace(/[أإآ]/g,"ا").toLowerCase();
 function dsr(q){q=nz(q.trim());const r=ALLW.filter(w=>!q||nz(w.a).includes(q)||w.r.toLowerCase().includes(q)).slice(0,100);$("dres").innerHTML=r.map(w=>`<div class="dr ${me===TEACH?"":st(w.a)}"><div class="ar big2">${w.a}</div><div>${w.r}</div></div>`).join("")||"<p>Ничего не найдено</p>"}
 function dictv(){show("dict");$("dq").value="";dsr("")}
 $("dq").oninput=e=>dsr(e.target.value);
 const imp=()=>ld("imp")||{};
-function teachv(){show("teach");if(DB&&!unsub)try{unsub=DB.collection("progress").onSnapshot(q=>{live={};q.docs.forEach(d=>live[d.id]=d.data());if(!$("teach").hidden)rt()},()=>{})}catch(e){}rt()}
-function rt(){$("tn").textContent=DB?"Данные учеников приходят автоматически.":"Живой связи нет: добавь код каждого ученика ниже.";const im=imp();let h="";
-Object.keys(NAMES).forEach(k=>{if(k===TEACH)return;const c=[live[k],im[k],ld("p_"+k)].filter(x=>x&&x.t).sort((a,b)=>b.t.last-a.t.last)[0];
-if(!c||!c.t.n){h+=`<div class="tc"><b>${NAMES[k]}</b> — пока ничего не делал</div>`;return}
-const ws=Object.entries(c.w||{});let r=0,y=0,g=0;ws.forEach(([a,w])=>{w.x>=3?r++:w.x>=1?y++:g++});
-const top=ws.filter(e=>e[1].x>0).sort((a,b)=>b[1].x-a[1].x).slice(0,5).map(([a,w])=>`<li><span class="ar">${a}</span> — ${IDX[a]||""} <b>×${w.x}</b></li>`).join("");
-h+=`<div class="tc ${r?"rd":y?"yl":"gn"}"><b>${NAMES[k]}</b> · ${new Date(c.t.last).toLocaleString("ru-RU")}<br>Ответов: ${c.t.n}, верно ${Math.round(c.t.ok/c.t.n*100)}%<br>🟥 ${r} 🟨 ${y} 🟩 ${g} · в «вьебал»: ${Object.keys(c.m||{}).length}<br><small>${Object.entries(c.c||{}).map(([t,v])=>t+": "+v.n).join(" · ")}</small>${top?"<br>Проблемные слова:<ul>"+top+"</ul>":""}</div>`});
+async function loadLocks(){if(!DB){L=ld("locks")||{};return}try{const q=await DB.doc("config/locks").get();L=(q.exists&&q.data().closed)||{}}catch(e){}}
+function saveL(){try{localStorage.setItem("locks",JSON.stringify(L))}catch(e){}if(DB)try{DB.doc("config/locks").set({closed:L}).catch(()=>{})}catch(e){}}
+const ITEMS=()=>[["s1","Срез 1: 1 и 2 урок"],...C.map((c,k)=>["c"+k,"— "+c.t]),["ex","— Дополнительное"],...X.map((c,k)=>["x"+k,"—— "+c.t]),["miss","— Слова, которые вьебал"],["kill","Слова-убийцы"],["dict","Словарь"]];
+function ra(){$("acc").innerHTML=ITEMS().map(([k,t])=>`<label class="ac"><input type="checkbox" data-l="${k}" ${L[k]?"":"checked"}>${t}</label>`).join("")+`<p class="mu">Галочка — пункт открыт для учеников. ${DB?"Изменения доходят до учеников в течение 15 секунд.":"Общей базы нет: настройка действует только на этом устройстве."}</p>`}
+$("acc").onchange=e=>{const k=e.target.dataset.l;if(!k)return;e.target.checked?delete L[k]:L[k]=1;saveL()};
+function teachv(){show("teach");ra();if(DB&&!unsub)try{unsub=DB.collection("progress").onSnapshot(q=>{live={};q.docs.forEach(d=>live[d.id]=d.data());if(!$("teach").hidden)rt()},()=>{})}catch(e){}rt()}
+const getS=k=>[live[k],imp()[k],ld("p_"+k)].filter(x=>x&&x.t).sort((a,b)=>b.t.last-a.t.last)[0];
+const ago=t=>{if(!t)return"никогда";const d=(Date.now()-t)/864e5;return d<1?"сегодня":Math.floor(d)+" дн. назад"};
+const sm=c=>{let r=0,y=0,g=0,k=0;Object.values(c.w||{}).forEach(w=>{w.x>5?k++:w.x>=3?r++:w.x>=1?y++:g++});return{r,y,g,k}};
+const cpy=t=>navigator.clipboard?navigator.clipboard.writeText(t).then(()=>alert("Скопировано"),()=>prompt("Скопируй:",t)):prompt("Скопируй:",t);
+function rt(){$("tn").textContent=DB?"Данные учеников приходят автоматически.":"Живой связи нет: добавь код каждого ученика ниже.";
+const rows=Object.keys(NAMES).filter(k=>k!==TEACH).map(k=>({k,c:getS(k)})),v=$("ts").value,acc=c=>c&&c.t.n?c.t.ok/c.t.n:-1,bad=c=>c?sm(c).r+sm(c).k:0;
+rows.sort((a,b)=>v==="p"?acc(a.c)-acc(b.c):v==="e"?bad(b.c)-bad(a.c):(b.c?b.c.t.last:0)-(a.c?a.c.t.last:0));
+const act=rows.filter(r=>r.c&&r.c.t.n),tn=act.reduce((a,r)=>a+r.c.t.n,0),to=act.reduce((a,r)=>a+r.c.t.ok,0),now=Date.now();
+const idle=rows.filter(r=>!r.c||!r.c.t.n||now-r.c.t.last>3*864e5).map(r=>NAMES[r.k]);
+$("tsum").innerHTML=`<div class="tc"><b>Класс</b><br>Занимались: ${act.length} из ${rows.length} · ответов: ${tn} · верно ${tn?Math.round(to/tn*100):0}% · за сутки: ${act.filter(r=>now-r.c.t.last<864e5).length}${idle.length?`<br>⚠ Не занимались 3+ дня: ${idle.join(", ")}`:""}</div>`;
+const ag={};act.forEach(r=>Object.entries(r.c.w||{}).forEach(([a,w])=>ag[a]=(ag[a]||0)+w.x));
+const tw=Object.entries(ag).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+$("tk").innerHTML=tw.length?`<div class="tc"><b>Самые сложные слова класса</b><ol>${tw.map(([a,x])=>`<li><span class="ar">${a}</span> — ${IDX[a]||""} <b>×${x}</b></li>`).join("")}</ol></div>`:"";
+let h="";rows.forEach(({k,c})=>{if(!c||!c.t.n){h+=`<div class="tc"><b>${NAMES[k]}</b> ⚠ пока ничего не делал</div>`;return}
+const s=sm(c),p=Math.round(c.t.ok/c.t.n*100),ws=Object.entries(c.w||{}).filter(e=>e[1].x>0).sort((a,b)=>b[1].x-a[1].x),li=e=>`<li><span class="ar">${e[0]}</span> — ${IDX[e[0]]||""} <b>×${e[1].x}</b></li>`;
+h+=`<div class="tc ${s.k?"bk":s.r?"rd":s.y?"yl":"gn"}"><b>${NAMES[k]}</b> ${now-c.t.last>3*864e5?"⚠ ":""}· ${ago(c.t.last)}<br>Ответов: ${c.t.n}, верно ${p}%<div class="bar"><i style="width:${p}%"></i></div>⬛ ${s.k} 🟥 ${s.r} 🟨 ${s.y} 🟩 ${s.g} · в «вьебал»: ${Object.keys(c.m||{}).length}<br><small>${Object.entries(c.c||{}).map(([t,x])=>t+": "+x.n).join(" · ")}</small>${ws.length?"<br>Проблемные слова:<ul>"+ws.slice(0,5).map(li).join("")+"</ul>":""}${ws.length>5?`<details><summary>Все слова с ошибками (${ws.length})</summary><ul>${ws.map(li).join("")}</ul></details>`:""}<button class="lnk" data-k="${k}">Сбросить прогресс</button></div>`});
 $("tl").innerHTML=h}
+$("ts").onchange=rt;
+$("csv").onclick=()=>{const r=[["Имя","Ответов","Верно %","Последний вход","Чёрных","Красных","Жёлтых","Зелёных"]];Object.keys(NAMES).filter(k=>k!==TEACH).forEach(k=>{const c=getS(k);if(!c||!c.t.n){r.push([NAMES[k],0,"","",0,0,0,0]);return}const s=sm(c);r.push([NAMES[k],c.t.n,Math.round(c.t.ok/c.t.n*100),new Date(c.t.last).toLocaleString("ru-RU"),s.k,s.r,s.y,s.g])});cpy(r.map(x=>x.join(";")).join("\n"))};
+$("tl").onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k||!confirm("Сбросить прогресс: "+NAMES[k]+"?"))return;try{localStorage.removeItem("p_"+k);const i=imp();delete i[k];localStorage.setItem("imp",JSON.stringify(i))}catch(x){}delete live[k];const z=blank();z.t.last=Date.now();if(DB)try{DB.doc("progress/"+k).set(z).catch(()=>{})}catch(x){}rt()};
 $("ib").onclick=()=>{try{const d=JSON.parse(decodeURIComponent(escape(atob($("ic").value.trim()))));if(!NAMES[d.me]||d.me===TEACH)throw 0;const i=imp();i[d.me]=d;localStorage.setItem("imp",JSON.stringify(i));$("ic").value="";rt()}catch(e){alert("Код не подошёл")}};
-$("go").onclick=()=>{let k=$("nm").value.trim().toLowerCase();k=AL[k]||k;if(!NAMES[k]){$("err").textContent="Нет такого имени. Пиши латиницей: Dima, Grisha, Misha, Egor, Nikita, Arman, Polina, Kristina, Nastya, Slava";return}$("err").textContent="";login(k)};
+$("go").onclick=()=>{let k=$("nm").value.trim().toLowerCase();k=AL[k]||k;if(!NAMES[k]){$("err").textContent="Такого ученика нет";return}$("err").textContent="";login(k)};
 $("nm").onkeydown=e=>{if(e.key==="Enter")$("go").click()};
 async function login(k){me=k;await Promise.race([dbp,new Promise(r=>setTimeout(r,2500))]);S=ld("p_"+k)||blank();
 if(DB&&k!==TEACH)try{const q=await DB.doc("progress/"+k).get();const d=q.exists&&q.data();if(d&&d.t&&d.t.last>S.t.last)S=d}catch(e){}
-S.w=S.w||{};S.c=S.c||{};miss=S.m||(S.m={});try{localStorage.setItem("me",JSON.stringify(k))}catch(e){}
+await loadLocks();S.w=S.w||{};S.c=S.c||{};miss=S.m||(S.m={});try{localStorage.setItem("me",JSON.stringify(k))}catch(e){}
 home();k===TEACH?teachv():show("menu")}
 function logout(){try{localStorage.removeItem("me")}catch(e){}me=null;S=null;miss={};$("nm").value="";show("login")}
 function open(k){cat=cur[k];full=cat.w.slice();start(full)}
@@ -389,7 +435,7 @@ function draw(){
  const ar=`<div class="big ar">${d.a}</div>`,ru=`<div class="ru">${d.r}</div>`;
  const q=rev?ru:ar,a=rev?ar:ru;
  f.className="face"+(flipped?" ans ":" ")+st(d.a);
- f.innerHTML=flipped?a:q+`<div class="hint">Нажмите, чтобы увидеть ответ</div>`;
+ f.innerHTML=flipped?a:q+`<div class="hint">Нажмите, чтобы увидеть ответ<small class="ar2" style="text-align:center">اُضْغَطْ لِرُؤْيَةِ الجَوَابِ</small></div>`;
  $("pb").style.width=(i/deck.length*100)+"%";
  $("pos").textContent=`${i+1} / ${deck.length}`;$("sc").textContent=mm?`Подряд: ${d.n||0} / 3`:`Знаю: ${know}`;
  $("dir").textContent=rev?"Русский → арабский":"Арабский → русский";
@@ -400,11 +446,12 @@ $("face").onclick=()=>{flipped=!flipped;draw()};
 $("yes").onclick=()=>{const d=deck[i];d.m=0;rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a]}save();next(1)};
 $("no").onclick=()=>{const d=deck[i];rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};save();next(0)};
 $("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
-$("back").onclick=$("back2").onclick=()=>{cur===X?extra():home();show("menu")};
+$("back").onclick=$("back2").onclick=()=>{cur===X?extra():cur===C?s1():home();show("menu")};
 $("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw()};
 $("prev").onclick=()=>{if(i>0){i--;flipped=false;draw()}};
 $("restart").onclick=()=>mm?openMiss():start(full);
 $("again").onclick=()=>start(full);
 $("miss").onclick=()=>{const m=deck.filter(d=>d.m);start(m)};
 show("login");{const m=ld("me");if(m&&NAMES[m])login(m)}
+setInterval(async()=>{if(!me||me===TEACH)return;const o=JSON.stringify(L);await loadLocks();if(o!==JSON.stringify(L)&&!$("menu").hidden)cur===X?extra():cur===C?s1():home()},15000);
 </script></body></html>
