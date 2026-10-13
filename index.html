@@ -133,6 +133,7 @@ h2{margin:6px 0 4px;font-size:22px;color:var(--sea2)}h2 small{font-size:15px;col
 .tsg .sgp{cursor:pointer;color:var(--gold);font-family:Manrope,sans-serif;font-size:13px;margin:0 3px 0 5px;vertical-align:middle;opacity:.85}.tsg .sgp:hover{opacity:1}
 #twtip{position:fixed;z-index:30;max-width:260px;background:var(--ink);color:var(--bg);font:14px/1.35 Manrope,sans-serif;padding:7px 10px;border-radius:10px;pointer-events:none;direction:ltr;box-shadow:0 4px 14px rgba(0,0,0,.25)}#twtip small{display:block;opacity:.65;font-size:11px;margin-top:2px}
 .trh{margin:22px 0 4px}.trb{line-height:1.7;font-size:16px}.trp{margin:0 0 12px}.tru{cursor:pointer;border-radius:5px;padding:1px 2px}.tru.has{border-bottom:1.5px dotted var(--gold)}.tru:hover{background:rgba(127,127,127,.14)}.tru.sel{background:var(--sea);color:#fff}.sg.hl{background:rgba(212,170,60,.28);border-radius:6px}.twr.trn{border-top:1px solid var(--line);padding-top:6px;margin-top:6px}
+.rd{margin:12px 0;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--card)}.rd summary{cursor:pointer}.rdb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}.rd audio{width:100%;margin:6px 0}#rdr .rrow{border-top:1px solid var(--line);padding:8px 0;cursor:pointer}.rrow .ar2{font-size:19px}.rst{display:inline-block;min-width:1.4em;text-align:center;border-radius:6px;padding:0 6px;margin-right:6px;font-size:13px;color:#fff}.rst.ok{background:#3a9a5b}.rst.minor{background:#c9921a}.rst.bad{background:#c0392b}.rst.missing{background:#888}.rrow ul{margin:4px 0 0 18px;padding:0}.rsc{font-size:22px;font-weight:700}.sg.rs-ok{box-shadow:inset 0 -3px #3a9a5b}.sg.rs-minor{box-shadow:inset 0 -3px #c9921a}.sg.rs-bad{box-shadow:inset 0 -3px #c0392b}.sg.rs-missing{box-shadow:inset 0 -3px #888}
 #twc{position:fixed;left:0;right:0;bottom:0;z-index:25;max-width:680px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(0,0,0,.18);max-height:55vh;overflow:auto;font-size:15px;line-height:1.45}
 #twc .twh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}#twc .twa{font-size:30px;line-height:1.5}#twc .twh .b{padding:6px 12px}#twc .twr{margin:4px 0}#twc bdi.ar2{display:inline;font-family:Amiri,"Traditional Arabic",serif;font-size:20px}#twc .twa{font-family:Amiri,"Traditional Arabic",serif}#twc .twn{margin-top:8px;font-size:13px;color:var(--mute);border-left:3px solid var(--gold);padding-left:8px}
 #txt.twopen{padding-bottom:260px}
@@ -4604,6 +4605,13 @@ const q=x=>/natural|neural|online|enhanced|premium|улучш/i.test(x.name)?0:1
 function txt1(t){tstop();show("txt");const g=$("txt");const segs=[];let bf="";for(const ch of t.x){if(ch==="|"||ch==="."){segs.push({t:bf.trim(),e:ch});bf=""}else bf+=ch}
 g.dataset.k=t.k;g.innerHTML=`<button class="lnk" id="tbk2">← Тексты</button><h2>${t.t}<small class="ar2">${D[t.t]||""}</small></h2><p class="mu">${t.s}. Перед «|» и в конце предложений слово в паузальной форме. <b>Наведите</b> курсор на слово — короткий перевод, <b>нажмите</b> — перевод и форма слова. Значок ▶ перед отрезком — читать с него (по умолчанию звучит запись преподавателя).</p>
 <div class="tpl"><button class="b ok" id="tpl">▶ Читать</button><button class="b" id="tpa">⏸ Пауза</button><button class="b" id="tst">■ Стоп</button><label for="trt">Темп <input id="trt" type="range" min="0.5" max="1.1" step="0.05" value="0.8"></label><label for="tvs">Голос <select id="tvs"></select></label>${AU[t.k]?'<label for="tsrc">Звук <select id="tsrc"><option value="rec">Запись преподавателя</option><option value="tts">Синтезатор</option></select></label><label for="tsp">Скорость записи <select id="tsp"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option></select></label>':""}</div>
+<details class="rd" id="rdet"><summary><b>🎙 Проверить моё чтение (ИИ)</b></summary>
+<p class="mu">Прочитайте текст вслух (весь или часть) по правилам паузального чтения: запишите голос или загрузите готовый файл. ИИ послушает и скажет, какие слова пропущены или заменены, где неверны огласовки и окончания, как звучат паузальные формы и трудные звуки. <b>ИИ может ошибаться в тонкостях произношения — это подсказка, а не оценка преподавателя.</b></p>
+<div class="rdb"><label for="rdf">Читаю отрезки с <select id="rdf"></select></label><label for="rdt">по <select id="rdt"></select></label></div>
+<div class="rdb"><button class="b ok" id="rdrec">● Записать</button><label class="b" for="rdfile" id="rdfl">Загрузить файл</label><input type="file" id="rdfile" accept="audio/*,.m4a,.mp3,.wav,.ogg,.webm,.aac,.flac" hidden></div>
+<audio id="rda" controls hidden></audio>
+<div class="rdb"><button class="b ok" id="rdc" disabled>Проверить с ИИ</button></div>
+<p class="mu" id="rdm"></p><div id="rdr"></div></details>
 <div class="vch" id="tvc"></div><p class="mu" id="tvm"></p><div class="tsg" id="tsg"></div><h3 class="trh">Перевод</h3><p class="mu">Нажмите на русское предложение — подсветится арабский отрезок, а внизу появится перевод и разбор сложных конструкций (отмечены пунктиром). Разбор подготовлен автоматически — сверяйтесь с учебником и преподавателем.</p><div class="trb" id="trb"></div><div id="twtip" hidden></div><div id="twc" hidden></div>
 <details><summary class="mu">Как получить более живой голос</summary><div class="gb mu">Голоса берутся с вашего устройства. Самые естественные — нейроголоса Hamed и Zariyah в браузере Microsoft Edge (в списке они помечены «Natural»): откройте сайт в Edge, и они появятся здесь. На iPhone можно скачать дополнительные арабские голоса: Настройки → Универсальный доступ → Устный контент → Голоса → Арабский.</div></details>`;
 $("tbk2").onclick=txtv;
@@ -4662,7 +4670,56 @@ window.__playSeg=n=>playRec(n,true);
 const go=n=>{if(recOn()){playRec(n,false);return}tstop();const id=TRUN;try{say(n,id)}catch(e){$("tvm").textContent="Этот браузер не поддерживает озвучку."}};
 $("tpl").onclick=()=>go(0);$("tst").onclick=tstop;
 $("tpa").onclick=()=>{const b=$("tpa");if(A&&window.__AON){if(!A.paused){A.pause();b.textContent="▶ Продолжить"}else{const p=A.play();if(p&&p.catch)p.catch(()=>{});b.textContent="⏸ Пауза"}return}
-try{if(speechSynthesis.paused){speechSynthesis.resume();b.textContent="⏸ Пауза"}else if(speechSynthesis.speaking){speechSynthesis.pause();b.textContent="▶ Продолжить"}}catch(e){}}}
+try{if(speechSynthesis.paused){speechSynthesis.resume();b.textContent="⏸ Пауза"}else if(speechSynthesis.speaking){speechSynthesis.pause();b.textContent="▶ Продолжить"}}catch(e){}}
+
+{let blob=null,mr=null,chunks=[],tmr=null,t0=0;const fr=$("rdf"),to=$("rdt"),rm=$("rdm");
+for(let i=1;i<=segs.length;i++){fr.add(new Option(i,i));to.add(new Option(i,i))}to.value=segs.length;
+const st=m=>{rm.textContent=m};
+const setBlob=b=>{blob=b;$("rda").src=URL.createObjectURL(b);$("rda").hidden=false;$("rdc").disabled=false;st("Запись готова ("+Math.round(b.size/1024)+" КБ). Прослушайте и нажмите «Проверить с ИИ».")};
+$("rdrec").onclick=async()=>{if(mr&&mr.state==="recording"){mr.stop();return}
+if(!navigator.mediaDevices||!window.MediaRecorder){st("Этот браузер не умеет записывать звук. Загрузите готовый файл.");return}
+tstop();try{const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+const mt=["audio/webm;codecs=opus","audio/mp4","audio/ogg;codecs=opus","audio/webm"].find(m=>MediaRecorder.isTypeSupported(m))||"";
+mr=new MediaRecorder(s,mt?{mimeType:mt}:undefined);chunks=[];
+mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+mr.onstop=()=>{s.getTracks().forEach(t=>t.stop());clearInterval(tmr);$("rdrec").textContent="● Записать";setBlob(new Blob(chunks,{type:mr.mimeType||mt||"audio/webm"}))};
+mr.start();t0=Date.now();$("rdrec").textContent="■ Остановить запись";tmr=setInterval(()=>st("Идёт запись… "+Math.floor((Date.now()-t0)/1000)+" с"),500)}
+catch(e){st("Нет доступа к микрофону. Разрешите его в настройках браузера или загрузите файл.")}};
+$("rdfile").onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>60e6){st("Файл слишком большой (больше 60 МБ).");return}setBlob(f);e.target.value=""};
+const toWav=async b=>{const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();let buf;
+try{buf=await ctx.decodeAudioData(await b.arrayBuffer())}catch(e){throw{code:"decode"}}finally{try{ctx.close()}catch(e){}}
+const dur=buf.duration;if(dur<1.5)throw{code:"short"};
+const rate=Math.min(16000,Math.floor(2.8e6/2/dur));if(rate<8000)throw{code:"long",dur};
+const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;const oc=new OC(1,Math.ceil(dur*rate),rate);const src=oc.createBufferSource();src.buffer=buf;src.connect(oc.destination);src.start();
+const out=(await oc.startRendering()).getChannelData(0);const n=out.length,ab=new ArrayBuffer(44+n*2),v=new DataView(ab);
+const ws=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i))};
+ws(0,"RIFF");v.setUint32(4,36+n*2,true);ws(8,"WAVE");ws(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);ws(36,"data");v.setUint32(40,n*2,true);
+for(let i=0;i<n;i++){const x=Math.max(-1,Math.min(1,out[i]));v.setInt16(44+i*2,x<0?x*32768:x*32767,true)}
+const bytes=new Uint8Array(ab);let bin="";for(let i=0;i<bytes.length;i+=8192)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));
+return{b64:btoa(bin),dur,rate}};
+const mk=(k)=>els.forEach(e=>e.classList.remove("rs-ok","rs-minor","rs-bad","rs-missing"));
+const lab={ok:"✓",minor:"~",bad:"✗",missing:"—"};
+const arh=h=>h.replace(/[\u0600-\u06FF\u0640]+(?:\s+[\u0600-\u06FF\u0640]+)*/g,m=>`<bdi dir="rtl" class="ar2">${m}</bdi>`);
+$("rdc").onclick=async()=>{if(!blob)return;const a=+fr.value,z=+to.value;if(z<a){st("Проверьте диапазон отрезков: «по» меньше «с».");return}
+if(!HWAPI){st("Проверка ИИ пока не подключена. Обратитесь к преподавателю.");return}
+$("rdc").disabled=true;$("rdr").innerHTML="";mk();
+try{st("Готовлю звук…");const w=await toWav(blob);
+const lst=segs.slice(a-1,z).map((q,i)=>`${a+i}. ${q.t}${q.e==="."?"  [конец предложения]":"  [пауза «|»]"}`).join("\n");
+const pr=`Ты — преподаватель арабского языка (современный литературный арабский). Студент-русскоговорящий записал чтение вслух арабского текста по правилам паузального чтения. Прослушай запись и сравни её с эталонным текстом, разбитым на пронумерованные отрезки (с полными огласовками):\n${lst}\n\nПравила эталона: в конце каждого отрезка (перед «|» и в конце предложения) слово читается в паузальной форме — без конечной короткой гласной и без танвина (напр. فِي الْجِيزَةِ → «аль-джиза»; конечное ـَة → «-ах»/«-а»); внутри отрезков окончания читаются полностью.\nДай оценку ТОЛЬКО по тому, что реально слышно. Не выдумывай ошибок: если фрагмент неразборчив, шумный или ты не уверен — так и пиши и ставь status "minor" с пометкой «неразборчиво». Отрезки, которых в записи нет, помечай "missing". Проверяй: пропущенные, добавленные или заменённые слова; неверные огласовки и падежные окончания; паузальные формы на границах отрезков; трудные звуки (ع ح خ غ ق ص ض ط ظ ث ذ), долготу гласных, шадду. Студент учится — будь точен и доброжелателен.\nОтветь СТРОГО одним JSON без markdown и без пояснений вне JSON:\n{"score":число 0-100,"summary":"2-3 предложения по-русски","segments":[{"n":номер отрезка,"status":"ok|minor|bad|missing","notes":["слово по-арабски с огласовками — что не так и как правильно (по-русски, кратко)"]}],"tips":["до 3 коротких советов по-русски"]}\nВключи в segments ВСЕ отрезки с ${a} по ${z}; для status "ok" notes пустой массив; максимум 2 заметки на отрезок, каждая до 160 символов.`;
+st("ИИ слушает запись, это может занять до минуты…");
+const r=await fetch(HWAPI,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({prompt:pr,image:w.b64,mime:"audio/wav",user:me})});
+if(!r.ok)throw{code:r.status===429?"limit":"http"};const j=await r.json();if(j.error&&!j.text)throw{code:"api"};
+let t=String(j.text||"").trim();const i=t.indexOf("{"),k=t.lastIndexOf("}");if(i<0||k<0)throw{code:"parse"};let d;try{d=JSON.parse(t.slice(i,k+1))}catch(e){throw{code:"parse"}}
+const ss=(d.segments||[]).filter(x=>x&&x.n>=a&&x.n<=z&&segs[x.n-1]);
+ss.forEach(x=>{const el=els[x.n-1];if(el)el.classList.add("rs-"+(lab[x.status]?x.status:"minor"))});
+const sc=Math.max(0,Math.min(100,Math.round(+d.score||0)));
+$("rdr").innerHTML=`<div class="rsc">${sc}/100</div><p>${esc(d.summary||"")}</p>`+ss.map(x=>{const stt=lab[x.status]?x.status:"minor";return `<div class="rrow" data-n="${x.n}"><span class="rst ${stt}">${lab[stt]}</span><span class="mu">${x.n}.</span> <bdi dir="rtl" class="ar2">${esc(segs[x.n-1].t)}</bdi>${(x.notes&&x.notes.length)?"<ul>"+x.notes.map(q=>`<li>${arh(esc(q))}</li>`).join("")+"</ul>":""}</div>`}).join("")+((d.tips&&d.tips.length)?`<p><b>Советы:</b></p><ul>${d.tips.map(q=>`<li>${arh(esc(q))}</li>`).join("")}</ul>`:"")+`<p class="mu">Проверка выполнена ИИ по звукозаписи (${Math.round(w.dur)} с). Возможны неточности — сверяйтесь с преподавателем и записью учителя выше.</p>`;
+st("Готово. Нажмите на отрезок в списке, чтобы найти его в тексте.")}
+catch(e){const c=e&&e.code;st(c==="decode"?"Не удалось прочитать звук. Загрузите mp3, m4a, wav или ogg.":c==="short"?"Запись слишком короткая.":c==="long"?"Запись слишком длинная ("+Math.round(e.dur)+" с). Проверяйте частями — выберите диапазон отрезков и запишите только его.":c==="limit"?"Лимит проверок на сегодня исчерпан. Попробуйте завтра.":c==="parse"?"ИИ вернул неполный ответ. Попробуйте проверить меньший фрагмент (например, 5–8 отрезков).":"Не удалось связаться с проверкой. Попробуйте позже.")}
+$("rdc").disabled=false};
+$("rdr").onclick=e=>{const r=e.target.closest(".rrow");if(!r)return;const n=+r.dataset.n-1;if(els[n])els[n].scrollIntoView({block:"center",behavior:"smooth"});mark(n);setTimeout(()=>mark(-1),1600)};
+const ob=$("tbk2").onclick;$("tbk2").onclick=()=>{try{if(mr&&mr.state==="recording")mr.stop()}catch(e){}ob()}}}
+
 
 show("login");{const m=ld("me");if(m&&NAMES[m])login(m)}
 setInterval(async()=>{if(!me)return;const ob=PB.join();await loadPB();const ch=await loadEdits();if(!isT(me)){await loadMyProps()}if(ch&&me!=="admin")afterEdit();if(ob!==PB.join()&&!$("study").hidden)draw();if(isT(me))return;const o=JSON.stringify(L);await loadLocks();if(o!==JSON.stringify(L)&&!$("menu").hidden)cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():(cur===C1||cur===C2||cur===C3)?pg(cur,curP):home()},15000);
