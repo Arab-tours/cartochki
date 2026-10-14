@@ -4580,7 +4580,7 @@ const SR=[["Сардарова: глаголы","III порода",`وَاجَه
 مُوَافِقٌ|одобряющий; соответствующий, благоприятный; подходящий, удобный; приемлемый
 مُوَاكِبٌ|сопровождающий (форма по модели §24 от وَاكَبَ)`]].map(P);
 const SRL=[["Глаголы","1"],["Масдары","2"],["Причастия","3"]];
-function sr(){cur=SR;menu.innerHTML="";mk(BK(),home);SR.forEach((c,k)=>mi("r"+k,U(SRL[k][1],SRL[k][0],"",c.w.length),()=>open(k)))}
+function sr(){cur=SR;menu.innerHTML="";mk(BK(),arch);SR.forEach((c,k)=>mi("r"+k,U(SRL[k][1],SRL[k][0],"",c.w.length),()=>open(k)))}
 const PY=[["Экскурсия: глаголы","слова для текста",`اِصْطَحَبَ · يَصْطَحِبُ · اِصْطِحَابًا|сопровождать
 كَرَّرَ · يُكَرِّرُ · تَكْرِيرًا|повторять; возобновлять; очищать, рафинировать; перегонять
 تَبِعَ · يَتْبَعُ · تَبَاعَةً، تَبَعًا|следовать, идти (за кем-л., чем-л.); подчиняться, принадлежать (чему-л., кому-л. لِـ)
@@ -4684,7 +4684,7 @@ const PY=[["Экскурсия: глаголы","слова для текста"
 سَلَامَةٌ|благополучие
 بِالسَّلَامَةِ|благополучно`]].map(P);
 const PYL=[["Все слова","3"],["Глаголы","1"],["Существительные, прилагательные, выражения","2"]],PYO=[2,0,1];
-function py(){cur=PY;menu.innerHTML="";mk(BK(),home);PYO.forEach((k,j)=>mi("y"+k,U(PYL[j][1],PYL[j][0],"",PY[k].w.length),()=>open(k)))}
+function py(){cur=PY;menu.innerHTML="";mk(BK(),arch);PYO.forEach((k,j)=>mi("y"+k,U(PYL[j][1],PYL[j][0],"",PY[k].w.length),()=>open(k)))}
 const IDX={};let ALLW=[];
 const WS=y=>{const seen={},r=[];(y===1?[...C1,...C2]:[...C,...X,...C1,...C2,...C3,...C4,...C5,...C6]).forEach(c=>c.w.forEach(w=>{if(!seen[w.a]){seen[w.a]=1;r.push(w)}}));return r};
 [...C,...X,...C1,...C2,...C3,...C4,...C5,...C6].forEach(c=>c.w.forEach(w=>{IDX[w.a]=IDX[w.a]||w.r}));ALLW=WS(2);
@@ -4706,7 +4706,7 @@ async function saveMyProps(){try{localStorage.setItem("props_"+me,JSON.stringify
 const canProp=()=>!!me&&!isT(me)&&me!=="admin"&&!PB.includes(me);
 const canEdit=()=>isT(me)||canProp();
 function openEd(w){if(!w||!canEdit())return;edW=w;const t=isT(me);$("edt").textContent=t?"Править слово":"Предложить правку учителю";$("ea").value=w.a;$("er").value=w.r;$("enw").hidden=t;$("edl").hidden=!t;$("esv").textContent=t?"Сохранить для всех":"Отправить учителю";$("em").textContent=t?"Изменение увидят все ученики в течение 15 секунд.":(DB?"":"Нет общей базы: предложение не дойдёт до учителя с другого устройства.");$("en").value="";$("ed").hidden=false}
-function afterEdit(){if(!$("study").hidden&&deck){deck=deck.map(d=>{const n=findW(d.o||d.a);if(!n)return null;const r={...n};if(d.m!=null)r.m=d.m;if(d.n!=null)r.n=d.n;return r}).filter(Boolean);if(cat&&cat.w)full=cat.w.slice();if(i>=deck.length)i=Math.max(0,deck.length-1);if(deck.length)draw();else home()}if(!$("dict").hidden)dsr();if(!$("menu").hidden&&typeof cur!=="undefined")cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()}
+function afterEdit(){if(!$("study").hidden&&deck){deck=deck.map(d=>{const n=findW(d.o||d.a);if(!n)return null;const r={...n};if(d.m!=null)r.m=d.m;if(d.n!=null)r.n=d.n;return r}).filter(Boolean);if(cat&&cat.w)full=cat.w.slice();if(i>=deck.length)i=Math.max(0,deck.length-1);if(deck.length)draw();else home()}if(!$("dict").hidden)dsr();if(!$("menu").hidden&&typeof cur!=="undefined")cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()}
 $("ecn").onclick=()=>{$("ed").hidden=true};
 $("esv").onclick=async()=>{const a=$("ea").value.trim(),r=$("er").value.trim(),o=edW.o||edW.a;if(!a||!r){$("em").textContent="Заполни оба поля";return}
 if(isT(me)){const i=E.findIndex(e=>e.o===o),e={o,a,r};i<0?E.push(e):E[i]=e;await saveEdits();applyEdits();$("ed").hidden=true;afterEdit();return}
@@ -4758,7 +4758,7 @@ const save=()=>{if(!me)return;S.m=miss;S.t.last=Date.now();try{localStorage.setI
 function rec(d,ok){const now=Date.now(),de=dayE(now);de.n++;if(ok)de.ok++;de.l=now;de.f=de.f||now;const ck=cat.t.replace(/[.$#\[\]\/]/g,"_");de.c[ck]=(de.c[ck]||0)+1;S.la=now;const w=S.w[d.a]||(S.w[d.a]={r:0,x:0});ok?w.r++:w.x++;S.t.n++;if(ok)S.t.ok++;const c=S.c[cat.t]||(S.c[cat.t]={n:0,ok:0});c.n++;if(ok)c.ok++}
 let mm=false;
 const menu=$("menu");let cur=C;
-const D={"Проверка ДЗ":"فَحْصُ الوَاجِبِ","Успеваемость":"التَّحْصِيلُ","Журнал":"السِّجِلُّ","Срез 1: 1 и 2 урок":"الاِخْتِبَارُ الأَوَّلُ: الدَّرْسُ الأَوَّلُ وَالثَّانِي","Срез 2":"الاِخْتِبَارُ الثَّانِي","Урок 3":"الدَّرْسُ الثَّالِثُ","Урок 4":"الدَّرْسُ الرَّابِعُ","Урок 5":"الدَّرْسُ الخَامِسُ","Урок 6":"الدَّرْسُ السَّادِسُ","Самостоятельная Сардаровой по 3 породе":"عَمَلٌ مُسْتَقِلٌّ: الصِّيغَةُ الثَّالِثَةُ","Масдары":"المَصَادِرُ","Грамматика":"القَوَاعِدُ","Проверка домашнего задания":"فَحْصُ الوَاجِبِ","Причастия":"اِسْمُ الفَاعِلِ","Слова-убийцы":"كَلِمَاتٌ قَاتِلَةٌ","Слова для повторения":"كَلِمَاتٌ لِلتَّكْرَارِ","Дополнительное":"إِضَافِيٌّ","← Назад":"رُجُوعٌ","Карточки":"البِطَاقَاتُ","Словарь":"القَامُوسُ","Учитель":"المُعَلِّمُ","Выйти":"خُرُوجٌ",
+const D={"Проверка ДЗ":"فَحْصُ الوَاجِبِ","Успеваемость":"التَّحْصِيلُ","Журнал":"السِّجِلُّ","Срез 1: 1 и 2 урок":"الاِخْتِبَارُ الأَوَّلُ: الدَّرْسُ الأَوَّلُ وَالثَّانِي","Срез 2":"الاِخْتِبَارُ الثَّانِي","Урок 3":"الدَّرْسُ الثَّالِثُ","Урок 4":"الدَّرْسُ الرَّابِعُ","Урок 5":"الدَّرْسُ الخَامِسُ","Урок 6":"الدَّرْسُ السَّادِسُ","Самостоятельная Сардаровой по 3 породе":"عَمَلٌ مُسْتَقِلٌّ: الصِّيغَةُ الثَّالِثَةُ","Масдары":"المَصَادِرُ","Грамматика":"القَوَاعِدُ","Проверка домашнего задания":"فَحْصُ الوَاجِبِ","Причастия":"اِسْمُ الفَاعِلِ","Сложные для меня слова":"كَلِمَاتِي الصَّعْبَةُ","Слова для повторения":"كَلِمَاتٌ لِلتَّكْرَارِ","Дополнительное":"إِضَافِيٌّ","← Назад":"رُجُوعٌ","Карточки":"البِطَاقَاتُ","Словарь":"القَامُوسُ","Учитель":"المُعَلِّمُ","Выйти":"خُرُوجٌ",
 "Глаголы, подобные правильным":"الأَفْعَالُ المِثَالُ","Правильные глаголы":"الأَفْعَالُ الصَّحِيحَةُ","Существительные и прилагательные":"الأَسْمَاءُ وَالصِّفَاتُ","Фразы и выражения":"العِبَارَاتُ وَالتَّعْبِيرَاتُ","Масдары глаголов, подобных правильным":"مَصَادِرُ الأَفْعَالِ المِثَالِ","Причастия глаголов, подобных правильным":"المُشْتَقَّاتُ مِنَ المِثَالِ","Остальные причастия":"بَاقِي المُشْتَقَّاتِ","Вводный курс":"الدَّوْرَةُ التَّمْهِيدِيَّةُ","Основной курс":"الدَّوْرَةُ الأَسَاسِيَّةُ","Новая лексика":"مُفْرَدَاتٌ جَدِيدَةٌ","Глаголы":"الأَفْعَالُ","Новые глаголы":"الأَفْعَالُ الجَدِيدَةُ","Слова из рамочек":"كَلِمَاتٌ مِنَ الإِطَارَاتِ","Слова из сносок":"كَلِمَاتٌ مِنَ الحَوَاشِي","Слова из текстов":"كَلِمَاتٌ مِنَ النُّصُوصِ","Слова из диалогов":"كَلِمَاتٌ مِنَ الحِوَارَاتِ","Слова из переводных предложений":"كَلِمَاتٌ مِنْ جُمَلِ التَّرْجَمَةِ","Словарь переводных предложений":"قَامُوسُ جُمَلِ التَّرْجَمَةِ",
 "Все глаголы":"كُلُّ الأَفْعَالِ","Слова 34-37":"كَلِمَاتُ الصَّفَحَاتِ ٣٤-٣٧","Сноски":"الحَوَاشِي","Слова из текстов":"كَلِمَاتٌ مِنَ النُّصُوصِ"};
 const lk=k=>!isT(me)&&me!=="admin"&&L[k];
@@ -4775,12 +4775,21 @@ let curP=0;
 const pn=c=>+/\d+/.exec(c.t)[0];
 const C4T={3:"بِضْعَةٌ",4:"صُورَةٌ",6:"страд. залог",7:"текст: экскурсия",8:"упражнения",9:"диалог, заметка",10:"в ресторане",11:"фразы в ресторане"};
 const C6T={1:"ذَاتٌ",2:"عَدَمٌ",3:"أَوَائِلُ، أَوَاسِطُ، أَوَاخِرُ",4:"لَا … إِلَّا",5:"давнопрошедшее",6:"مِثْلٌ",7:"текст 1",8:"текст 2",9:"погода",10:"заметка"};
+
+const DKV=C5[0].w,C57=C5.find(c=>c.t==="§ 7 · слова из рамочек").w,DKA=["إِيجَابٌ","إِيجَادٌ","إِيجَازٌ","إِيصَالٌ","إِيضَاحٌ","إِيفَادٌ","إِيقَاعٌ","إِيقَافٌ","إِيهَامٌ","إِيقَاظٌ"];
+const DKM=DKA.map(a=>C57.find(w=>w.a===a||w.a.startsWith(a+" · ")));
+const DK=[{t:"Диктант · глаголы и масдары вместе",s:"стр. 209 и 226",w:DKV.map((v,i)=>({a:v.a+" · "+DKA[i],r:v.r+'<br><span style="font-size:.62em;font-weight:500;color:var(--mute)">масдар: '+DKM[i].r+"</span>"}))},{t:"Диктант · глаголы",s:"стр. 209",w:DKV},{t:"Диктант · масдары",s:"стр. 226",w:DKM},{t:"Диктант · производные и выражения",s:"стр. 226–227",w:C57.filter(w=>!DKM.includes(w))}];
+const DKI=["⇄","ف","م","¶"],DKN=["Глаголы и масдары вместе","Глаголы","Масдары","Производные и выражения"];
+function dkv(){cur=DK;menu.innerHTML="";crumb([{t:"Карточки",f:()=>{home();show("menu")}},{t:"Диктант: IV порода"}]);menu.insertAdjacentHTML("beforeend",`<h2 class="pt">Диктант: IV порода<small>по учебнику, стр. 209 и 226</small></h2>`);
+DK.forEach((c,k)=>{const pc=c.w.length?Math.round(lrn(S,c)/c.w.length*100):0;mi("k"+k,U2(DKI[k],DKN[k],c.s+" · "+c.w.length+" сл.",pc+"%",pc),()=>open(k))})}
+function arch(){cur=0;menu.innerHTML="";crumb([{t:"Карточки",f:()=>{home();show("menu")}},{t:"Архив самостоятельных"}]);
+mi("sr",U("III","Самостоятельная Сардаровой по 3 породе","",SR.reduce((a,c)=>a+c.w.length,0)),sr);mi("py",U("٤","«Экскурсия на пирамиды» (слова для текста)","",PY[2].w.length),py)}
 const LISTS={C1,C2,C3,C4,C5,C6},LN={C1:"Вводный курс",C2:"Основной курс",C3:"Урок 3",C4:"Урок 4",C5:"Урок 5",C6:"Урок 6"};
 const lid=L1=>Object.keys(LISTS).find(k=>LISTS[k]===L1);
-const PFX=L1=>L1===C1?"v":L1===C2?"n":L1===C4?"d":L1===C5?"e":L1===C6?"f":"w";
+const PFX=L1=>L1===DK?"k":L1===C1?"v":L1===C2?"n":L1===C4?"d":L1===C5?"e":L1===C6?"f":"w";
 const lrn=(P,c)=>{const pw=(P&&P.w)||{};return c.w.reduce((a,w)=>a+((pw[w.a]||{}).r>0?1:0),0)};
 const pcOf=L1=>{const t=L1.reduce((a,c)=>a+c.w.length,0);return t?Math.round(L1.reduce((a,c)=>a+lrn(S,c),0)/t*100):0};
-const U2=(n,ru,sub,cnt,pc)=>`<span class="n">${/^\d+$/.test(n)?AD(n):n}</span><span class="tx"><b>${ru}</b>${sub?`<span class="sub">${esc(sub)}</span>`:""}${pc!=null?`<span class="pgr"><i style="width:${pc}%"></i></span>`:""}</span><span class="cnt pc">${cnt}</span>`;
+const U2=(n,ru,sub,cnt,pc)=>`<span class="n">${/^\d+$/.test(n)?AD(n):n}</span><span class="tx"><b>${ru}</b>${D[ru]?`<small class="ar2">${D[ru]}</small>`:""}${sub?`<span class="sub">${esc(sub)}</span>`:""}${pc!=null?`<span class="pgr"><i style="width:${pc}%"></i></span>`:""}</span><span class="cnt pc">${cnt}</span>`;
 function crumb(a){const d=document.createElement("div");d.className="crumb";a.forEach((x,i)=>{if(i)d.insertAdjacentHTML("beforeend","<i>›</i>");if(x.f){const b=document.createElement("button");b.textContent=x.t;b.onclick=x.f;d.appendChild(b)}else{const sp=document.createElement("span");sp.textContent=x.t;sp.style.cssText="color:var(--ink);font-weight:700";d.appendChild(sp)}});menu.appendChild(d)}
 const cty=c=>/переводн/.test(c.t)&&!/словарь/.test(c.t)?["⇄","Слова из переводных предложений"]:/словарь/.test(c.t)?["⇄","Словарь переводных предложений"]:/новые глаголы/.test(c.t)?["ف","Новые глаголы"]:/глаголы/.test(c.t)?["ف","Глаголы"]:/рамоч/.test(c.t)?["▢","Слова из рамочек"]:/сносок/.test(c.t)?["¹","Слова из сносок"]:/текстов/.test(c.t)?["¶","Слова из текстов"]:/диалог/.test(c.t)?["❝","Слова из диалогов"]:["+","Новая лексика"];
 const plab=(L1,n)=>L1===C1||L1===C2?(((L1===C1?GR1:GR2).find(r=>r[0]===+n))||[])[1]||"":L1===C3?(n<=8?"II порода":n<=16?"V порода":n<=24?"III порода":"VI порода"):L1===C4?(C4T[n]||""):L1===C5?(n<=8?"IV порода":n<=16?"VIII порода":n<=24?"X порода":"текст"):L1===C6?(C6T[n]||""):"";
@@ -4789,7 +4798,7 @@ Object.keys(g).forEach(n=>{const ws=g[n].reduce((a,k)=>a+L1[k].w.length,0),ln=g[
 function pg(L1,n){cur=L1;curP=n;menu.innerHTML="";crumb([{t:"Карточки",f:()=>{home();show("menu")}},{t:LN[lid(L1)]||"",f:()=>cs(L1)},{t:"§ "+n}]);
 const lb=plab(L1,n);menu.insertAdjacentHTML("beforeend",`<h2 class="pt">§ ${n}${lb?`<small>${esc(lb)}</small>`:""}</h2>`);
 L1.forEach((c,k)=>{if(pn(c)!==n)return;const ty=cty(c),pc=c.w.length?Math.round(lrn(S,c)/c.w.length*100):0;mi(PFX(L1)+k,U2(ty[0],ty[1],c.w.length+" сл.",pc+"%",pc),()=>open(k))})}
-function nextSet(){if(!Array.isArray(cur)||!lid(cur))return -1;let k=cur.indexOf(cat);if(k<0)return -1;for(k++;k<cur.length;k++)if(!lk(PFX(cur)+k))return k;return -1}
+function nextSet(){if(!Array.isArray(cur)||!(lid(cur)||cur===DK))return -1;let k=cur.indexOf(cat);if(k<0)return -1;for(k++;k<cur.length;k++)if(!lk(PFX(cur)+k))return k;return -1}
 /* ===== грамматика и проверка ДЗ ===== */
 const GR1=[
 [1,"Общие сведения об арабской графике","Письмо справа налево. 28 согласных букв; гласные — огласовки (фатха, кясра, дамма). Буква меняет форму: отдельно / в начале / в середине / в конце. Шесть букв (ا د ذ ر ز و) не соединяются со следующей буквой."],
@@ -5085,7 +5094,7 @@ const de=(S.d||{})[today],tn=de?de.n:0;let st=0;for(let i=tn?0:1;i<400;i++){cons
 const ch=[];ch.push(`<span class="chip">Сегодня: <b>${tn}</b> карт.</span>`);if(st)ch.push(`<span class="chip">Серия: <b>${st}</b> ${st%10===1&&st!==11?"день":st%10>=2&&st%10<=4&&(st<10||st>20)?"дня":"дней"}</span>`);const L0=prim.flat(),tw=L0.reduce((a,c)=>a+c.w.length,0),tl=L0.reduce((a,c)=>a+lrn(S,c),0);ch.push(`<span class="chip">Выучено: <b>${tl}</b> из ${tw}</span>`);
 if(tourOn())ch.push(`<button class="chip" id="tourbtn" style="cursor:pointer;color:var(--sea2);font-weight:700">? Как пользоваться</button>`);const sd=document.createElement("div");sd.className="stats";sd.innerHTML=ch.join("");{const tb=sd.querySelector("#tourbtn");if(tb)tb.onclick=()=>tourStart(true)}d.appendChild(sd);menu.appendChild(d)}
 function home1(){cur=0;menu.innerHTML="";if(!isT(me))dash();const t=(k,n,L1,i)=>L1.length?mi(k,U2(i,n,L1.reduce((a,x)=>a+x.w.length,0)+" слов",pcOf(L1)+"%",pcOf(L1)),()=>cs(L1),"t1"):mk(U(i,n,"","скоро"),0,"dis");
-t("v","Вводный курс",C1,"١");t("n","Основной курс",C2,"٢");mi("kill",U("☠","Слова-убийцы","",kn()),openKill,"kl");
+t("v","Вводный курс",C1,"١");t("n","Основной курс",C2,"٢");mi("kill",U("☠","Сложные для меня слова","",kn()),openKill,"kl");
 if(me&&!isT(me)&&!DB)mk(`<span class="n">↗</span><span class="tx"><b>Код прогресса для учителя</b></span>`,()=>{const c=btoa(unescape(encodeURIComponent(JSON.stringify({...S,me}))));navigator.clipboard?navigator.clipboard.writeText(c).then(()=>alert("Код скопирован"),()=>prompt("Скопируй код:",c)):prompt("Скопируй код:",c)})}
 function home(){if(yr(me)===1)return home1();cur=0;menu.innerHTML="";if(!isT(me))dash();
 mi("s1",U("١","Срез 1: 1 и 2 урок","",ownN()),s1);
@@ -5093,17 +5102,17 @@ mi("s2",U2("٣","Урок 3",C3.reduce((a,c)=>a+c.w.length,0)+" слов",pcOf(C
 mi("s4",U2("٤","Урок 4",C4.reduce((a,c)=>a+c.w.length,0)+" слов",pcOf(C4)+"%",pcOf(C4)),()=>cs(C4),"t1");
 mi("s5",U2("٥","Урок 5",C5.reduce((a,c)=>a+c.w.length,0)+" слов",pcOf(C5)+"%",pcOf(C5)),()=>cs(C5),"t1");
 mi("s6",U2("٦","Урок 6",C6.reduce((a,c)=>a+c.w.length,0)+" слов",pcOf(C6)+"%",pcOf(C6)),()=>cs(C6),"t1");
-mi("sr",U("III","Самостоятельная Сардаровой по 3 породе","",SR.reduce((a,c)=>a+c.w.length,0)),sr);
-mi("py",U("٤","«Экскурсия на пирамиды» (слова для текста)","",PY[2].w.length),py);
+mi("dk",U2("✎","Диктант: IV порода",DK.length+" набора · стр. 209 и 226",DK[1].w.length+DK[2].w.length+DK[3].w.length+" сл.",null),dkv,"t1");
+mi("arch",U("▤","Архив самостоятельных","",SR.reduce((a,c)=>a+c.w.length,0)+PY[2].w.length),arch);
 mk(U("٢","Срез 2","","скоро"),0,"dis");
-mi("kill",U("☠","Слова-убийцы","ошибся больше 5 раз",kn()),openKill,"kl");
+mi("kill",U("☠","Сложные для меня слова","ошибся больше 5 раз",kn()),openKill,"kl");
 if(me&&!isT(me)&&!DB)mk(`<span class="n">↗</span><span class="tx"><b>Код прогресса для учителя</b><small>скопируй и отправь учителю</small></span>`,()=>{const c=btoa(unescape(encodeURIComponent(JSON.stringify({...S,me}))));navigator.clipboard?navigator.clipboard.writeText(c).then(()=>alert("Код скопирован — отправь учителю"),()=>prompt("Скопируй код:",c)):prompt("Скопируй код:",c)})}
 function s1(){cur=C;menu.innerHTML="";mk(BK(),home);C.forEach((c,k)=>mi("c"+k,U(k+1,c.t,c.s,c.w.length),()=>open(k)));
 mi("ex",U("+","Дополнительное","4 набора",X.reduce((a,c)=>a+c.w.length,0)),extra);
 mi("miss",U("!","Слова для повторения","3 верных подряд, чтобы ушло",Object.keys(miss).length),openMiss)}
 function extra(){cur=X;menu.innerHTML="";mk(BK(),s1);X.forEach((c,k)=>mi("x"+k,U(k+1,c.t,c.s,c.w.length),()=>open(k)))}
-function openKill(){cur=0;const w=ALLW.filter(x=>(S.w[x.a]||{}).x>5);if(!w.length){endMsg("Пока нет слов-убийц","Сюда попадают слова, в которых ошибся больше 5 раз.",0);return}
-cat={t:"Слова-убийцы"};full=w;start(full)}
+function openKill(){cur=0;const w=ALLW.filter(x=>(S.w[x.a]||{}).x>5);if(!w.length){endMsg("Пока нет сложных слов","Сюда попадают слова, в которых ошибся больше 5 раз.",0);return}
+cat={t:"Сложные для меня слова"};full=w;start(full)}
 home();
 function show(id){if(id!=="txt"&&typeof tstop==="function"&&!$("txt").hidden)tstop();["login","menu","study","end","dict","teach","admin","gram","hw","txt","jrn","jrt"].forEach(x=>$(x).hidden=x!==id);navr(id)}
 function navr(id){const n=$("nav"),w=$("wel");w.hidden=!me;if(me)w.innerHTML=`Добро пожаловать, ${NAMES[me]}!<small class="ar2">أَهْلًا وَسَهْلًا</small>`;document.documentElement.dataset.year=me&&!isT(me)?yr(me):0;document.documentElement.dataset.role=me==="admin"?"admin":"";n.hidden=!me;$("hd").classList.toggle("hero",!me);$("lgg").hidden=!!me;if(!me){$("lgg").textContent=greet();const bb=$("btabs");if(bb){bb.classList.remove("on");document.body.classList.remove("hasbar");closeSheet()}return}n.innerHTML="";const IT=[];const b=(l,f,on)=>{const e=document.createElement("button");e.innerHTML=l+`<small class="ar2">${D[l]||""}</small>`;if(on)e.className="on";e.onclick=f;n.appendChild(e);IT.push({l,f,on})};
@@ -5196,8 +5205,8 @@ const OLD={madina228:"polina"};
 async function loadLocks(){if(!DB){L=ld(LP())||{};return}try{const q=await DB.doc(LP()).get();L=(q.exists&&q.data().closed)||{}}catch(e){}}
 function saveL(){try{localStorage.setItem(LP(),JSON.stringify(L))}catch(e){}if(DB)try{DB.doc(LP()).set({closed:L}).catch(()=>{})}catch(e){}}
 const ITEMS=()=>yr(me)===1?ITEMS1():ITEMS2();
-const ITEMS1=()=>[["v","Вводный курс"],...C1.map((c,k)=>["v"+k,"— "+c.t]),["n","Основной курс"],...C2.map((c,k)=>["n"+k,"— "+c.t]),["kill","Слова-убийцы"],["gram","Грамматика"],["hw","Проверка домашнего задания"],["txt","Тексты"],...TX.filter(t=>t.y===1).map(t=>[t.k,"— "+t.t]),["dict","Словарь"]];
-const ITEMS2=()=>[["s1","Срез 1: 1 и 2 урок"],["s2","Урок 3"],...C3.map((c,k)=>["w"+k,"— "+c.t]),["s4","Урок 4"],...C4.map((c,k)=>["d"+k,"— "+c.t]),["s5","Урок 5"],...C5.map((c,k)=>["e"+k,"— "+c.t]),["s6","Урок 6"],...C6.map((c,k)=>["f"+k,"— "+c.t]),["sr","Самостоятельная Сардаровой по 3 породе"],["py","«Экскурсия на пирамиды» (слова для текста)"],...PY.map((c,k)=>["y"+k,"— "+c.t]),...SR.map((c,k)=>["r"+k,"— "+c.t]),...C.map((c,k)=>["c"+k,"— "+c.t]),["ex","— Дополнительное"],...X.map((c,k)=>["x"+k,"—— "+c.t]),["miss","— Слова для повторения"],["kill","Слова-убийцы"],["gram","Грамматика"],["hw","Проверка домашнего задания"],["dict","Словарь"],["txt","Тексты"],["t3","— Текст 3"]];
+const ITEMS1=()=>[["v","Вводный курс"],...C1.map((c,k)=>["v"+k,"— "+c.t]),["n","Основной курс"],...C2.map((c,k)=>["n"+k,"— "+c.t]),["kill","Сложные для меня слова"],["gram","Грамматика"],["hw","Проверка домашнего задания"],["txt","Тексты"],...TX.filter(t=>t.y===1).map(t=>[t.k,"— "+t.t]),["dict","Словарь"]];
+const ITEMS2=()=>[["s1","Срез 1: 1 и 2 урок"],["s2","Урок 3"],...C3.map((c,k)=>["w"+k,"— "+c.t]),["s4","Урок 4"],...C4.map((c,k)=>["d"+k,"— "+c.t]),["s5","Урок 5"],...C5.map((c,k)=>["e"+k,"— "+c.t]),["s6","Урок 6"],...C6.map((c,k)=>["f"+k,"— "+c.t]),["dk","Диктант: IV порода"],...["Глаголы и масдары вместе","Глаголы","Масдары","Производные и выражения"].map((n,k)=>["k"+k,"— "+n]),["arch","Архив самостоятельных"],["sr","Самостоятельная Сардаровой по 3 породе"],["py","«Экскурсия на пирамиды» (слова для текста)"],...PY.map((c,k)=>["y"+k,"— "+c.t]),...SR.map((c,k)=>["r"+k,"— "+c.t]),...C.map((c,k)=>["c"+k,"— "+c.t]),["ex","— Дополнительное"],...X.map((c,k)=>["x"+k,"—— "+c.t]),["miss","— Слова для повторения"],["kill","Сложные для меня слова"],["gram","Грамматика"],["hw","Проверка домашнего задания"],["dict","Словарь"],["txt","Тексты"],["t3","— Текст 3"]];
 function ra(){$("acc").innerHTML=ITEMS().map(([k,t])=>`<label class="ac"><input type="checkbox" data-l="${k}" ${L[k]?"":"checked"}>${t}</label>`).join("")+`<p class="mu">Галочка — пункт открыт для учеников. ${DB?"Изменения доходят до учеников в течение 15 секунд.":"Общей базы нет: настройка действует только на этом устройстве."}</p>`}
 $("acc").onchange=e=>{const k=e.target.dataset.l;if(!k)return;e.target.checked?delete L[k]:L[k]=1;saveL()};
 function listen(){if(DB&&!unsub2)try{unsub2=DB.collection("props").onSnapshot(q=>{PL={};q.docs.forEach(d=>PL[d.id]=asArr(d.data().list));if(!$("teach").hidden)renderPr();badge()},()=>{})}catch(e){}
@@ -5278,7 +5287,7 @@ $("yes").onclick=()=>{const d=deck[i];d.m=0;rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.
 $("no").onclick=()=>{const d=deck[i];rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};save();next(0)};
 $("nxt").onclick=()=>{const k=+$("nxt").dataset.k;if(k>=0)open(k)};
 $("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
-$("back").onclick=$("back2").onclick=()=>{cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home();show("menu")};
+$("back").onclick=$("back2").onclick=()=>{cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home();show("menu")};
 $("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw()};
 $("prev").onclick=()=>{if(i>0){i--;flipped=false;draw()}};
 $("restart").onclick=()=>mm?openMiss():start(full);
@@ -5442,7 +5451,7 @@ await saveAssign([...ASG,a].sort((x,y)=>x.due>y.due?1:-1));ASD=[];asChips();$("a
 $("asl2").onclick=async e=>{const id=e.target.dataset&&e.target.dataset.del;if(!id||!confirm("Удалить задание?"))return;await saveAssign(ASG.filter(a=>a.id!==id));renderAS()}}
 asBind();$("tourt").onclick=()=>tourStart(true);
 show("login");{const m=ld("me");if(m&&NAMES[m])login(m)}
-setInterval(async()=>{if(!me)return;if(me!=="admin"){const oa=JSON.stringify(ASG);await loadAssign();if(oa!==JSON.stringify(ASG)&&!$("menu").hidden&&cur===0&&!isT(me))home();if(oa!==JSON.stringify(ASG)&&!$("teach").hidden)renderAS()}const ob=PB.join();await loadPB();const ch=await loadEdits();if(!isT(me)){await loadMyProps()}if(ch&&me!=="admin")afterEdit();if(ob!==PB.join()&&!$("study").hidden)draw();if(isT(me))return;const o=JSON.stringify(L);await loadLocks();if(o!==JSON.stringify(L)&&!$("menu").hidden)cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()},15000);
+setInterval(async()=>{if(!me)return;if(me!=="admin"){const oa=JSON.stringify(ASG);await loadAssign();if(oa!==JSON.stringify(ASG)&&!$("menu").hidden&&cur===0&&!isT(me))home();if(oa!==JSON.stringify(ASG)&&!$("teach").hidden)renderAS()}const ob=PB.join();await loadPB();const ch=await loadEdits();if(!isT(me)){await loadMyProps()}if(ch&&me!=="admin")afterEdit();if(ob!==PB.join()&&!$("study").hidden)draw();if(isT(me))return;const o=JSON.stringify(L);await loadLocks();if(o!==JSON.stringify(L)&&!$("menu").hidden)cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()},15000);
 </script></body></html>
 
 
