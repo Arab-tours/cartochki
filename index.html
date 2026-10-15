@@ -5410,22 +5410,22 @@ if(OLD[k]&&!S.t.n){const o=ld("p_"+OLD[k]);if(o&&o.t)S=o;else if(DB)try{const q=
 await loadLocks();await loadEdits();await loadPB();await loadMyProps();await loadHW();await loadAssign();await loadHwApi();hwResume();if(isT(k))listen();S.w=S.w||{};S.c=S.c||{};miss=S.m||(S.m={});try{localStorage.setItem("me",JSON.stringify(k))}catch(e){}
 visit();home();k==="admin"?adminv():isT(k)?teachv():show("menu");if(tourOn())setTimeout(()=>tourStart(false),700)}
 function logout(){PUL=false;clearTimeout(PTM);try{localStorage.removeItem("me")}catch(e){}me=null;S=null;miss={};$("nm").value="";show("login")}
-let pkey=null;
+let pkey=null,ans=[];
 const LREG={C,X,SR,PY,DK,...LISTS};
 const lnm=L1=>lid(L1)||(L1===C?"C":L1===X?"X":L1===SR?"SR":L1===PY?"PY":L1===DK?"DK":"");
 const LNX={C:"Срез 1",X:"Дополнительное",SR:"Архив самостоятельных",PY:"Экскурсия на пирамиды",DK:"Диктант"};
 const PFXX=L1=>L1===C?"c":L1===X?"x":L1===SR?"r":L1===PY?"y":PFX(L1);
-const psSave=()=>{if(!pkey||!S||mm)return;S.ps=S.ps||{};if(i>=deck.length){delete S.ps[pkey];return}const w=cat.w;S.ps[pkey]={n:w.length,o:deck.map(d=>w.indexOf(d)),i,kn:know,m:deck.reduce((a,d,j)=>d.m?a.concat(j):a,[]),t:Date.now()};const ks=Object.keys(S.ps);if(ks.length>40)ks.sort((a,b)=>S.ps[a].t-S.ps[b].t).slice(0,ks.length-40).forEach(q=>delete S.ps[q])};
+const psSave=()=>{if(!pkey||!S||mm)return;S.ps=S.ps||{};if(i>=deck.length){delete S.ps[pkey];return}const w=cat.w;S.ps[pkey]={n:w.length,o:deck.map(d=>w.indexOf(d)),i,kn:know,a:Array.from({length:deck.length},(_,j)=>ans[j]===1?"1":ans[j]===0?"0":"-").join(""),m:deck.reduce((a,d,j)=>d.m?a.concat(j):a,[]),t:Date.now()};const ks=Object.keys(S.ps);if(ks.length>40)ks.sort((a,b)=>S.ps[a].t-S.ps[b].t).slice(0,ks.length-40).forEach(q=>delete S.ps[q])};
 function openSet(L1,k){cur=L1;cat=L1[k];full=cat.w.slice();const nm=lnm(L1);pkey=nm?nm+":"+k:null;if(S&&nm)S.lc={l:nm,k:k,t:Date.now()};
 const ps=pkey&&S&&S.ps&&S.ps[pkey];
-if(ps&&ps.n===cat.w.length&&ps.i<ps.o.length&&ps.o.every(x=>x>=0)){mm=false;deck=ps.o.map(x=>cat.w[x]);deck.forEach(d=>{d.m=0});(ps.m||[]).forEach(j=>{if(deck[j])deck[j].m=1});i=ps.i;know=ps.kn||0;flipped=false;$("ct").textContent=cat.t;show("study");draw();save()}
+if(ps&&ps.n===cat.w.length&&ps.i<ps.o.length&&ps.o.every(x=>x>=0)){mm=false;deck=ps.o.map(x=>cat.w[x]);deck.forEach(d=>{d.m=0});(ps.m||[]).forEach(j=>{if(deck[j])deck[j].m=1});i=ps.i;ans=typeof ps.a==="string"?ps.a.split("").map(c=>c==="1"?1:c==="0"?0:undefined):Array.from({length:ps.i},(_,j)=>j<(ps.kn||0)?1:0);know=ans.filter(x=>x===1).length;flipped=false;$("ct").textContent=cat.t;show("study");draw();save()}
 else{start(full,pkey);save()}}
 function open(k){openSet(cur,k)}
 function endMsg(big,txt,btns){$("nxt").hidden=true;const e=$("endn");e.textContent=big;e.style.fontSize=btns?"":"30px";$("endt").textContent=txt;$("endrow").hidden=!btns;show("end")}
 function win(){endMsg("молодец батракан, иди учи грамматику","",0)}
 function openMiss(){cur=C;const w=Object.values(miss);if(!w.length){endMsg("Пока пусто","Нажми «Ещё раз» на любой карточке — слово попадёт сюда.",0);return}
-mm=true;cat={t:"Слова для повторения"};deck=w.sort(()=>Math.random()-.5);i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
-function start(list,key){pkey=key||null;mm=false;deck=list.slice();for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
+mm=true;cat={t:"Слова для повторения"};deck=w.sort(()=>Math.random()-.5);i=0;know=0;ans=[];flipped=false;$("ct").textContent=cat.t;show("study");draw()}
+function start(list,key){pkey=key||null;mm=false;deck=list.slice();for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;ans=[];flipped=false;$("ct").textContent=cat.t;show("study");draw()}
 function draw(){
  psSave();
  if(mm&&i>=deck.length){deck=Object.values(miss).sort(()=>Math.random()-.5);i=0;if(!deck.length){win();return}}
@@ -5440,14 +5440,14 @@ function draw(){
  $("dir").textContent=rev?"Русский → арабский":"Арабский → русский";
  $("yes").disabled=$("no").disabled=!flipped;$("edb").hidden=!canEdit();$("edb").textContent=isT(me)?"✎ Править":"✎ Предложить правку";
 }
-const next=ok=>{if(ok)know++;else deck[i].m=1;i++;flipped=false;draw();save()};
+const next=ok=>{if(mm){if(ok)know++}else{ans[i]=ok?1:0;know=ans.filter(x=>x===1).length}if(!ok)deck[i].m=1;i++;flipped=false;draw();save()};
 $("face").onclick=()=>{flipped=!flipped;draw()};
-$("yes").onclick=()=>{const d=deck[i];d.m=0;rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a]}next(1)};
-$("no").onclick=()=>{const d=deck[i];rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};next(0)};
+$("yes").onclick=()=>{const d=deck[i];d.m=0;if(mm||ans[i]!==1)rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a]}next(1)};
+$("no").onclick=()=>{const d=deck[i];if(mm||ans[i]!==0)rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};next(0)};
 $("nxt").onclick=()=>{const k=+$("nxt").dataset.k;if(k>=0)open(k)};
 $("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
 $("back").onclick=$("back2").onclick=()=>{cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home();show("menu")};
-$("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw();save()};
+$("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;ans=[];flipped=false;draw();save()};
 $("prev").onclick=()=>{if(i>0){i--;flipped=false;draw();save()}};
 $("restart").onclick=()=>mm?openMiss():(start(full,pkey),save());
 $("again").onclick=()=>{start(full,pkey);save()};
