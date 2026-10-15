@@ -5209,13 +5209,14 @@ const DUEF=d=>{const t=new Date(d+"T00:00:00");return t.toLocaleDateString("ru-R
 function dash(){if(!S||!me)return;const d=document.createElement("div");d.className="dash";const today=dk(Date.now());
 const act=ASG.map(a=>({a,it:asItems(a,S,HWM)})).filter(x=>x.it.length&&!x.it.every(i=>i.ok)).slice(0,2);
 act.forEach(({a,it})=>{const late=a.due<today,e=document.createElement("div");e.className="asg";e.innerHTML=`<h3>Задание от учителя</h3><div class="due${late?" late":""}">${late?"Срок прошёл — ":"До "}${DUEF(a.due)}${a.note?" · "+esc(a.note):""}</div>`+it.map((i,n)=>`<div class="asi${i.ok?" ok":""}"><span class="ck">${i.ok?"✓":""}</span><span class="t">${esc(i.label)}<small>${esc(i.sub)}</small></span>${i.ok?"":`<button class="b ok" data-n="${n}">${i.type==="hw"?"Открыть":"Начать"}</button>`}</div>`).join("");
-e.onclick=ev=>{const b=ev.target.closest("button[data-n]");if(!b)return;const i=it[+b.dataset.n];if(i.type==="hw"){hwv();return}cur=i.L1;cat=i.c;full=i.c.w.slice();S.lc={l:i.q.l,k:i.q.k,t:Date.now()};save();start(full)};d.appendChild(e)});
+e.onclick=ev=>{const b=ev.target.closest("button[data-n]");if(!b)return;const i=it[+b.dataset.n];if(i.type==="hw"){hwv();return}openSet(i.L1,i.q.k)};d.appendChild(e)});
 // continue
-const prim=yr(me)===1?[C1,C2]:[C3,C4,C5,C6];let tgt=null,mode="";const lc=S&&S.lc;
-if(lc&&LISTS[lc.l]&&LISTS[lc.l][lc.k]){const L1=LISTS[lc.l];for(let k=lc.k;k<L1.length;k++){const c=L1[k];if(lk(PFX(L1)+k))continue;if(lrn(S,c)<c.w.length||k===lc.k&&false){tgt={L1,k,c};break}}if(!tgt)for(let k=0;k<lc.k;k++){const c=L1[k];if(!lk(PFX(L1)+k)&&lrn(S,c)<c.w.length){tgt={L1,k,c};break}}mode="Продолжить"}
+const prim=yr(me)===1?[C1,C2]:[C3,C4,C5,C6];let tgt=null,mode="",res=null;const lc=S&&S.lc;
+if(lc&&LREG[lc.l]&&LREG[lc.l][lc.k]){const L1=LREG[lc.l],ps=S.ps&&S.ps[lc.l+":"+lc.k];if(ps&&ps.i>0&&ps.i<ps.o.length&&ps.n===L1[lc.k].w.length&&!lk(PFXX(L1)+lc.k)){tgt={L1,k:lc.k,c:L1[lc.k]};res=ps;mode="Продолжить"}}
+if(!tgt&&lc&&LISTS[lc.l]&&LISTS[lc.l][lc.k]){const L1=LISTS[lc.l];for(let k=lc.k;k<L1.length;k++){const c=L1[k];if(lk(PFX(L1)+k))continue;if(lrn(S,c)<c.w.length||k===lc.k&&false){tgt={L1,k,c};break}}if(!tgt)for(let k=0;k<lc.k;k++){const c=L1[k];if(!lk(PFX(L1)+k)&&lrn(S,c)<c.w.length){tgt={L1,k,c};break}}mode="Продолжить"}
 if(!tgt){for(const L1 of prim){for(let k=0;k<L1.length;k++){if(!lk(PFX(L1)+k)&&lrn(S,L1[k])<L1[k].w.length){tgt={L1,k,c:L1[k]};break}}if(tgt)break}mode=lc?"Следующий набор":"Начать"}
-if(tgt){const c=tgt.c,ln=lrn(S,c),pc=Math.round(ln/c.w.length*100),e=document.createElement("div");e.className="cont";e.innerHTML=`<small>${mode}</small><h3>${LN[lid(tgt.L1)]} · § ${pn(c)} · ${esc(cty(c)[1])}</h3><span class="pgr"><i style="width:${pc}%"></i></span><div class="pm"><span>${pc}% выучено</span><span>осталось ${c.w.length-ln} сл.</span></div><button class="b">${mode==="Начать"?"Начать":"Продолжить"}</button>`;
-e.querySelector("button").onclick=()=>{cur=tgt.L1;cat=c;const rem=c.w.filter(w=>!((S.w[w.a]||{}).r>0));full=rem.length?rem:c.w.slice();S.lc={l:lid(tgt.L1),k:tgt.k,t:Date.now()};save();start(full)};d.appendChild(e)}
+if(tgt){const c=tgt.c,ln=lrn(S,c),nm=lnm(tgt.L1),pc=res?Math.round(res.i/res.o.length*100):Math.round(ln/c.w.length*100),e=document.createElement("div");e.className="cont";const ttl=lid(tgt.L1)?`${LN[nm]} · § ${pn(c)} · ${esc(cty(c)[1])}`:`${LNX[nm]||""} · ${esc(c.t)}`;e.innerHTML=`<small>${mode}${res?" · с места остановки":""}</small><h3>${ttl}</h3><span class="pgr"><i style="width:${pc}%"></i></span><div class="pm">${res?`<span>карточка ${res.i+1} из ${res.o.length}</span><span>${pc}% пройдено</span>`:`<span>${pc}% выучено</span><span>осталось ${c.w.length-ln} сл.</span>`}</div><button class="b">${mode==="Начать"?"Начать":"Продолжить"}</button>`;
+e.querySelector("button").onclick=()=>{if(res){openSet(tgt.L1,tgt.k);return}cur=tgt.L1;cat=c;const rem=c.w.filter(w=>!((S.w[w.a]||{}).r>0));full=rem.length?rem:c.w.slice();S.lc={l:lid(tgt.L1),k:tgt.k,t:Date.now()};save();start(full,lnm(tgt.L1)+":"+tgt.k)};d.appendChild(e)}
 // stats
 const de=(S.d||{})[today],tn=de?de.n:0;let st=0;for(let i=tn?0:1;i<400;i++){const e=(S.d||{})[dk(Date.now()-i*864e5)];if(e&&e.n>0)st++;else break}
 const ch=[];ch.push(`<span class="chip">Сегодня: <b>${tn}</b> карт.</span>`);if(st)ch.push(`<span class="chip">Серия: <b>${st}</b> ${st%10===1&&st!==11?"день":st%10>=2&&st%10<=4&&(st<10||st>20)?"дня":"дней"}</span>`);const L0=prim.flat(),tw=L0.reduce((a,c)=>a+c.w.length,0),tl=L0.reduce((a,c)=>a+lrn(S,c),0);ch.push(`<span class="chip">Выучено: <b>${tl}</b> из ${tw}</span>`);
@@ -5390,13 +5391,24 @@ if(OLD[k]&&!S.t.n){const o=ld("p_"+OLD[k]);if(o&&o.t)S=o;else if(DB)try{const q=
 await loadLocks();await loadEdits();await loadPB();await loadMyProps();await loadHW();await loadAssign();await loadHwApi();hwResume();if(isT(k))listen();S.w=S.w||{};S.c=S.c||{};miss=S.m||(S.m={});try{localStorage.setItem("me",JSON.stringify(k))}catch(e){}
 visit();home();k==="admin"?adminv():isT(k)?teachv():show("menu");if(tourOn())setTimeout(()=>tourStart(false),700)}
 function logout(){try{localStorage.removeItem("me")}catch(e){}me=null;S=null;miss={};$("nm").value="";show("login")}
-function open(k){cat=cur[k];full=cat.w.slice();if(S&&lid(cur)){S.lc={l:lid(cur),k:k,t:Date.now()};save()}start(full)}
+let pkey=null;
+const LREG={C,X,SR,PY,DK,...LISTS};
+const lnm=L1=>lid(L1)||(L1===C?"C":L1===X?"X":L1===SR?"SR":L1===PY?"PY":L1===DK?"DK":"");
+const LNX={C:"Срез 1",X:"Дополнительное",SR:"Архив самостоятельных",PY:"Экскурсия на пирамиды",DK:"Диктант"};
+const PFXX=L1=>L1===C?"c":L1===X?"x":L1===SR?"r":L1===PY?"y":PFX(L1);
+const psSave=()=>{if(!pkey||!S||mm)return;S.ps=S.ps||{};if(i>=deck.length){delete S.ps[pkey];return}const w=cat.w;S.ps[pkey]={n:w.length,o:deck.map(d=>w.indexOf(d)),i,kn:know,m:deck.reduce((a,d,j)=>d.m?a.concat(j):a,[]),t:Date.now()};const ks=Object.keys(S.ps);if(ks.length>40)ks.sort((a,b)=>S.ps[a].t-S.ps[b].t).slice(0,ks.length-40).forEach(q=>delete S.ps[q])};
+function openSet(L1,k){cur=L1;cat=L1[k];full=cat.w.slice();const nm=lnm(L1);pkey=nm?nm+":"+k:null;if(S&&nm)S.lc={l:nm,k:k,t:Date.now()};
+const ps=pkey&&S&&S.ps&&S.ps[pkey];
+if(ps&&ps.n===cat.w.length&&ps.i<ps.o.length&&ps.o.every(x=>x>=0)){mm=false;deck=ps.o.map(x=>cat.w[x]);deck.forEach(d=>{d.m=0});(ps.m||[]).forEach(j=>{if(deck[j])deck[j].m=1});i=ps.i;know=ps.kn||0;flipped=false;$("ct").textContent=cat.t;show("study");draw();save()}
+else{start(full,pkey);save()}}
+function open(k){openSet(cur,k)}
 function endMsg(big,txt,btns){$("nxt").hidden=true;const e=$("endn");e.textContent=big;e.style.fontSize=btns?"":"30px";$("endt").textContent=txt;$("endrow").hidden=!btns;show("end")}
 function win(){endMsg("молодец батракан, иди учи грамматику","",0)}
 function openMiss(){cur=C;const w=Object.values(miss);if(!w.length){endMsg("Пока пусто","Нажми «Ещё раз» на любой карточке — слово попадёт сюда.",0);return}
 mm=true;cat={t:"Слова для повторения"};deck=w.sort(()=>Math.random()-.5);i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
-function start(list){mm=false;deck=list.slice();for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
+function start(list,key){pkey=key||null;mm=false;deck=list.slice();for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;$("ct").textContent=cat.t;show("study");draw()}
 function draw(){
+ psSave();
  if(mm&&i>=deck.length){deck=Object.values(miss).sort(()=>Math.random()-.5);i=0;if(!deck.length){win();return}}
  if(i>=deck.length){const m=deck.length-know;$("miss").disabled=!m;endMsg(`${know} из ${deck.length}`,m?`Ещё раз: ${m}`:"Всё знаете!",1);{const nk=nextSet();$("nxt").hidden=nk<0;$("nxt").dataset.k=nk}return}
  const d=deck[i],f=$("face");
@@ -5409,17 +5421,17 @@ function draw(){
  $("dir").textContent=rev?"Русский → арабский":"Арабский → русский";
  $("yes").disabled=$("no").disabled=!flipped;$("edb").hidden=!canEdit();$("edb").textContent=isT(me)?"✎ Править":"✎ Предложить правку";
 }
-const next=ok=>{if(ok)know++;else deck[i].m=1;i++;flipped=false;draw()};
+const next=ok=>{if(ok)know++;else deck[i].m=1;i++;flipped=false;draw();save()};
 $("face").onclick=()=>{flipped=!flipped;draw()};
-$("yes").onclick=()=>{const d=deck[i];d.m=0;rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a]}save();next(1)};
-$("no").onclick=()=>{const d=deck[i];rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};save();next(0)};
+$("yes").onclick=()=>{const d=deck[i];d.m=0;rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a]}next(1)};
+$("no").onclick=()=>{const d=deck[i];rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,n:0};next(0)};
 $("nxt").onclick=()=>{const k=+$("nxt").dataset.k;if(k>=0)open(k)};
 $("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
 $("back").onclick=$("back2").onclick=()=>{cur===X?extra():cur===C?s1():cur===SR?sr():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home();show("menu")};
-$("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw()};
-$("prev").onclick=()=>{if(i>0){i--;flipped=false;draw()}};
-$("restart").onclick=()=>mm?openMiss():start(full);
-$("again").onclick=()=>start(full);
+$("shuf").onclick=()=>{for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;flipped=false;draw();save()};
+$("prev").onclick=()=>{if(i>0){i--;flipped=false;draw();save()}};
+$("restart").onclick=()=>mm?openMiss():(start(full,pkey),save());
+$("again").onclick=()=>{start(full,pkey);save()};
 $("miss").onclick=()=>{const m=deck.filter(d=>d.m);start(m)};
 D["Тексты"]="النُّصُوصُ";D["Текст 3"]="النَّصُّ الثَّالِثُ";
 const T3=`شَكَرْنَا عَارِفًا عَلَى مُوَافَقَتِهِ عَلَى اصْطِحَابِنَا فِي جَوْلَةٍ فِي الْعَاصِمَةِ الْمِصْرِيَّةْ|وَتَوَجَّهْنَا سَوِيَّةً إِلَى الْجِيزَةْ|حَيْثُ تَقَعُ الْأَهْرَامُ الثَّلَاثَةُ الْمَشْهُورَةْ.تَوَاصَلَ حَدِيثُنَا فِي السَّيَّارَةْ.وَاصَلَ عَارِفٌ حَدِيثَهُ عَنْ نَفْسِهِ وَأُسْرَتِهْ.قَالَ إِنَّ وَالِدَهُ مُوَظَّفْ|يَعْمَلُ فِي مَصْنَعِ تَكْرِيرِ نِفْطْ|تَابِعٍ لِإِحْدَى شَرِكَاتِ النِّفْطِ الْحُكُومِيَّةْ|وَاصِفًا إِيَّاهُ بِأَنَّهُ خَبِيرٌ بَارِزٌ ذُو خِبْرَةٍ وَاسِعَةٍ فِي مَجَالِ اسْتِخْرَاجِ وَإِنْتَاجِ النِّفْطِ، وَقَالَ أَيْضَا|إِنَّ وَالِدَهُ يَتَوَقَّعُ مِنْهُ أَنْ يُصْبِحَ ابْنُهُ خَبِيرًا فِي مَجَالِ اسْتِكْشَافِ النِّفْطْ|وَاسْتِخْرَاجِهِ وَتَكْرِيرِهِ، وَلِهَٰذَا وَجَّهَهُ قَبْلَ بِضْعِ سَنَوَاتٍ إِلَى الْخَارِجْ|لِلدِّرَاسَةِ فِي إِحْدَى الْجَامِعَاتِ الْأُورُوبِّيَّةْ|لَكِنَّ عَارِفًا لَمْ يَنْجَحْ فِي الِامْتِحَانَاتْ|لِأَنَّهُ لَمْ يَتَعَلَّمِ اللُّغَةَ الْأَجْنَبِيَّةَ بِصُورَةٍ جَيِّدَةْ.وَبَعْدَ هَٰذَا الْفَشَلْ|أَقْنَعَهُ أَبُوهُ بِدُخُولِ جَامِعَةِ الْقَاهِرَةْ.وَالْآنْ|هُوَ طَالِبٌ فِي السَّنَةِ الْأَخِيرَةِ فِي كُلِّيَّةِ الْهَنْدَسَةْ.وَبَعْدَ سَنَةٍ وَاحِدَةٍ سَيَتَخَرَّجُ مِنْهَا|وَسَيَحْصُلُ عَلَى دَرَجَةِ الْبَكَالُورِيُوسْ|وَيَعْتَزِمُ أَيْضًا الْحُصُولَ عَلَى دَرَجَةِ الْمَاجِسْتِيرِ بَعْدَ سَنَتَيْنْ.إِذًا سَتَتَحَقَّقُ تَوَقُّعَاتُ أَبِيهْ|فَسَيُصْبِحُ ابْنُهُ خَبِيرًا فِي مَجَالِ النِّفْطِ وَالْغَازْ|لِيَعْمَلَ إِمَّا فِي شَرِكَةٍ وَاحِدَةٍ مَعَ أَبِيهِ أَوْ فِي وِزَارَةِ النِّفْطْ.فَكِلْتَاهُمَا تُوَفِّرُ فُرَصَ عَمَلٍ لِخِرِّيجِي الْجَامِعَاتْ.هَٰكَذَا كَانَ عَارِفٌ يَتَحَدَّثُ لَنَا عَنْ نَفْسِهْ|عِنْدَمَا اقْتَرَبَتِ السَّيَّارَةُ مِنْ مَنْطِقَةِ الْأَهْرَامْ|وَتَوَصَّلْنَا إِلَى الْمَكَانِ الْمَطْلُوبِ بِالسَّلَامَةْ.`;
