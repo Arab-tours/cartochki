@@ -47,6 +47,15 @@ body.feedmode #stage{display:none}
 [data-build-in].run{transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
 [data-build-in].run.k-pop{transition:opacity .5s ease,transform .6s cubic-bezier(.3,1.6,.5,1)}
 
+/* site fx */
+.kbwrap{position:absolute;overflow:hidden}
+.kbwrap img{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;transform-origin:55% 35%}
+#stage .slide.on .kbwrap img{animation:kb 14s cubic-bezier(.25,.1,.25,1) forwards}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.09)}}
+[data-step].pre{opacity:0;transform:scale(.96)}
+[data-step].run{transition:opacity .5s ease,transform .6s cubic-bezier(.3,1.6,.5,1)}
+tr.flash td{animation:flash 1.4s ease}
+@keyframes flash{0%{background:#F7B9A8}100%{background:transparent}}
 /* chrome */
 .ui{position:fixed;z-index:20;display:flex;gap:8px;align-items:center;transition:opacity .4s}
 #tools{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
@@ -67,6 +76,9 @@ body.feedmode #notes{display:none!important}
 body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 0 40px}
 #feed .card{width:720px;margin:0 auto 28px;border-radius:28px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.35)}
 #feed .slide{position:relative!important;width:720px!important;height:auto!important;min-height:0;padding:56px 44px!important;gap:28px!important;justify-content:flex-start!important}
+#feed .kbwrap{position:relative!important;height:440px!important;border-radius:18px}
+#feed table{table-layout:fixed}
+#feed td,#feed th{overflow-wrap:anywhere;hyphens:auto;padding:.4em .35em!important}
 #feed .num{position:absolute;right:28px;top:22px;font:600 22px 'Oswald',Arial,sans-serif;opacity:.45}
 </style>
 </head>
@@ -75,18 +87,18 @@ body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 
 <section class="slide" data-i="0" id="s-cover" data-transition="fade" style="background:#0F1624;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
 <div data-bg style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(circle at 18% 35%, #22355A 0%, #0F1624 62%)"></div>
 <div data-deco style="position:absolute;left:1000px;top:0;width:920px;height:1080px;background:#172238;border-left:4px solid #D9412F"></div>
-<img src="prezent-trump.jpg" alt="Дональд Трамп с раненым ухом поднимает кулак, Батлер, Пенсильвания, 13 июля 2024 года (фото Эвана Вуччи, AP)" data-build-in="fade order 1" style="position:absolute;left:1000px;top:0;width:920px;height:1080px;object-fit:cover">
+<img src="prezent-trump.jpg" alt="Дональд Трамп с раненым ухом поднимает кулак, Батлер, Пенсильвания, 13 июля 2024 года (фото Эвана Вуччи, AP)" data-kb data-build-in="fade order 1 auto" style="position:absolute;left:1000px;top:0;width:920px;height:1080px;object-fit:cover">
 <div data-deco style="position:absolute;left:1000px;top:0;width:360px;height:1080px;background:linear-gradient(90deg, rgba(15,22,36,0.85) 0%, rgba(15,22,36,0) 100%)"></div>
 <p style="position:absolute;left:128px;top:128px;width:820px;font-size:24px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#E8B84A">Сравнительная политология · МГИМО</p>
-<h1 data-build-in="rise order 2" style="position:absolute;left:120px;top:220px;width:880px;font-family:'Oswald', Arial, sans-serif;font-size:300px;font-weight:700;line-height:1;letter-spacing:-4px;color:#F2EEE6;text-shadow:0px 12px 48px rgba(0,0,0,0.45)">ТРАМП</h1>
-<div data-build-in="left order 3" style="position:absolute;left:128px;top:580px;width:160px;height:10px;background:#D9412F"></div>
-<h2 data-build-in="rise order 3" style="position:absolute;left:128px;top:620px;width:860px;font-family:'Oswald', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.1;color:#F2EEE6">Институты против личности</h2>
-<p data-build-in="fade order 4" style="position:absolute;left:128px;top:760px;width:820px;font-size:32px;line-height:1.4;color:#C9D1DE">Что в его политике объясняют институты США, а что — его личный стиль</p>
+<h1 data-build-in="rise order 2 auto" style="position:absolute;left:120px;top:220px;width:880px;font-family:'Oswald', Arial, sans-serif;font-size:300px;font-weight:700;line-height:1;letter-spacing:-4px;color:#F2EEE6;text-shadow:0px 12px 48px rgba(0,0,0,0.45)">ТРАМП</h1>
+<div data-build-in="left order 3 auto" style="position:absolute;left:128px;top:580px;width:160px;height:10px;background:#D9412F"></div>
+<h2 data-build-in="rise order 3 auto" style="position:absolute;left:128px;top:620px;width:860px;font-family:'Oswald', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.1;color:#F2EEE6">Институты против личности</h2>
+<p data-build-in="fade order 4 auto" style="position:absolute;left:128px;top:760px;width:820px;font-size:32px;line-height:1.4;color:#C9D1DE">Что в его политике объясняют институты США, а что — его личный стиль</p>
 <p style="position:absolute;left:1028px;bottom:28px;width:480px;font-size:24px;text-align:left;color:#F2EEE6;text-shadow:0px 2px 8px rgba(0,0,0,0.6)">Фото: Evan Vucci / AP</p>
 <p style="position:absolute;left:128px;bottom:64px;width:820px;font-size:24px;color:#8A97AD">Ханова Анастасия · Тучнин Дмитрий · ФУП, 2-УП-05 · 2026</p>
 <aside>Открываем кадром из Батлера (13 июля 2024): покушение на митинге, Трамп с раненым ухом поднимает кулак и кричит «Fight!». Это, пожалуй, самый узнаваемый политический снимок десятилетия, и он хорошо показывает тему: личный образ, который сам становится политическим ресурсом.</aside>
 </section>
-<section class="slide" data-i="1" id="s-question" data-transition="fade" style="background:#F2EEE6;color:#1A2233;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:56px">
+<section class="slide" data-i="1" id="s-question" data-transition="push" style="background:#F2EEE6;color:#1A2233;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:56px">
 <div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#D9412F"></div>
 <p style="font-size:24px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#B5321F">Вопрос исследования</p>
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:96px;font-weight:500;line-height:1.1;color:#1A2233">Что в политике Трампа объясняется <span style="color:#2B4E8C">институтами США</span>, а что — его <span style="color:#B5321F">личным стилем</span>?</h2>
@@ -100,59 +112,57 @@ body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 
 <section class="slide" data-i="2" id="s-part1" data-transition="magic" style="background:#2B4E8C;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
 <div data-bg style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(135deg, #2B4E8C 0%, #172238 100%)"></div>
 <p data-magic="n1" style="position:absolute;left:112px;top:120px;width:900px;font-family:'Oswald', Arial, sans-serif;font-size:400px;font-weight:700;line-height:1;color:#F2EEE6;opacity:0.18">01</p>
-<p data-build-in="fade order 1" style="position:absolute;left:128px;top:560px;width:1200px;font-size:28px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#E8B84A">Часть первая · Ханова Анастасия</p>
-<h1 data-build-in="rise order 2" style="position:absolute;left:128px;top:620px;width:1600px;font-family:'Oswald', Arial, sans-serif;font-size:140px;font-weight:600;line-height:1.05;color:#F2EEE6">Институты и власть</h1>
+<p data-build-in="fade order 1 auto" style="position:absolute;left:128px;top:560px;width:1200px;font-size:28px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#E8B84A">Часть первая · Ханова Анастасия</p>
+<h1 data-build-in="rise order 2 auto" style="position:absolute;left:128px;top:620px;width:1600px;font-family:'Oswald', Arial, sans-serif;font-size:140px;font-weight:600;line-height:1.05;color:#F2EEE6">Институты и власть</h1>
 <aside>Переходим к первой части: в какую систему встроен Трамп и как она его сдерживает.</aside>
 </section>
 <section class="slide" data-i="3" id="s-checks" data-transition="fade" style="background:#F2EEE6;color:#1A2233;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
 <p data-magic="n1" style="position:absolute;left:1600px;top:88px;width:200px;font-family:'Oswald', Arial, sans-serif;font-size:96px;font-weight:700;line-height:1;text-align:right;color:#2B4E8C;opacity:0.25">01</p>
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:80px;font-weight:500;line-height:1.1;color:#1A2233">Власть и сдержки</h2>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
-<div style="display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
+<div data-build-in="rise order 1" style="position:absolute;left:128px;top:272px;width:538px;height:260px;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
 <h3 style="font-family:'Oswald', Arial, sans-serif;font-size:40px;font-weight:500;line-height:1.2">Партия</h3>
 <p style="font-size:26px;line-height:1.4;color:#4A5568">Лояльность — главный критерий; несогласные уходят или проигрывают праймериз</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
+<div data-build-in="rise order 2" style="position:absolute;left:691px;top:272px;width:538px;height:260px;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
 <h3 style="font-family:'Oswald', Arial, sans-serif;font-size:40px;font-weight:500;line-height:1.2">Конгресс</h3>
 <p style="font-size:26px;line-height:1.4;color:#4A5568">Республиканское большинство с 2025 года; промежуточные выборы 3 ноября 2026 могут его изменить</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
+<div data-build-in="rise order 3" style="position:absolute;left:1254px;top:272px;width:538px;height:260px;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
 <h3 style="font-family:'Oswald', Arial, sans-serif;font-size:40px;font-weight:500;line-height:1.2">Суды</h3>
 <p style="font-size:26px;line-height:1.4;color:#4A5568">Три судьи Верховного суда в первый срок — Горсач, Кавано, Барретт; споры вокруг указов</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
+<div data-build-in="rise order 4" style="position:absolute;left:128px;top:556px;width:538px;height:260px;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
 <h3 style="font-family:'Oswald', Arial, sans-serif;font-size:40px;font-weight:500;line-height:1.2">Исп. власть</h3>
 <p style="font-size:26px;line-height:1.4;color:#4A5568">Указы, кадровые чистки, давление на аппарат, роль ближнего круга</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
+<div data-build-in="rise order 5" style="position:absolute;left:691px;top:556px;width:538px;height:260px;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;padding:36px;border-radius:20px;border-left:8px solid #2B4E8C">
 <h3 style="font-family:'Oswald', Arial, sans-serif;font-size:40px;font-weight:500;line-height:1.2">Федерализм</h3>
 <p style="font-size:26px;line-height:1.4;color:#4A5568">Конфликты со штатами: миграция, финансирование, Нацгвардия в Лос-Анджелесе (2025)</p>
 </div>
-<div style="display:flex;flex-direction:column;justify-content:center;gap:12px;background:#2B4E8C;padding:36px;border-radius:20px">
+<div data-build-in="rise order 6" style="position:absolute;left:1254px;top:556px;width:538px;height:260px;display:flex;flex-direction:column;justify-content:center;gap:12px;background:#2B4E8C;padding:36px;border-radius:20px">
 <p style="font-family:'Oswald', Arial, sans-serif;font-size:36px;font-weight:500;line-height:1.25;color:#F2EEE6">Пять каналов власти — и пять точек сопротивления</p>
-</div>
 </div>
 <aside>Президентская система (Шугарт и Кэри): двойная легитимность президента и Конгресса; Линц — жёсткий срок и «победитель получает всё». Трамп вошёл через праймериз 2016 года как аутсайдер. Дальше пять каналов власти. Партия: республиканский аппарат подчинён Трампу, лояльность важнее идеологии. Конгресс: большинство у республиканцев, поэтому законодательная сдержка слабее, но промежуточные выборы 3 ноября 2026 года могут это изменить. Суды: три назначенца в Верховном суде, однако суды не раз блокировали указы. Исполнительная власть: ставка на указы и личных лоялистов. Федерализм: штаты — самостоятельный центр сопротивления, пример — споры о направлении Национальной гвардии в Лос-Анджелес летом 2025 года.</aside>
 </section>
-<section class="slide" data-i="4" id="s-court" data-transition="fade" style="background:#172238;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<section class="slide" data-i="4" id="s-court" data-transition="push" style="background:#172238;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
 <div data-bg style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(circle at 80% 40%, #2B4E8C 0%, #172238 55%, #0F1624 100%)"></div>
 <p style="position:absolute;left:128px;top:128px;width:900px;font-size:24px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#E8B84A">Пример сдержки · 20 февраля 2026</p>
-<p data-build-in="scale order 1" style="position:absolute;left:112px;top:180px;width:900px;font-family:'Oswald', Arial, sans-serif;font-size:420px;font-weight:700;line-height:1;color:#E8B84A;text-shadow:0px 20px 60px rgba(0,0,0,0.5)">6:3</p>
-<h2 data-build-in="rise order 2" style="position:absolute;left:1000px;top:250px;width:792px;font-family:'Oswald', Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.15;color:#F2EEE6">Верховный суд: закон IEEPA не даёт президенту права вводить тарифы</h2>
-<p data-build-in="fade order 3" style="position:absolute;left:1000px;top:560px;width:792px;font-size:30px;line-height:1.45;color:#C9D1DE">В большинстве — двое из трёх судей, назначенных самим Трампом (Горсач, Барретт). Администрация перешла на другие законы — например, 10% пошлины по разделу 122</p>
+<p data-split style="position:absolute;left:112px;top:180px;width:900px;font-family:'Oswald', Arial, sans-serif;font-size:420px;font-weight:700;line-height:1;color:#E8B84A;text-shadow:0px 20px 60px rgba(0,0,0,0.5)">6:3</p>
+<h2 data-build-in="rise order 2 auto" style="position:absolute;left:1000px;top:250px;width:792px;font-family:'Oswald', Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.15;color:#F2EEE6">Верховный суд: закон IEEPA не даёт президенту права вводить тарифы</h2>
+<p data-build-in="fade order 3 auto" style="position:absolute;left:1000px;top:560px;width:792px;font-size:30px;line-height:1.45;color:#C9D1DE">В большинстве — двое из трёх судей, назначенных самим Трампом (Горсач, Барретт). Администрация перешла на другие законы — например, 10% пошлины по разделу 122</p>
 <p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A97AD">Learning Resources, Inc. v. Trump (2026) · K&amp;L Gates, Ropes &amp; Gray</p>
 <aside>Самый наглядный пример институциональной сдержки во втором сроке. 20 февраля 2026 года Верховный суд 6 голосами против 3 решил, что закон о чрезвычайных экономических полномочиях (IEEPA) не позволяет вводить тарифы. Мнение большинства писал председатель Робертс; Горсач и Барретт, назначенные Трампом, голосовали с большинством, Томас, Алито и Кавано были против. Но важна и вторая половина: администрация тут же перешла на другие правовые основания. Институты ограничивают инструмент, но не сам курс.</aside>
 </section>
 <section class="slide" data-i="5" id="s-part2" data-transition="magic" style="background:#B5321F;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
 <div data-bg style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(135deg, #C8402B 0%, #6E1C14 100%)"></div>
-<img src="prezent-summit.jpg" alt="Владимир Путин и Дональд Трамп пожимают руки на фоне самолёта Air Force One, саммит в Анкоридже, Аляска, 15 августа 2025 года" data-build-in="pop order 1" style="position:absolute;left:1010px;top:104px;width:760px;height:470px;object-fit:cover;border:10px solid #F2EEE6;border-radius:12px;box-shadow:0px 30px 80px rgba(40,8,4,0.55);transform:rotate(2deg)">
+<img src="prezent-summit.jpg" alt="Владимир Путин и Дональд Трамп пожимают руки на фоне самолёта Air Force One, саммит в Анкоридже, Аляска, 15 августа 2025 года" data-build-in="pop order 1 auto" style="position:absolute;left:1010px;top:104px;width:760px;height:470px;object-fit:cover;border:10px solid #F2EEE6;border-radius:12px;box-shadow:0px 30px 80px rgba(40,8,4,0.55);transform:rotate(2deg)">
 <p data-magic="n2" style="position:absolute;left:112px;top:120px;width:900px;font-family:'Oswald', Arial, sans-serif;font-size:400px;font-weight:700;line-height:1;color:#F2EEE6;opacity:0.18">02</p>
-<p data-build-in="fade order 1" style="position:absolute;left:128px;top:560px;width:1200px;font-size:28px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#F5D58A">Часть вторая · Тучнин Дмитрий</p>
-<h1 data-build-in="rise order 2" style="position:absolute;left:128px;top:620px;width:1664px;font-family:'Oswald', Arial, sans-serif;font-size:128px;font-weight:600;line-height:1.05;color:#F2EEE6">Личность, популизм, общество</h1>
-<p data-build-in="fade order 3" style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#F5D58A">Личная дипломатия: саммит Путин — Трамп, Анкоридж, 15 августа 2025</p>
+<p data-build-in="fade order 1 auto" style="position:absolute;left:128px;top:560px;width:1200px;font-size:28px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#F5D58A">Часть вторая · Тучнин Дмитрий</p>
+<h1 data-build-in="rise order 2 auto" style="position:absolute;left:128px;top:620px;width:1664px;font-family:'Oswald', Arial, sans-serif;font-size:128px;font-weight:600;line-height:1.05;color:#F2EEE6">Личность, популизм, общество</h1>
+<p data-build-in="fade order 3 auto" style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#F5D58A">Личная дипломатия: саммит Путин — Трамп, Анкоридж, 15 августа 2025</p>
 <aside>Вторая часть: что Трамп приносит в систему сам — личность, популистскую риторику, особую связь с избирателями.</aside>
 </section>
-<section class="slide" data-i="6" id="s-populism" data-transition="push" style="background:#0F1624;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<section class="slide" data-i="6" id="s-populism" data-transition="fade" style="background:#0F1624;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
 <p data-magic="n2" style="position:absolute;left:1600px;top:88px;width:200px;font-family:'Oswald', Arial, sans-serif;font-size:96px;font-weight:700;line-height:1;text-align:right;color:#F2EEE6;opacity:0.25">02</p>
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:80px;font-weight:500;line-height:1.1;color:#F2EEE6">Популизм и коммуникация</h2>
 <div style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:48px">
@@ -180,7 +190,7 @@ body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:80px;font-weight:500;line-height:1.1;color:#F2EEE6">Одобрение: второй срок</h2>
 <div style="display:flex;flex-direction:row;gap:64px;align-items:end">
 <div style="width:560px;display:flex;flex-direction:column;gap:16px">
-<p style="font-family:'Oswald', Arial, sans-serif;font-size:260px;font-weight:700;line-height:1;color:#D9412F">30%</p>
+<p data-count="47" style="font-family:'Oswald', Arial, sans-serif;font-size:260px;font-weight:700;line-height:1;color:#D9412F">30%</p>
 <p style="font-size:30px;line-height:1.4;color:#C9D1DE">одобряют работу Трампа — минимум второго срока, против 68% неодобрения</p>
 <p style="font-size:26px;line-height:1.4;color:#E8B84A">Среди его же избирателей 2024 года: 67% (было 95% в феврале 2025)</p>
 </div>
@@ -206,12 +216,12 @@ body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 
 <tr style="background:#FBFAF6"><td>Орбан, Венгрия</td><td>«Народ» против Брюсселя, контроль над медиа</td><td>Выборы: оппозиция смогла объединиться</td><td>Поражение 12 апреля 2026, «Тиса» П. Мадьяра — 2/3 мест</td></tr>
 <tr style="background:#F2EEE6"><td>Эрдоган, Турция</td><td>Персонализация, давление на суды и СМИ</td><td>Почти ничего: систему сменили под лидера</td><td>Президентская система с 2018 (референдум 2017), у власти</td></tr>
 <tr style="background:#FBFAF6"><td>Болсонару, Бразилия</td><td>Атаки на суды и выборы, соцсети</td><td>Верховный суд</td><td>Осуждён в сентябре 2025: 27 лет за заговор о перевороте</td></tr>
-<tr style="background:#F5DCD5"><td><b>Трамп, США</b></td><td>Популизм, сделки, лояльность</td><td>Суды, штаты, выборы — но партия лояльна</td><td>ВС отменил тарифы IEEPA (6:3), курс сохранён</td></tr>
+<tr data-step="pop" style="background:#F5DCD5"><td><b>Трамп, США</b></td><td>Популизм, сделки, лояльность</td><td>Суды, штаты, выборы — но партия лояльна</td><td>ВС отменил тарифы IEEPA (6:3), курс сохранён</td></tr>
 </table>
 <p style="font-size:28px;line-height:1.4;color:#4A5568">Стиль похож — разница в институтах: в США больше независимых центров силы, и их нельзя переписать одним большинством</p>
 <aside>Общий стиль — популизм, персонализация, атаки на СМИ и суды. Разница в институтах. Эрдоган смог переписать конституцию под президентскую систему. Орбан десять с лишним лет правил с конституционным большинством, но в апреле 2026 года проиграл выборы партии «Тиса» Петера Мадьяра. Болсонару проиграл выборы 2022 года, а в сентябре 2025 года Верховный суд Бразилии приговорил его к 27 годам за заговор с целью переворота. В США конституцию практически невозможно изменить, есть федерализм и независимые суды, поэтому ограничения жёстче — пока партия большинства не превращается в простой инструмент лидера.</aside>
 </section>
-<section class="slide" data-i="9" id="s-conclusion" data-transition="push" style="background:#0F1624;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<section class="slide" data-i="9" id="s-conclusion" data-transition="fade" style="background:#0F1624;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:80px;font-weight:500;line-height:1.1;color:#F2EEE6">Выводы</h2>
 <div style="display:flex;flex-direction:column;gap:40px">
 <div data-keeprow style="display:flex;flex-direction:row;align-items:start;gap:40px">
@@ -227,7 +237,7 @@ body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 
 <p style="font-size:40px;line-height:1.35;color:#F2EEE6">Открытый вопрос: <b>переживёт ли этот стиль</b> самого Трампа?</p>
 </div>
 </div>
-<p data-build-in="pop order 1" style="position:absolute;left:128px;top:820px;width:1664px;font-family:'Oswald', Arial, sans-serif;font-size:56px;font-weight:600;line-height:1.1;color:#E8B84A">Спасибо! Ждём ваши вопросы</p>
+<p data-build-in="pop order 1 auto" style="position:absolute;left:128px;top:820px;width:1664px;font-family:'Oswald', Arial, sans-serif;font-size:56px;font-weight:600;line-height:1.1;color:#E8B84A">Спасибо! Ждём ваши вопросы</p>
 <p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A97AD">Источники: Линц; Шугарт и Кэри; Лейпхарт; Алмонд и Верба; Норрис и Инглхарт; Мудде; Pew Research (окт. 2026); Learning Resources v. Trump (2026)</p>
 <aside>Три тезиса. Первый: Трамп вырос из кризиса доверия и сам его углубляет. Второй: американские институты — суды, штаты, выборы — реально ограничивают президента, пример — решение по тарифам, но при лояльной партии сдержки слабеют. Третий, открытый: станет ли трампизм постоянной чертой Республиканской партии после ухода Трампа. Ближайший индикатор — промежуточные выборы 3 ноября 2026 года.</aside>
 </section>
@@ -261,13 +271,40 @@ function fit(){
 }
 
 /* ---------- builds ---------- */
-function parseB(el){const t=(el.getAttribute('data-build-in')||'fade').split(/\s+/);let k=t[0],o=1;const i=t.indexOf('order');if(i>=0)o=+t[i+1]||1;return{k,o}}
-function arm(root){root.querySelectorAll('[data-build-in]').forEach(el=>{const{k}=parseB(el);el.classList.remove('run');el.classList.add('pre','k-'+k)})}
-function play(root,base){
-  const els=[...root.querySelectorAll('[data-build-in]')];
-  els.forEach(el=>{const{o}=parseB(el);setTimeout(()=>{el.classList.add('run');requestAnimationFrame(()=>el.classList.remove('pre'))},(base||0)+(o-1)*380)});
+const BS='[data-build-in],[data-step]';
+function parseB(el){if(el.hasAttribute('data-step'))return{k:el.dataset.step||'pop',o:90,click:true};const t=(el.getAttribute('data-build-in')||'fade').split(/\s+/);let o=1;const i=t.indexOf('order');if(i>=0)o=+t[i+1]||1;return{k:t[0],o,click:!t.includes('auto')}}
+function arm(root){root.querySelectorAll(BS).forEach(el=>{const{k}=parseB(el);el.classList.remove('run');el.classList.add('pre','k-'+k)})}
+function show(el){el.classList.add('run');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('pre')));if(el.tagName==='TR'){el.classList.add('flash')}}
+function play(root,base,all){
+  [...root.querySelectorAll(BS)].forEach(el=>{const{o,click}=parseB(el);if(click&&!all)return;setTimeout(()=>show(el),(base||0)+(all&&click?0:(o-1)*380))});
 }
-function reveal(root){root.querySelectorAll('[data-build-in]').forEach(el=>{el.classList.remove('pre','run')})}
+function reveal(root,onlyAuto){root.querySelectorAll(BS).forEach(el=>{if(onlyAuto&&parseB(el).click)return;el.classList.remove('pre','run')})}
+function nextClick(root){const c=[...root.querySelectorAll(BS)].filter(el=>el.classList.contains('pre')&&parseB(el).click).sort((a,b)=>parseB(a).o-parseB(b).o);return c[0]||null}
+
+/* ---------- site effects (present mode only) ---------- */
+const FX={
+  's-approval':s=>{
+    const bars=[...s.querySelectorAll('[data-bar]')];
+    bars.forEach((b,i)=>{const last=i===bars.length-1,d=350+i*110+(last?450:0);
+      b.style.transformOrigin='50% 100%';
+      b.animate([{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:last?900:650,delay:d,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});
+      const lab=b.previousElementSibling,dat=b.nextElementSibling;
+      [lab,dat].forEach(x=>x&&x.animate([{opacity:0},{opacity:1}],{duration:400,delay:d+250,fill:'backwards'}));});
+    const n=s.querySelector('[data-count]');if(n){const from=+n.dataset.count,to=parseInt(n.textContent),t0=performance.now()+300,dur=1900;
+      n.textContent=from+'%';const tick=now=>{const k=Math.min(1,Math.max(0,(now-t0)/dur)),e=1-Math.pow(1-k,3);n.textContent=Math.round(from+(to-from)*e)+'%';if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+  },
+  's-court':s=>{
+    const p=s.querySelector('[data-split]');if(!p)return;
+    if(!p.dataset.done){p.innerHTML='<span style="display:inline-block">6</span><span style="display:inline-block">:</span><span style="display:inline-block">3</span>';p.dataset.done=1}
+    const [a,c,b]=p.children;
+    a.animate([{transform:'translateX(-260px)',opacity:0},{transform:'none',opacity:1}],{duration:900,delay:250,easing:'cubic-bezier(.2,.9,.2,1)',fill:'backwards'});
+    b.animate([{transform:'translateX(260px)',opacity:0},{transform:'none',opacity:1}],{duration:900,delay:250,easing:'cubic-bezier(.2,.9,.2,1)',fill:'backwards'});
+    c.animate([{opacity:0,transform:'scale(.3)'},{opacity:1,transform:'none'}],{duration:500,delay:950,easing:'cubic-bezier(.3,1.6,.5,1)',fill:'backwards'});
+  }
+};
+function kbWrap(){S.forEach(s=>s.querySelectorAll('img[data-kb]').forEach(img=>{const w=document.createElement('div');w.className='kbwrap';w.style.position='absolute';['left','top','width','height'].forEach(k=>w.style[k]=img.style[k]);img.parentNode.insertBefore(w,img);w.appendChild(img);
+  // move build to wrapper so fade still plays
+  w.setAttribute('data-build-in',img.getAttribute('data-build-in'));img.removeAttribute('data-build-in')}))}
 
 /* ---------- transitions ---------- */
 const DUR=750;
@@ -281,7 +318,8 @@ function go(n,instant){
   const prev=cur>=0?S[cur]:null,next=S[n],fwd=n>cur;
   let type=prev?(fwd?prev.dataset.transition:next.dataset.transition)||'fade':'none';
   if(instant)type='none';
-  next.classList.add('on');arm(next);
+  next.classList.add('on');if(fwd||!prev){arm(next)}else{reveal(next)}
+  if(fwd&&FX[next.id])FX[next.id](next);
   cur=n;ui();
   try{history.replaceState(null,'','#'+(n+1))}catch(e){}
   if(!prev||type==='none'){S.forEach(x=>{if(x!==next)x.classList.remove('on')});play(next,150);return}
@@ -310,11 +348,14 @@ function go(n,instant){
 }
 function step(d){
   if(busy)return;
-  // if builds still pending on current slide, finish them first on forward
-  if(d>0&&cur>=0){const p=S[cur].querySelectorAll('[data-build-in].pre');if(p.length){reveal(S[cur]);return}}
+  if(d>0&&cur>=0){
+    const cs=S[cur];
+    const pendAuto=[...cs.querySelectorAll(BS)].some(el=>el.classList.contains('pre')&&!parseB(el).click);
+    if(pendAuto){reveal(cs,true);return}
+    const nc=nextClick(cs);if(nc){show(nc);return}
+  }
   go(cur+d);
 }
-
 /* ---------- ui ---------- */
 const count=document.getElementById('count'),bar=document.getElementById('bar'),notes=document.getElementById('notes');
 function ui(){count.textContent=(cur+1)+' / '+N;bar.style.width=((cur+1)/N*100)+'%';const a=S[cur].querySelector('aside');notes.textContent=a?a.textContent:'';}
@@ -362,13 +403,13 @@ function buildFeed(){
       if(st.textAlign==='right')st.textAlign='left';
     });
     // tables a bit smaller
-    s.querySelectorAll('table').forEach(t=>t.style.fontSize='22px');
+    s.querySelectorAll('table').forEach(t=>t.style.fontSize='20px');
     const card=document.createElement('div');card.className='card';
     const num=document.createElement('div');num.className='num';num.textContent=(i+1)+' / '+N;
     s.appendChild(num);card.appendChild(s);feed.appendChild(card);
     arm(s);
   });
-  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){play(en.target,120);io.unobserve(en.target)}}),{threshold:.25});
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){play(en.target,120,true);io.unobserve(en.target)}}),{threshold:.25});
   feed.querySelectorAll('.slide').forEach(s=>io.observe(s));
   feedBuilt=true;fit();
 }
@@ -386,7 +427,7 @@ function auto(){if(manual)return;const want=innerWidth<innerHeight&&innerWidth<9
 addEventListener('resize',()=>{fit();auto()});
 
 /* ---------- start ---------- */
-fit();
+kbWrap();fit();
 const h=parseInt((location.hash||'').slice(1));
 go(h>=1&&h<=N?h-1:0);
 auto();
