@@ -60,6 +60,22 @@ body{min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 14px calc(110px
 .slide table{border-collapse:collapse;width:100%}
 .slide th,.slide td{padding:.45em .6em;text-align:left;vertical-align:top;border-bottom:1px solid rgba(26,34,51,.14)}
 .slide img{display:block}
+.roles{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
+.roles button{appearance:none;border:none;background:none;color:var(--mut);font:500 14px 'Rubik',Arial,sans-serif;padding:7px 12px;border-radius:999px;cursor:pointer}
+.roles button.on{background:#2B4E8C;color:#fff}
+.roles button.on.d{background:#B5321F}
+.other{padding:10px 14px;border-radius:14px;margin-bottom:10px;border:1px dashed var(--line);color:var(--mut);font-size:15px;line-height:1.45}
+.other b{color:var(--ink);font-weight:500}
+.other.cur{border-color:rgba(232,184,74,.45);color:#C9D1DE}
+.yours{display:inline-block;font:600 12px 'Rubik',Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#0F1624;background:var(--gold);padding:3px 8px;border-radius:6px;margin-left:6px}
+.wait{padding:14px;border-radius:14px;background:#1A2234;color:#C9D1DE;font-size:16px;line-height:1.5;margin-bottom:10px}
+.wait b{color:var(--ink)}
+#rolepick{position:fixed;inset:0;z-index:30;background:rgba(11,17,28,.96);display:none;align-items:center;justify-content:center;padding:20px}
+#rolepick.show{display:flex}
+#rolepick .box{max-width:420px;width:100%;text-align:center}
+#rolepick h2{font:600 26px 'Oswald',Arial,sans-serif;margin:0 0 6px}
+#rolepick p{color:var(--mut);margin:0 0 18px}
+#rolepick button{display:block;width:100%;appearance:none;border:none;border-radius:16px;padding:18px;margin-bottom:10px;font:600 19px 'Rubik',Arial,sans-serif;color:#fff;cursor:pointer}
 .toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#2B4E8C;color:#fff;padding:8px 14px;border-radius:999px;font-size:14px;z-index:20;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 </style>
@@ -68,6 +84,7 @@ body{min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 14px calc(110px
 <div class="top">
   <div class="st"><span class="dot" id="dot"></span><span id="stt">Подключение…</span></div>
   <div class="pos" id="pos">— / —</div>
+  <div class="roles" id="roles"><button type="button" data-r="a">Докладчик 1</button><button type="button" data-r="d" class="d">Докладчик 2</button><button type="button" data-r="all">Оба</button></div>
   <div class="sp"></div>
   <span id="timer">00:00</span>
   <button class="btn" id="tbtn" type="button">Старт таймера</button>
@@ -89,6 +106,10 @@ body{min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 14px calc(110px
 <div class="strip" id="strip"></div>
 <div class="bar"><button class="bk" id="bk" type="button">◀ Назад</button><button class="fw" id="fw" type="button">Дальше ▶</button></div>
 <div class="toast" id="toast"></div>
+<div id="rolepick"><div class="box"><h2>Кто вы?</h2><p>Пульт покажет ваш текст и подскажет, когда вступать. Роль можно сменить вверху.</p>
+<button type="button" data-r="a" style="background:#2B4E8C">Докладчик 1 · Ханова Анастасия</button>
+<button type="button" data-r="d" style="background:#B5321F">Докладчик 2 · Тучнин Дмитрий</button>
+<button type="button" data-r="all" style="background:#2A3448">Показывать весь текст</button></div></div>
 <template id="slides">
 <section class="slide" data-i="0" id="s-cover" data-transition="fade" style="background:#0F1624;color:#F2EEE6;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
 <div data-bg style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(circle at 18% 35%, #22355A 0%, #0F1624 62%)"></div>
@@ -258,6 +279,12 @@ const N=SL.length;
 const CLICKS=SL.map(s=>[...s.querySelectorAll('[data-build-in]')].filter(el=>!/\bauto\b/.test(el.getAttribute('data-build-in'))).length+s.querySelectorAll('[data-step]').length);
 const $=id=>document.getElementById(id);
 let ST={},off=0,shown=-1;
+let ROLE=null;try{ROLE=localStorage.getItem('pz_role')}catch(e){}
+const WHO={a:'Анастасия',d:'Дмитрий'};
+function setRole(r){ROLE=r;try{localStorage.setItem('pz_role',r)}catch(e){}document.querySelectorAll('#roles button').forEach(b=>b.classList.toggle('on',b.dataset.r===r));$('rolepick').classList.remove('show');render()}
+const isMine=b=>ROLE==='all'||(ROLE==='a'?/Анаст/.test(b.who):/Дмит/.test(b.who));
+function nextMine(from){for(let i=from;i<SCRIPT.length;i++){if(SCRIPT[i].blocks.some(isMine))return i}return -1}
+const first=t=>{const w=t.split(' ');return w.length>12?w.slice(0,12).join(' ')+'…':t};
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1600)}
 async function api(path,method,body){const r=await fetch(PATH+path+'.json',{method:method||'GET',body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});if(!r.ok)throw new Error('db '+r.status);return r.json()}
 async function syncClock(){try{const t0=Date.now();const v=await fetch(FB+'/config/prezent_t.json',{method:'PUT',body:JSON.stringify({'.sv':'timestamp'})}).then(r=>r.json());off=v-(t0+Date.now())/2}catch(e){}}
@@ -273,10 +300,29 @@ function render(){
   $('ptitle').textContent=(SCRIPT[s]||{}).t||'';
   $('nextbox').style.display=s+1<N?'flex':'none';$('ntitle').textContent=(SCRIPT[s+1]||{}).t||'';
   const sc=SCRIPT[s]||{blocks:[]},hasClicks=CLICKS[s]>0;
-  $('script').innerHTML=sc.blocks.map((b,i)=>{
-    const st=!hasClicks?'cur':(i<stp?'done':i===stp?'cur':'later');
-    const w=/Анаст/.test(b.who)?'a':'d';
-    return `<div class="blk ${st}"><span class="who ${w}">${b.who}</span>${b.card?`<span class="card">${b.card}</span>`:''}<p>${b.text}</p>${b.hint&&(st==='cur')?`<div class="hint">${b.hint}</div>`:''}</div>`}).join('');
+  const role=ROLE||'all';
+  const stOf=i=>!hasClicks?'cur':(i<stp?'done':i===stp?'cur':'later');
+  let html='';
+  const mineHere=sc.blocks.some(isMine);
+  if(role!=='all'&&!mineHere){
+    const nm=nextMine(s+1);
+    html+=`<div class="wait">Сейчас говорит <b>${sc.blocks.map(b=>b.who).filter((v,i,a)=>a.indexOf(v)===i).join(' и ')}</b>. `+(nm>=0?`Ваш текст начнётся на слайде <b>${nm+1}</b> — «${SCRIPT[nm].t}».`:`Ваш текст на этом выступлении закончился.`)+`</div>`;
+  }
+  sc.blocks.forEach((b,i)=>{
+    const st=stOf(i),w=/Анаст/.test(b.who)?'a':'d';
+    if(role==='all'||isMine(b)){
+      html+=`<div class="blk ${st}"><span class="who ${w}">${b.who}</span>${b.card?`<span class="card">${b.card}</span>`:''}${role!=='all'&&st==='cur'?'<span class="yours">Ваш текст</span>':''}<p>${b.text}</p>${b.hint&&(st==='cur')?`<div class="hint">${b.hint}</div>`:''}</div>`;
+    }else{
+      html+=`<div class="other ${st==='cur'?'cur':''}"><b>${b.who}:</b> ${first(b.text)}</div>`;
+    }
+  });
+  if(role!=='all'&&mineHere){
+    const myIdx=sc.blocks.map((b,i)=>isMine(b)?i:-1).filter(i=>i>=0);
+    const lastMine=myIdx[myIdx.length-1];
+    if(!hasClicks||stp>=lastMine){const nm=nextMine(s+1);if(nm!==s+1&&nm>=0&&sc.blocks.length&&isMine(sc.blocks[sc.blocks.length-1]))html+=`<div class="hint" style="margin:4px 4px 10px">После этого слайда говорит коллега. Ваш следующий текст — слайд ${nm+1}.</div>`;
+      if(nm<0&&isMine(sc.blocks[sc.blocks.length-1])&&s===N-1)html+='';}
+  }
+  $('script').innerHTML=html;
   const cur=document.querySelector('.blk.cur');if(cur&&hasClicks)cur.scrollIntoView({block:'nearest',behavior:'smooth'});
   const on=alive();$('dot').className='dot '+(on?'on':'off');
   $('stt').textContent=on?('Открыта: '+(ST.dev||'устройство')):(ST.kicked?'Устройство отключено — откройте на другом':'Презентация не открыта');
@@ -292,6 +338,8 @@ async function send(a,n){
   if(navigator.vibrate)navigator.vibrate(15);
   try{await api('/cmd','PUT',cmd)}catch(e){toast('Нет связи с сервером')}
 }
+document.querySelectorAll('#roles button,#rolepick button').forEach(b=>b.onclick=()=>setRole(b.dataset.r));
+if(ROLE)setRole(ROLE);else $('rolepick').classList.add('show');
 $('fw').onclick=()=>send('next');$('bk').onclick=()=>send('prev');
 addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();send('next')}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();send('prev')}});
 $('reset').onclick=async()=>{if(!ST.owner){toast('Сейчас презентация нигде не открыта');return}if(!confirm('Отключить показ на устройстве «'+(ST.dev||'устройство')+'»? После этого презентацию можно будет открыть на другом.'))return;try{await api('','PATCH',{kicked:ST.owner,owner:null,hb:0});toast('Устройство отключено')}catch(e){toast('Нет связи с сервером')}};
