@@ -56,6 +56,14 @@ body.feedmode #stage{display:none}
 [data-step].run{transition:opacity .5s ease,transform .6s cubic-bezier(.3,1.6,.5,1)}
 tr.flash td{animation:flash 1.4s ease}
 @keyframes flash{0%{background:#F7B9A8}100%{background:transparent}}
+#lock{position:fixed;inset:0;z-index:100;background:#0F1624;display:none;align-items:center;justify-content:center;padding:24px;text-align:center}
+#lock.show{display:flex}
+#lock .box{max-width:520px;font:17px/1.55 'Rubik',Arial,sans-serif;color:#C9D1DE}
+#lock h2{font:600 30px/1.2 'Oswald',Arial,sans-serif;color:#F2EEE6;margin:0 0 14px}
+#lock .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#D9412F;margin-right:8px;vertical-align:middle}
+#lock.wait .dot{background:#E8B84A;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+#netw{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:40;background:rgba(15,22,36,.85);color:#E8B84A;font:13px 'Rubik',Arial,sans-serif;padding:6px 12px;border-radius:999px;display:none}
 /* chrome */
 .ui{position:fixed;z-index:20;display:flex;gap:8px;align-items:center;transition:opacity .4s}
 #tools{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
@@ -252,6 +260,8 @@ body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 
 <div id="count" class="ui"></div>
 <div id="bar"></div>
 <div id="notes"></div>
+<div id="lock" class="show wait"><div class="box"><h2><span class="dot"></span><span id="lockt">Подключение…</span></h2><div id="lockd">Проверяю, не открыта ли презентация на другом устройстве.</div><button id="lockbtn" type="button" style="display:none;margin-top:18px;appearance:none;border:none;background:#2B4E8C;color:#fff;font:600 16px Rubik,Arial,sans-serif;padding:12px 20px;border-radius:999px;cursor:pointer">Подключиться снова</button></div></div>
+<div id="netw"></div>
 <div id="hint">→ / пробел / тап справа — дальше<br>← / тап слева — назад · F — полный экран · N — заметки</div>
 
 <script>
@@ -363,7 +373,7 @@ let idleT;function wake(){body.classList.remove('idle');clearTimeout(idleT);if(!
 ['mousemove','touchstart','keydown'].forEach(e=>addEventListener(e,wake,{passive:true}));
 
 addEventListener('keydown',e=>{
-  if(body.classList.contains('feedmode'))return;
+  if(body.classList.contains('feedmode')||lockEl.classList.contains('show'))return;
   const k=e.key;
   if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(k)){e.preventDefault();step(1)}
   else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(k)){e.preventDefault();step(-1)}
@@ -426,6 +436,82 @@ function setMode(m){
 function auto(){if(manual)return;const want=innerWidth<innerHeight&&innerWidth<900?'feed':'present';if(body.classList.contains('feedmode')!==(want==='feed'))setMode(want)}
 addEventListener('resize',()=>{fit();auto()});
 
+
+/* ---------- одно устройство + пульт ---------- */
+const FB='https://arabic-819da-default-rtdb.firebaseio.com',PATH=FB+'/config/prezent';
+let me='';try{me=localStorage.getItem('pz_dev')||'';if(!me){me='d'+Math.random().toString(36).slice(2,10);localStorage.setItem('pz_dev',me)}}catch(e){me='d'+Math.random().toString(36).slice(2,10)}
+let ST={},off=0,mine=false,lastCmd=null,started=false,kickedLocal=false;
+const DEVL=(()=>{const u=navigator.userAgent;const os=/iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac OS X|Macintosh/.test(u)?'Mac':/Linux/.test(u)?'Linux':'устройство';const br=/YaBrowser/.test(u)?'Яндекс Браузер':/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/Firefox\//.test(u)?'Firefox':/Chrome\//.test(u)?'Chrome':/Safari\//.test(u)?'Safari':'браузер';return os+' · '+br})();
+const lockEl=document.getElementById('lock'),lockT=document.getElementById('lockt'),lockD=document.getElementById('lockd'),netw=document.getElementById('netw');
+const FRESH=25000;window.__pz=()=>({me,mine,ST:JSON.parse(JSON.stringify(ST)),off,cur});
+async function api(path,method,body,keep){const r=await fetch(PATH+path+'.json',{method:method||'GET',body:body===undefined?undefined:JSON.stringify(body),keepalive:!!keep,cache:'no-store'});if(!r.ok)throw new Error('db '+r.status);return r.json()}
+async function syncClock(){const t0=Date.now();const v=await fetch(FB+'/config/prezent_t.json',{method:'PUT',body:JSON.stringify({'.sv':'timestamp'})}).then(r=>r.json());off=v-(t0+Date.now())/2}
+const now=()=>Date.now()+off;
+function alive(st){return st&&st.owner&&st.hb&&now()-st.hb<FRESH}
+const lockBtn=document.getElementById('lockbtn');
+function block(title,desc,wait,btn){lockEl.classList.add('show');lockEl.classList.toggle('wait',!!wait);lockT.textContent=title;lockD.textContent=desc;lockBtn.style.display=btn?'inline-block':'none'}
+lockBtn.onclick=async()=>{kickedLocal=false;block('Подключение…','',true);try{ST=(await api(''))||{}}catch(e){}onState()};
+function unblock(){lockEl.classList.remove('show')}
+function clicksDone(){if(cur<0)return 0;return [...S[cur].querySelectorAll(BS)].filter(el=>parseB(el).click&&!el.classList.contains('pre')).length}
+let pubKey='';
+function publish(force){if(!mine)return;const k=cur+':'+clicksDone();if(!force&&k===pubKey)return;pubKey=k;api('','PATCH',{slide:cur,step:clicksDone(),hb:{'.sv':'timestamp'}}).catch(()=>{})}
+setInterval(()=>publish(false),250);
+setInterval(()=>{if(mine)api('','PATCH',{hb:{'.sv':'timestamp'}}).catch(()=>{})},8000);
+function runCmd(c){
+  if(!c||!c.id||c.id===lastCmd)return;lastCmd=c.id;if(!mine)return;
+  if(body.classList.contains('feedmode')){manual='present';setMode('present')}
+  const exec=()=>{if(busy){setTimeout(exec,120);return}
+    if(c.a==='next')step(1);else if(c.a==='prev')step(-1);else if(c.a==='go'&&typeof c.n==='number')go(c.n,false);
+    setTimeout(()=>publish(true),60)};
+  exec();
+}
+function applyEv(path,data){
+  if(path==='/'){ST=data||{};return}
+  const ks=path.split('/').filter(Boolean);let o=ST;
+  for(let i=0;i<ks.length-1;i++){if(typeof o[ks[i]]!=='object'||o[ks[i]]===null)o[ks[i]]={};o=o[ks[i]]}
+  if(data===null)delete o[ks[ks.length-1]];else o[ks[ks.length-1]]=data;
+}
+function onState(){
+  if(ST.kicked===me&&ST.owner!==me&&(mine||!kickedLocal)){mine=false;kickedLocal=true}
+  if(kickedLocal){block('Устройство отключено','Показ на этом устройстве отключили из пульта управления. Чтобы снова открыть презентацию здесь, нажмите кнопку.',false,true);return}
+  if(mine&&ST.owner!==me&&ST.owner){mine=false}
+  if(ST.owner&&ST.owner!==me&&alive(ST)){if(mine){mine=false}block('Презентация открыта на другом устройстве','Показ идёт с другого устройства. Одновременно презентацию можно открыть только на одном. Если то устройство закрыто, подождите полминуты: страница подключится сама.',true);return}
+  if(!mine){claim();return}
+  if(ST.cmd)runCmd(ST.cmd);
+}
+let claiming=false;
+async function claim(){
+  if(claiming||kickedLocal)return;claiming=true;
+  try{
+    const pre=(await api(''))||{};if(pre.owner&&pre.owner!==me&&alive(pre)){ST=pre;claiming=false;onState();return}
+    await api('','PATCH',{owner:me,dev:DEVL,kicked:null,hb:{'.sv':'timestamp'},slide:Math.max(cur,0),step:clicksDone()});
+    await new Promise(r=>setTimeout(r,700));
+    const st=await api('');
+    if(st&&st.owner===me){mine=true;ST=st;lastCmd=st.cmd&&st.cmd.id;unblock();publish(true)}
+    else{ST=st||{};onState()}
+  }catch(e){}finally{claiming=false}
+}
+function listen(){
+  let es=null,poll=null,fails=0;
+  const startPoll=()=>{if(poll)return;poll=setInterval(async()=>{try{ST=(await api(''))||{};netw.style.display='none';onState()}catch(e){netw.textContent='Нет связи с сервером — пульт временно не работает';netw.style.display='block'}},1500)};
+  try{
+    es=new EventSource(PATH+'.json');
+    es.addEventListener('put',e=>{const d=JSON.parse(e.data);applyEv(d.path,d.data);netw.style.display='none';fails=0;onState()});
+    es.addEventListener('patch',e=>{const d=JSON.parse(e.data);for(const k in d.data)applyEv((d.path==='/'?'':d.path)+'/'+k,d.data[k]);onState()});
+    es.onerror=()=>{fails++;if(fails>3){es.close();startPoll()}};
+  }catch(e){startPoll()}
+  setInterval(()=>{if(!mine&&!kickedLocal&&!alive(ST))claim()},5000);
+}
+async function initSync(){
+  const failOpen=setTimeout(()=>{if(!mine&&!(ST.owner&&ST.owner!==me)){unblock();netw.textContent='Сервер недоступен — показ без пульта';netw.style.display='block'}},5000);
+  try{await syncClock();ST=(await api(''))||{};lastCmd=ST.cmd&&ST.cmd.id;
+    if(ST.owner&&ST.owner!==me&&alive(ST)){clearTimeout(failOpen);onState()}
+    else{await claim();clearTimeout(failOpen)}
+  }catch(e){}
+  listen();
+}
+addEventListener('pagehide',()=>{if(mine){try{fetch(PATH+'.json',{method:'PATCH',keepalive:true,body:JSON.stringify({owner:null})})}catch(e){}}});
+
 /* ---------- start ---------- */
 kbWrap();fit();
 const h=parseInt((location.hash||'').slice(1));
@@ -433,6 +519,7 @@ go(h>=1&&h<=N?h-1:0);
 auto();
 if(!body.classList.contains('feedmode')){const hint=document.getElementById('hint');setTimeout(()=>hint.classList.add('show'),900);setTimeout(()=>hint.classList.remove('show'),4200)}
 wake();
+initSync();
 })();
 </script>
 </body>
