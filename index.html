@@ -225,6 +225,39 @@ h2{color:var(--sea);font-weight:800;letter-spacing:-.01em}
 .lzimg{max-width:100%;max-height:260px;border-radius:12px;margin:6px 0}.lzr{border-left:4px solid var(--line);padding:4px 10px;margin:8px 0}.lzr.gn{border-color:#2a9d5c}.lzr.yl{border-color:#d08a00}.lzr.rd{border-color:#c0392b}.lzr ul{margin:4px 0;padding-left:18px}
 .lzt{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}.lzt.on{opacity:1}
 #bg input[type=file]{width:100%;margin:4px 0 8px;padding:8px;border-radius:10px;border:1px solid var(--line);font:inherit;background:var(--card);color:var(--ink)}
+/*TCHCSS*/
+#tch{position:fixed;right:10px;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:15;width:54px;height:54px;transition:opacity .35s;-webkit-tap-highlight-color:transparent}
+@media(min-width:701px){#tch{bottom:16px;right:18px;width:62px;height:62px}}
+#tch.dim{opacity:.22}
+#tch .tf{width:100%;height:100%;cursor:pointer;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));animation:tbob 3.4s ease-in-out infinite;transform-origin:50% 100%}
+#tch svg{width:100%;height:100%;overflow:visible;display:block}
+#tch .te{transform-box:fill-box;transform-origin:center;animation:tblink 4.6s infinite}
+#tch .tbl,#tch .tbr{transform-box:fill-box;transform-origin:center;transition:transform .25s}
+#tch .tm,#tch .tx2,#tch .ts,#tch .tcheek,#tch .teye2{display:none}
+#tch[data-m="n"] .tm1{display:block}
+#tch[data-m="a"] .tm2,#tch[data-m="a"] .tx2,#tch[data-m="a"] .tcheek{display:block}
+#tch[data-m="h"] .tm3,#tch[data-m="h"] .ts{display:block}
+#tch[data-m="h"] .te{display:none}#tch[data-m="h"] .teye2{display:block}
+#tch[data-m="a"] .tbl{transform:rotate(20deg) translateY(2px)}#tch[data-m="a"] .tbr{transform:rotate(-20deg) translateY(2px)}
+#tch[data-m="h"] .tbl,#tch[data-m="h"] .tbr{transform:translateY(-2px)}
+#tch[data-m="a"] .tf{animation:tshake .55s ease-in-out infinite}
+#tch[data-m="h"] .tf{animation:thop .55s ease-out 3}
+#tch .tx2 circle{animation:tsteam 1.4s ease-out infinite;transform-box:fill-box;transform-origin:center}#tch .tx2 circle+circle{animation-delay:.6s}
+#tch .ts path{animation:tspark .55s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes tbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes tblink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes tshake{0%,100%{transform:rotate(0)}25%{transform:rotate(-3.5deg)}75%{transform:rotate(3.5deg)}}
+@keyframes thop{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}}
+@keyframes tsteam{0%{opacity:.9;transform:translateY(0) scale(.6)}100%{opacity:0;transform:translateY(-9px) scale(1.4)}}
+@keyframes tspark{from{transform:scale(.6);opacity:.6}to{transform:scale(1.15);opacity:1}}
+#tch .tb{position:absolute;right:64px;bottom:14px;width:max-content;max-width:min(210px,calc(100vw - 96px));background:#fff;color:#1b1b1b;border:2.5px solid #1b1b1b;border-radius:16px;padding:7px 12px 8px;box-shadow:3px 3px 0 rgba(0,0,0,.85);opacity:0;transform:scale(.85);transform-origin:100% 80%;pointer-events:none;transition:opacity .2s,transform .2s;text-align:center}
+#tch .tb.on{opacity:1;transform:scale(1)}
+#tch .tb:after{content:"";position:absolute;right:-13px;bottom:13px;border:7px solid transparent;border-left:12px solid #1b1b1b}
+#tch .tb:before{content:"";position:absolute;right:-8px;bottom:14.5px;border:5.5px solid transparent;border-left:9px solid #fff;z-index:1}
+#tch[data-m="a"] .tb{border-color:#b3141b;background:#fff4b8}#tch[data-m="a"] .tb:after{border-left-color:#b3141b}#tch[data-m="a"] .tb:before{border-left-color:#fff4b8}
+#tch .tar{display:block;direction:rtl;font-family:"Noto Sans Arabic","Segoe UI",Tahoma,"Geeza Pro",sans-serif;font-size:22px;font-weight:700;line-height:1.7}
+#tch .tru{display:block;font:600 11px/1.3 Manrope,system-ui,sans-serif;color:#555}
+@media(prefers-reduced-motion:reduce){#tch .tf,#tch .te,#tch .tx2 circle,#tch .ts path{animation:none!important}}
 </style></head><body>
 <header id="hd" class="hero"><div class="wrap"><div id="lgg" class="lgg"></div><div id="wel" class="wel" hidden></div><div id="nav" class="nav" hidden></div></div></header>
 <main class="wrap">
@@ -4830,7 +4863,7 @@ function push(){if(!stores().length||!me)return;if(!PUL){if(!isT(me))syncTry();r
 const dk=t=>{const d=new Date(t);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const dayE=(t)=>{S.d=S.d||{};const k=dk(t);const e=S.d[k]||(S.d[k]={v:0,n:0,ok:0,c:{}});e.c=e.c||{};return e};
 const save=()=>{if(!me)return;S.m=miss;S.t.last=Date.now();try{localStorage.setItem("p_"+me,JSON.stringify(S))}catch(e){}push()};
-function rec(d,ok){const now=Date.now(),de=dayE(now);de.n++;if(ok)de.ok++;de.l=now;de.f=de.f||now;const ck=cat.t.replace(/[.$#\[\]\/]/g,"_");de.c[ck]=(de.c[ck]||0)+1;S.la=now;const w=S.w[d.a]||(S.w[d.a]={r:0,x:0});ok?w.r++:w.x++;S.t.n++;if(ok)S.t.ok++;const c=S.c[cat.t]||(S.c[cat.t]={n:0,ok:0});c.n++;if(ok)c.ok++}
+function rec(d,ok){const now=Date.now(),de=dayE(now);de.n++;if(ok)de.ok++;de.l=now;de.f=de.f||now;const ck=cat.t.replace(/[.$#\[\]\/]/g,"_");de.c[ck]=(de.c[ck]||0)+1;S.la=now;const w=S.w[d.a]||(S.w[d.a]={r:0,x:0});ok?w.r++:w.x++;S.t.n++;if(ok)S.t.ok++;const c=S.c[cat.t]||(S.c[cat.t]={n:0,ok:0});c.n++;if(ok)c.ok++;try{tchAct(ok)}catch(e){}}
 let mm=false;
 const menu=$("menu");let cur=C;
 const D={"Проверка ДЗ":"فَحْصُ الوَاجِبِ","Успеваемость":"التَّحْصِيلُ","Журнал":"السِّجِلُّ","Срез 1: 1 и 2 урок":"الاِخْتِبَارُ الأَوَّلُ: الدَّرْسُ الأَوَّلُ وَالثَّانِي","Срез 2":"الاِخْتِبَارُ الثَّانِي","Урок 3":"الدَّرْسُ الثَّالِثُ","Урок 4":"الدَّرْسُ الرَّابِعُ","Урок 5":"الدَّرْسُ الخَامِسُ","Урок 6":"الدَّرْسُ السَّادِسُ","Самостоятельная Сардаровой по 3 породе":"عَمَلٌ مُسْتَقِلٌّ: الصِّيغَةُ الثَّالِثَةُ","Самостоятельная по VIII породе":"عَمَلٌ مُسْتَقِلٌّ: الصِّيغَةُ الثَّامِنَةُ","Масдары":"المَصَادِرُ","Грамматика":"القَوَاعِدُ","Проверка домашнего задания":"فَحْصُ الوَاجِبِ","Причастия":"اِسْمُ الفَاعِلِ","Сложные для меня слова":"كَلِمَاتِي الصَّعْبَةُ","Слова для повторения":"كَلِمَاتٌ لِلتَّكْرَارِ","Дополнительное":"إِضَافِيٌّ","← Назад":"رُجُوعٌ","Карточки":"البِطَاقَاتُ","Словарь":"القَامُوسُ","Учитель":"المُعَلِّمُ","Выйти":"خُرُوجٌ",
@@ -5147,7 +5180,7 @@ const d=$("chd");const up=()=>{d.innerHTML=CH.val?esc(CH.val):"<span class='mu'>
 g.querySelectorAll(".chk[data-k]").forEach(b=>b.onclick=()=>{CH.val+=b.dataset.k;up()});
 $("chbk").onclick=()=>{CH.val=[...CH.val].slice(0,-1).join("");up()};
 $("chh").onclick=()=>{CH.hint++;CH.shown=1;chRender()};
-$("chok").onclick=()=>{const alt=v.st[CH.k][1].split(" / "),hit=yr(me)===1?alt.find(x=>chNorm(CH.val)===chNorm(x)):alt.find(x=>chLoose(CH.val,x));if(hit){CH.note=chNorm(CH.val)!==chNorm(hit)?hit:"";CH.k++;CH.val="";CH.shown="";chRender()}else{CH.note="";CH.mist++;d.classList.add("bad");setTimeout(()=>d.classList.remove("bad"),500)}}}
+$("chok").onclick=()=>{const alt=v.st[CH.k][1].split(" / "),hit=yr(me)===1?alt.find(x=>chNorm(CH.val)===chNorm(x)):alt.find(x=>chLoose(CH.val,x));if(hit){CH.note=chNorm(CH.val)!==chNorm(hit)?hit:"";CH.k++;CH.val="";CH.shown="";try{tchAct(true)}catch(e){}chRender()}else{CH.note="";CH.mist++;d.classList.add("bad");setTimeout(()=>d.classList.remove("bad"),500)}}}
 function chv(){if(lk("chn"))return;CH.cur=null;CHB=false;show("gram");chRender()}
 const chClosed=()=>`<h3>Цепочки глаголов</h3><div class="gd"><div class="gb"><p>Идёт тренировка цепочки — карточки пород, сводная таблица и наклонения на это время закрыты.</p><button class="chgo" id="chfin">Прервать цепочку и открыть</button></div></div>`;
 const grAny=L=>isT(me)||me==="admin"||L.some(c=>!catLocked(c));
@@ -5466,8 +5499,8 @@ async function login(k){me=k;ALLW=WS(yr(k));try{localStorage.setItem("yr",yr(k))
 PUL=isT(k);SY.ok=stores().length?null:false;if(!isT(k)){const {got,m}=await pullS(k);if(got){PUL=true;SY.ok=true}if(m)S=mergeS(S,m);if(!got){SY.ok=false;clearTimeout(PTM);PTM=setTimeout(syncTry,20000)}}
 if(OLD[k]&&!S.t.n){const o=ld("p_"+OLD[k]);if(o&&o.t)S=o;else if(DB)try{const q=await DB.doc("progress/"+OLD[k]).get();if(q.exists&&q.data().t)S=q.data()}catch(e){}}
 await loadLocks();await loadEdits();await loadPB();await loadMyProps();await loadHW();await loadAssign();await loadHwApi();hwResume();if(k==="liza")lzLoad().then(lzResume);if(isT(k))listen();S.w=S.w||{};S.c=S.c||{};miss=S.m||(S.m={});try{localStorage.setItem("me",JSON.stringify(k))}catch(e){}
-visit();home();k==="admin"?adminv():k==="ustaz0"?lzTeach():isT(k)?teachv():k==="liza"?lzShow("al"):show("menu");if(tourOn())setTimeout(()=>tourStart(false),700)}
-function logout(){PUL=false;clearTimeout(PTM);try{localStorage.removeItem("me")}catch(e){}me=null;S=null;miss={};$("nm").value="";show("login")}
+visit();home();try{tchInit()}catch(e){}k==="admin"?adminv():k==="ustaz0"?lzTeach():isT(k)?teachv():k==="liza"?lzShow("al"):show("menu");if(tourOn())setTimeout(()=>tourStart(false),700)}
+function logout(){PUL=false;clearTimeout(PTM);try{localStorage.removeItem("me")}catch(e){}me=null;S=null;miss={};$("nm").value="";show("login");try{tchOff()}catch(e){}}
 let pkey=null,ans=[];
 const LREG={C,X,SR,SV,PY,DK,...LISTS};
 const lnm=L1=>lid(L1)||(L1===C?"C":L1===X?"X":L1===SR?"SR":L1===SV?"SV":L1===PY?"PY":L1===DK?"DK":"");
@@ -5860,6 +5893,26 @@ g.querySelectorAll("details").forEach(d=>{d.ontoggle=()=>{if(d.open)ld2(d)};if(d
 $("lzrf").onclick=lzTeach;
 g.querySelectorAll(".lztcs").forEach(b=>b.onclick=async()=>{const id=b.dataset.i,v=g.querySelector('.lztc[data-i="'+id+'"]').value.trim().slice(0,500);b.disabled=true;try{await lzPatch(id,{tc:v});b.textContent="Сохранено ✓"}catch(e){b.textContent="Ошибка — повтори"}setTimeout(()=>{b.disabled=false;b.textContent="Сохранить комментарий"},1500)});
 g.querySelectorAll(".lzre").forEach(b=>b.onclick=async()=>{if(!HWAPI&&!window.claude){alert("Нужен адрес посредника (HWAPI) или вход через claude.ai");return}b.textContent="Проверяю…";await lzPatch(b.dataset.i,{status:"pending",tries:0});await lzCheck(b.dataset.i,true);lzTR(window.__lzP)})}
+
+/*TCH*/
+const TCHP={bad:[["ذَاكِرُوا أَكْثَرَ!","Занимайтесь больше!"],["أَيْنَ كُنْتُمْ؟!","Где вы были?!"],["لَا تَكْسَلُوا!","Не ленитесь!"],["اِجْتَهِدُوا!","Старайтесь!"]],
+ok:[["أَحْسَنْتُمْ!","Молодцы!"],["مُمْتَازٌ!","Отлично!"],["رَائِعٌ، وَاصِلُوا!","Прекрасно, продолжайте!"],["بَارَكَ اللهُ فِيكُمْ!","Да благословит вас Аллах!"],["جَيِّدٌ جِدًّا!","Очень хорошо!"]],
+hi:[["اِسْتَمِرُّوا!","Продолжайте!"],["السَّلَامُ عَلَيْكُمْ!","Мир вам!"]]};
+const TCHSVG=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 64C5 50 17 46 32 46s27 4 27 18z" fill="#f6f1e7" stroke="#cfc6b4" stroke-width="1"/><path d="M25.5 46.5 32 55l6.5-8.5" fill="none" stroke="#cfc6b4" stroke-width="1.2"/><rect x="28" y="38" width="8" height="10" rx="3" fill="#d9a67c"/><path d="M13 47l4-17 6 .5-1 15z M51 47l-4-17-6 .5 1 15z" fill="#fff" stroke="#d9d2c3" stroke-width=".8"/><ellipse cx="32" cy="30" rx="13" ry="15" fill="#e7b98f"/><path d="M16 31C13 12 24 7 32 7s19 5 16 24c-1-7-4-12-16-12S17 24 16 31z" fill="#fff" stroke="#d9d2c3" stroke-width=".9"/><path d="M17 15C24 10 40 10 47 15l-.4 3.2C40 14 24 14 17.4 18.2z" fill="#262626"/><path d="M23 37.6Q32 34 41 37.6Q32 40.2 23 37.6zM21.5 38.5Q32 56 42.5 38.5Q43 49 32 52 21 49 21.5 38.5z" fill="#2a1d16"/><g class="tcheek"><circle cx="21.5" cy="35" r="3" fill="#d6342b" opacity=".5"/><circle cx="42.5" cy="35" r="3" fill="#d6342b" opacity=".5"/></g><g fill="rgba(255,255,255,.3)" stroke="#202020" stroke-width="1.4"><circle cx="25.5" cy="30.5" r="4.6"/><circle cx="38.5" cy="30.5" r="4.6"/></g><path d="M30.1 30.2h3.8" stroke="#202020" stroke-width="1.3"/><g class="te" fill="#1a1a1a"><circle cx="25.5" cy="30.8" r="1.6"/><circle cx="38.5" cy="30.8" r="1.6"/></g><g class="teye2" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round"><path d="M23.2 31.4q2.3-3 4.6 0M36.2 31.4q2.3-3 4.6 0"/></g><path class="tbl" d="M20.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tbr" d="M34.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tm tm1" d="M29 44.2h6" stroke="#e8c9b4" stroke-width="1.7" stroke-linecap="round" fill="none"/><path class="tm tm2" d="M28.3 46q3.7-4 7.4 0" stroke="#e8c9b4" stroke-width="1.8" stroke-linecap="round" fill="none"/><path class="tm tm3" d="M28 43.2q4 6 8 0z" fill="#fff" stroke="#e8c9b4" stroke-width="1" stroke-linejoin="round"/><g class="tx2" fill="#fff" stroke="#c4c4c4" stroke-width=".8"><circle cx="12" cy="13" r="3.4"/><circle cx="52" cy="13" r="3.4"/></g><g class="ts" fill="#f3b61f"><path d="M8 15l1.6 3.4 3.4 1.6-3.4 1.6L8 25l-1.6-3.4L3 20l3.4-1.6z"/><path d="M56 6l1.2 2.6L60 10l-2.8 1.2L56 14l-1.2-2.8L52 10l2.8-1.4z"/></g></svg>`;
+const TCH={mood:"n",acted:0,ok:0,tm:null,tb:null,el:null,gap:0};
+function tchGap(){if(!S)return 0;let last=S.la||0;Object.keys(S.d||{}).forEach(k=>{if(!(S.d[k]&&S.d[k].n>0))return;const t=new Date(k+"T12:00:00").getTime();if(t>last)last=t});if(!last)return 0;const a=new Date(dk(Date.now())+"T00:00:00").getTime(),b=new Date(dk(last)+"T00:00:00").getTime();return Math.max(0,Math.round((a-b)/864e5))}
+const tchOn=()=>!!me&&!isT(me)&&me!=="admin"&&me!=="liza"&&me!=="ustaz0";
+function tchMood(m){TCH.mood=m;if(TCH.el)TCH.el.dataset.m=m}
+function tchSay(kind,extra){if(!TCH.el)return;const L=TCHP[kind],p=L[Math.floor(Math.random()*L.length)];TCH.tb.innerHTML=`<span class="tar">${p[0]}</span><span class="tru">${p[1]}${extra?" · "+extra:""}</span>`;TCH.tb.classList.add("on");clearTimeout(TCH.tm);TCH.tm=setTimeout(()=>TCH.tb.classList.remove("on"),kind==="bad"?6500:3800)}
+function tchRest(){const g=TCH.acted?0:TCH.gap;tchMood(g>=3?"a":"n")}
+function tchInit(){if(!tchOn()){tchOff();return}
+if(!TCH.el){const el=document.createElement("div");el.id="tch";el.dataset.m="n";el.innerHTML=`<div class="tb" role="status" aria-live="polite"></div><button class="tf" id="tchf" aria-label="Учитель" style="background:none;border:0;padding:0">${TCHSVG}</button>`;document.body.appendChild(el);TCH.el=el;TCH.tb=el.firstChild;
+let st=0;addEventListener("scroll",()=>{el.classList.add("dim");clearTimeout(st);st=setTimeout(()=>el.classList.remove("dim"),700)},{passive:true});
+$("tchf").onclick=()=>{if(TCH.tb.classList.contains("on")){TCH.tb.classList.remove("on");return}const a=TCH.mood==="a";tchSay(a?"bad":TCH.mood==="h"?"ok":"hi",a&&TCH.gap?"не заходили "+TCH.gap+" дн.":"")}}
+TCH.el.hidden=false;TCH.tb.classList.remove("on");TCH.acted=0;TCH.ok=0;TCH.gap=tchGap();tchRest();
+clearTimeout(TCH.t0);TCH.t0=setTimeout(()=>{if(!TCH.acted&&tchOn()){TCH.gap=tchGap();tchRest();if(TCH.mood==="a")tchSay("bad","не заходили "+TCH.gap+" дн.")}},1800)}
+function tchOff(){clearTimeout(TCH.t0);clearTimeout(TCH.tm);if(TCH.el)TCH.el.hidden=true}
+function tchAct(ok){if(!ok||!tchOn()||!TCH.el)return;TCH.acted++;TCH.ok++;if(TCH.acted===1||TCH.ok%8===0){tchMood("h");tchSay("ok");clearTimeout(TCH.t1);TCH.t1=setTimeout(tchRest,3200)}else if(TCH.mood==="a")tchRest()}
 
 show("login");{const m=ld("me");if(m&&NAMES[m])login(m)}
 setInterval(async()=>{if(!me||document.hidden)return;if(me!=="admin"){const oa=JSON.stringify(ASG);await loadAssign();if(oa!==JSON.stringify(ASG)&&!$("menu").hidden&&cur===0&&!isT(me))home();if(oa!==JSON.stringify(ASG)&&!$("teach").hidden)renderAS()}const ob=PB.join();await loadPB();const ch=await loadEdits();if(!isT(me)){await loadMyProps()}if(ch&&me!=="admin")afterEdit();if(ob!==PB.join()&&!$("study").hidden)draw();if(isT(me))return;const o=JSON.stringify(L);await loadLocks();if(o!==JSON.stringify(L)&&!$("menu").hidden)cur===X?extra():cur===C?s1():cur===SR?sr():cur===SV?sr8():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()},15000);
