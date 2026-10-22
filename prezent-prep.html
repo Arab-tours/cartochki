@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B111C">
+<title>Подготовка к докладу</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300..700&family=Rubik:wght@300..700&family=Rubik+Dirt&family=Unbounded:wght@400..900&family=Fira+Sans+Condensed:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#0B111C;--card:#141D2E;--line:rgba(242,238,230,.12);--ink:#F2EEE6;--mut:#9AA6BA;--acc:#E8B84A;--me:#1F2D47}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Rubik',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding:0 max(14px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.bar{position:sticky;top:0;z-index:10;background:rgba(11,17,28,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:max(12px,env(safe-area-inset-top)) 0 12px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.row{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 14px 'Rubik',Arial,sans-serif;padding:9px 13px;border-radius:999px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn.on{background:var(--acc);color:#0B111C;border-color:var(--acc)}
+.btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ttl{font:600 18px 'Oswald',Arial,sans-serif;letter-spacing:.3px;margin-right:6px}
+.tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);border:1px solid rgba(232,184,74,.4);padding:5px 9px;border-radius:999px}
+.sp{flex:1}
+.chips{max-width:1200px;margin:10px auto 0;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.chip{flex:none;font-size:13px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--mut);cursor:pointer}
+.chip.mine{color:var(--ink);border-color:rgba(232,184,74,.55)}
+main{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;scroll-margin-top:130px}
+@media(max-width:860px){.item{grid-template-columns:1fr}}
+.prev{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000;align-self:start}
+.holder{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.txt{min-width:0;display:flex;flex-direction:column;gap:10px}
+.n{font:600 14px 'Oswald',Arial,sans-serif;color:var(--mut);letter-spacing:.5px}
+.h{font:600 22px/1.2 'Oswald',Arial,sans-serif;margin:0}
+.blk{border-left:3px solid var(--line);padding:6px 0 6px 12px;font-size:17px;line-height:1.55;color:#D9DEE7}
+.blk .who{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:2px}
+.blk.me{border-left-color:var(--acc);background:var(--me);border-radius:0 10px 10px 0;color:var(--ink)}
+.blk.me .who{color:var(--acc)}
+.blk.dim{opacity:.45}
+.cue{display:inline-block;margin-top:4px;font-size:13px;color:var(--acc)}
+#msg{max-width:1200px;margin:40px auto;color:var(--mut);font-size:16px}
+body.big .blk{font-size:21px}
+/* slide base, as in the player */
+.slide{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;margin:0}
+.slide *{box-sizing:border-box;margin:0}
+.slide div:not([style*="display"]){display:flex;flex-direction:column}
+.slide ul{padding-left:1.1em}
+.slide li{margin:0 0 .25em}
+.slide b{font-weight:600}
+.slide table{border-collapse:collapse;width:100%}
+.slide th,.slide td{padding:.45em .6em;text-align:left;vertical-align:top;border-bottom:1px solid rgba(26,34,51,.14)}
+.slide th{font-weight:600}
+.slide aside{display:none}
+.slide img{display:block}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="row">
+    <a class="btn" href="prezent-menu.html?panel=1">← Доклады</a>
+    <span class="ttl" id="ttl">Подготовка</span><span class="tag">Без показа</span>
+    <span class="sp"></span>
+    <span id="roles" class="row" style="margin:0;gap:6px"></span>
+    <button class="btn" id="big" type="button" title="Крупнее текст">Aa</button>
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+<div id="msg">Загружаю слайды…</div>
+<main id="list"></main>
+<script>
+(function(){
+const DECKS={trump:{file:'prezent-panel.html',title:'Трамп: институты и личность'},kartel:{file:'prezent-kartel-panel.html',title:'Картели: Медельин и Лос-Сетас'}};
+const q=new URLSearchParams(location.search),key=DECKS[q.get('d')]?q.get('d'):'trump',D=DECKS[key];
+const $=id=>document.getElementById(id);
+document.title='Подготовка · '+D.title;$('ttl').textContent=D.title;
+let ROLE='all';try{ROLE=localStorage.getItem('pz_prep_'+key)||'all'}catch(e){}
+try{if(localStorage.getItem('pz_prep_big')==='1')document.body.classList.add('big')}catch(e){}
+$('big').onclick=()=>{const on=document.body.classList.toggle('big');try{localStorage.setItem('pz_prep_big',on?'1':'0')}catch(e){}};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fits=[];
+function fitAll(){fits.forEach(([p,h])=>{h.style.transform='scale('+(p.clientWidth/1920)+')'})}
+addEventListener('resize',fitAll);
+fetch(D.file,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(src=>{
+  const m=src.match(/const SCRIPT=(\[[\s\S]*?\]);\n/);const SCRIPT=m?JSON.parse(m[1]):[];
+  const doc=new DOMParser().parseFromString(src,'text/html');const tpl=doc.getElementById('slides');
+  const SL=tpl?[...tpl.content.querySelectorAll('section')]:[];
+  if(!SL.length)throw new Error('нет слайдов');
+  const people=[];SCRIPT.forEach(s=>s.blocks.forEach(b=>{if(b.who&&!people.includes(b.who))people.push(b.who)}));
+  const roles=[['all','Весь текст']].concat(people.map(p=>[p,p]));
+  roles.forEach(([r,l])=>{const b=document.createElement('button');b.type='button';b.className='btn';b.dataset.r=r;b.textContent=l;b.onclick=()=>{ROLE=r;try{localStorage.setItem('pz_prep_'+key,r)}catch(e){}paint()};$('roles').appendChild(b)});
+  const list=$('list');
+  SL.forEach((sec,i)=>{
+    const sc=SCRIPT[i]||{t:'',blocks:[]};
+    const it=document.createElement('section');it.className='item';it.id='p'+(i+1);
+    const prev=document.createElement('div');prev.className='prev';const h=document.createElement('div');h.className='holder';
+    const s=document.importNode(sec,true);s.querySelectorAll('[data-build-in],[data-step]').forEach(e=>{e.removeAttribute('data-build-in');e.removeAttribute('data-step')});
+    h.appendChild(s);prev.appendChild(h);fits.push([prev,h]);
+    const tx=document.createElement('div');tx.className='txt';
+    tx.innerHTML=`<span class="n">Слайд ${i+1} из ${SL.length}</span><h2 class="h">${esc(sc.t||'')}</h2>`+
+      (sc.blocks.length?sc.blocks.map(b=>`<div class="blk" data-who="${esc(b.who||'')}"><span class="who">${esc(b.who||'')}</span>${esc(b.text||'')}${b.card?`<span class="cue"> → карточка «${esc(b.card)}»</span>`:''}${b.hint?`<span class="cue"> · ${esc(b.hint)}</span>`:''}</div>`).join(''):'<div class="blk">Текста к этому слайду нет.</div>');
+    it.appendChild(prev);it.appendChild(tx);list.appendChild(it);
+    const c=document.createElement('button');c.type='button';c.className='chip';{const t=sc.t||'Слайд';c.textContent=(i+1)+'. '+(t.length>34?t.slice(0,32).trim()+'…':t);c.title=t;}c.dataset.i=i;c.onclick=()=>it.scrollIntoView({behavior:'smooth',block:'start'});$('chips').appendChild(c);
+  });
+  $('msg').remove();fitAll();requestAnimationFrame(fitAll);paint();
+  function paint(){
+    document.querySelectorAll('#roles .btn').forEach(b=>b.classList.toggle('on',b.dataset.r===ROLE));
+    document.querySelectorAll('.blk[data-who]').forEach(b=>{const mine=ROLE!=='all'&&b.dataset.who===ROLE;b.classList.toggle('me',mine);b.classList.toggle('dim',ROLE!=='all'&&!mine)});
+    document.querySelectorAll('.chip').forEach(c=>{const sc=SCRIPT[+c.dataset.i]||{blocks:[]};c.classList.toggle('mine',ROLE!=='all'&&sc.blocks.some(b=>b.who===ROLE))});
+  }
+  window.paint=paint;
+}).catch(e=>{$('msg').textContent='Не удалось загрузить доклад ('+e.message+'). Обновите страницу.'});
+})();
+</script>
+</body>
+</html>
