@@ -1,1 +1,1 @@
-{"appId":"ru.arabtours.arabic","appName":"Арабский","webDir":"www","ios":{"contentInset":"always","backgroundColor":"#0b4a30"},"android":{"backgroundColor":"#0b4a30"}}
+{"appId":"ru.arabtours.arabic","appName":"Арабский","webDir":"www","ios":{"contentInset":"never","backgroundColor":"#0b4a30"},"android":{"backgroundColor":"#0b4a30"},"plugins":{"StatusBar":{"overlaysWebView":false,"style":"DARK"}}}
