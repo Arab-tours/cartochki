@@ -1,1 +1,1 @@
-{"name":"arabic-app","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"^6.2.0","@capacitor/cli":"^6.2.0","@capacitor/android":"^6.2.0","@capacitor/ios":"^6.2.0","@capacitor/status-bar":"^6.0.0"}}
+{"name":"arabic-app","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"^6.2.0","@capacitor/cli":"^6.2.0","@capacitor/android":"^6.2.0","@capacitor/ios":"^6.2.0","@capacitor/status-bar":"^6.0.0","@fontsource-variable/manrope":"^5.1.0","@fontsource-variable/noto-sans-arabic":"^5.1.0"}}

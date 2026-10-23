@@ -20,6 +20,7 @@ jobs:
         working-directory: appshell
         run: |
           npm install
+          bash fonts.sh
           npx cap add android
           # иконки (без adaptive, обычные PNG)
           pip install --break-system-packages pillow || pip install pillow || true
@@ -54,6 +55,7 @@ jobs:
         working-directory: appshell
         run: |
           npm install
+          bash fonts.sh
           npx cap add ios
           cp icon-1024.png ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
           npx cap sync ios
