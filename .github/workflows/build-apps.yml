@@ -20,12 +20,14 @@ jobs:
           npm install
           npx cap add android
           # иконки (без adaptive, обычные PNG)
-          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
-            n=${d%%:*}; s=${d##*:}
-            convert icon-1024.png -resize ${s}x${s} android/app/src/main/res/mipmap-$n/ic_launcher.png
-            cp android/app/src/main/res/mipmap-$n/ic_launcher.png android/app/src/main/res/mipmap-$n/ic_launcher_round.png
-            cp android/app/src/main/res/mipmap-$n/ic_launcher.png android/app/src/main/res/mipmap-$n/ic_launcher_foreground.png
-          done
+          pip install --break-system-packages pillow || pip install pillow || true
+          python3 - <<'PY'
+          from PIL import Image
+          im=Image.open("icon-1024.png").convert("RGB")
+          for n,s in [("mdpi",48),("hdpi",72),("xhdpi",96),("xxhdpi",144),("xxxhdpi",192)]:
+              for f in ("ic_launcher","ic_launcher_round","ic_launcher_foreground"):
+                  im.resize((s,s),Image.LANCZOS).save(f"android/app/src/main/res/mipmap-{n}/{f}.png")
+          PY
           rm -rf android/app/src/main/res/mipmap-anydpi-v26
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
