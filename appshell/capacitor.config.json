@@ -1,1 +1,1 @@
-{"appId":"ru.arabtours.arabic","appName":"Арабский","webDir":"www","server":{"url":"https://arab-tours.github.io/","androidScheme":"https","cleartext":false},"ios":{"contentInset":"always","backgroundColor":"#0b4a30"},"android":{"backgroundColor":"#0b4a30"}}
+{"appId":"ru.arabtours.arabic","appName":"Арабский","webDir":"www","ios":{"contentInset":"always","backgroundColor":"#0b4a30"},"android":{"backgroundColor":"#0b4a30"}}

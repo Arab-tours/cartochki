@@ -6039,7 +6039,7 @@ if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))addEventList
 async function pwaInstall(){if(IPR){IPR.prompt();try{await IPR.userChoice}catch(e){}IPR=null;return}
 const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);TCH.tb.innerHTML=`<span class="tar" style="font-size:17px">تَثْبِيتُ التَّطْبِيقِ</span><span class="tru">${ios?"В Safari нажмите «Поделиться» ⬆︎ → «На экран Домой»":"В меню браузера (⋮) выберите «Установить приложение» или «Добавить на главный экран»"}</span>`;TCH.tb.classList.remove("menu");TCH.tb.classList.add("on");clearTimeout(TCH.tm);TCH.tm=setTimeout(()=>TCH.tb.classList.remove("on"),12000)}
 /*DN*/
-const DNU=["https://arab-tours.github.io/news.json","https://raw.githubusercontent.com/Arab-tours/cartochki/main/news.json"];
+const DNU=[/^https?:/.test(location.protocol)&&location.hostname.endsWith("github.io")?"news.json":"https://arab-tours.github.io/cartochki/news.json","https://raw.githubusercontent.com/Arab-tours/cartochki/main/news.json","https://arab-tours.github.io/news.json"];
 let DN=ld("dn");
 const dnToday=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 function dnMourn(){const m=DN&&DN.mourn,on=!!(m&&m.date===dnToday()),h=document.documentElement;h.toggleAttribute("data-mourn",on);
