@@ -6253,7 +6253,7 @@ bn.onclick=()=>o.remove();
 by.onclick=async()=>{by.disabled=bn.disabled=true;st.textContent="Скачиваю обновление…";
 try{const r=await first("index.html",60000);if(!r)throw 0;let h=await r.text();
 const m=h.match(/window\.APPV=(\d+)/);if(!m||+m[1]!==j.v||h.length<500000||!h.includes('id="mainjs"'))throw 0;
-if(!h.includes("fonts/manrope.css"))h=h.replace("</head>",'<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"></head>');
+if(!h.includes("fonts/manrope.css"))h=h.replace("</"+"head>",'<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"><'+'/head>');
 st.textContent="Устанавливаю…";
 OTA.set({v:j.v,html:h},ok=>{if(!ok){st.textContent="Не хватило места на устройстве";by.disabled=bn.disabled=false;return}st.textContent="Готово, перезапускаю…";setTimeout(()=>location.reload(),400)})
 }catch(e){st.textContent="Не удалось скачать. Проверьте интернет и попробуйте ещё раз.";by.disabled=bn.disabled=false}};
