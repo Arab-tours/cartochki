@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=127;
+window.APPV=128;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -5086,7 +5086,7 @@ if(b.dataset.pa){const i=E.findIndex(x=>x.o===p.o),en={o:p.o,a:p.na,r:p.nr};i<0?
 PL[u]=l;if(DB)try{await DB.doc("props/"+u).set({list:l})}catch(x){}renderPr();afterEdit()};
 $("edl2").onclick=async e=>{const k=e.target.dataset&&e.target.dataset.er;if(k==null)return;E.splice(+k,1);await saveEdits();applyEdits();renderPr();afterEdit()};
 $("pbl").onchange=async e=>{const k=e.target.dataset&&e.target.dataset.pb;if(!k)return;e.target.checked?PB=PB.filter(x=>x!==k):PB.includes(k)||PB.push(k);await savePB();badge()};
-const STU=()=>Object.keys(NAMES).filter(k=>!isT(k)&&k!=="admin"&&yr(k)===yr(me)),SA=()=>yr(me)===1?C1:C,SB=()=>yr(me)===1?C2:X,LP=()=>"config/locks"+(yr(me)===1?"1":"");
+const grp=k=>k==="ustaz0"||k==="alexey"||k==="liza"?"0":yr(k)===1?"1":"2",STU=()=>Object.keys(NAMES).filter(k=>!isT(k)&&k!=="admin"&&grp(k)===grp(me)),SA=()=>yr(me)===1?C1:C,SB=()=>yr(me)===1?C2:X,LP=()=>"config/locks"+(grp(me)==="0"?"0":yr(me)===1?"1":"");
 const NAMES={dima:"Дима",grisha:"Гриша",misha:"Миша",egor:"Егор",nikita:"Никита",arman:"Арман",madina228:"Полина",kristina:"Кристина",nastya:"Настя",slava:"Слава",ustaz:"Устаз",test:"Тест",ustaz1:"Устаз",admin:"Админ",liza:"Лиза",alexey:"Алексей",ustaz0:"Устаз"};
 const AL={yegor:"egor",nastia:"nastya",dimka:"dima"},TEACH="ustaz";
 /* ---- логины: config/logins = {al:{логин:ключ}, us:{ключ:{n:имя,y:год}}, ren:{ключ:текущий логин}} ---- */
@@ -5555,7 +5555,7 @@ else{await hwPatch(u,id,{status:"done",ts:0,err:"",score:Math.max(0,Math.min(100
 finally{HWFLY.delete(key);HWSIG="";try{if(!$("hw").hidden)hwMine();if(!$("teach").hidden)renderHW()}catch(_){}}
 return ok}
 async function hwResume(){if(!me||isT(me)||me==="admin"||!DB||!(HWAPI||window.claude))return;const now=Date.now();for(const e of HWM.slice()){if(HWFLY.has(me+"|"+e.id))continue;if((e.status==="pending"||(e.status==="checking"&&now-(e.ts||0)>120000))&&(e.tries||0)<3)await hwCheckEntry(me,e.id)}}
-async function hwAuto(){if(HWAUTO||!isT(me)||!HWAPI||!DB)return;HWAUTO=1;try{const now=Date.now();for(const x of hwList()){if(yr(x.u)!==yr(me)||HWFLY.has(x.u+"|"+x.id))continue;if((x.status==="pending"||(x.status==="checking"&&now-(x.ts||0)>120000))&&(x.tries||0)<3)await hwCheckEntry(x.u,x.id,{apiOnly:true})}}finally{HWAUTO=0}}
+async function hwAuto(){if(HWAUTO||!isT(me)||!HWAPI||!DB)return;HWAUTO=1;try{const now=Date.now();for(const x of hwList()){if(grp(x.u)!==grp(me)||HWFLY.has(x.u+"|"+x.id))continue;if((x.status==="pending"||(x.status==="checking"&&now-(x.ts||0)>120000))&&(x.tries||0)<3)await hwCheckEntry(x.u,x.id,{apiOnly:true})}}finally{HWAUTO=0}}
 async function hwRun(src,n){const o=$("hwo"),f=$("hwf").files[0];if(!f)return;const{sel,ru}=hwSel(src,n);if(!ru.length)return;
 if(!DB){o.innerHTML='<div class="tc rd">Нет связи с общей базой — работу не удалось отправить. Покажи тетрадь учителю.</div>';return}
 let can=!!HWAPI;if(!can)try{const smp=window.claude&&claude.use?await claude.use("sample"):null;if(smp){const lim=await smp.limits();can=!!lim.images}}catch(e){}
@@ -5578,7 +5578,7 @@ function jrender(){const g=$("jrn"),l=JRM.slice().sort((a,b)=>b.t-a.t),a=jAvg(l)
 const jForm=(u,eid)=>`<div class="jf" data-u="${esc(u)}" data-eid="${esc(eid||"")}"><input class="jt2" placeholder="Название (например: Срез 1, Диктант)">`+(yr(u)===2?`<select class="jg2">${["mumtaz","jayyid_jiddan","jayyid","bad"].map(k=>`<option value="${k}">${GL[k][1]}</option>`).join("")}</select>`:`<input class="jn" type="number" min="0" max="100" placeholder="Балл 0–100">`)+`<textarea class="jc2" rows="2" placeholder="Комментарий ученику (необязательно)"></textarea><button class="b ok jadd" type="button">Поставить оценку</button></div>`;
 function jrt(){show("jrt");listen();jtr(true)}
 function jtr(force){const g=$("jrt");if(g.hidden)return;const ae=document.activeElement;if(!force&&ae&&g.contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;
-const us=Object.keys(NAMES).filter(k=>!isT(k)&&k!=="admin"&&(me==="admin"||yr(k)===yr(me))),all=us.map(u=>({u,l:asArr(JR[u]),a:jAvg(JR[u])})),avs=all.map(x=>x.a).filter(x=>x!=null),cav=avs.length?Math.round(avs.reduce((p,c)=>p+c,0)/avs.length):null;
+const us=Object.keys(NAMES).filter(k=>!isT(k)&&k!=="admin"&&(me==="admin"||grp(k)===grp(me))),all=us.map(u=>({u,l:asArr(JR[u]),a:jAvg(JR[u])})),avs=all.map(x=>x.a).filter(x=>x!=null),cav=avs.length?Math.round(avs.reduce((p,c)=>p+c,0)/avs.length):null;
 g.innerHTML=`<h2>Журнал<small class="ar2">السِّجِلُّ</small></h2><div class="tc jav"><small class="mu">Средний балл группы</small><div class="hwsc">${cav==null?"—":cav+"<small> / 100</small>"}</div></div><p class="mu"><small>Оценки за домашние задания ставятся в карточке работы (вкладка «Учитель»). Здесь можно поставить любую оценку вручную. Ученик видит оценку и комментарий у себя в «Успеваемости».</small></p>`+all.map(({u,l,a})=>`<details class="gd" data-u="${esc(u)}" ${JOPEN.has(u)?"open":""}><summary><b>${esc(NAMES[u]||u)}</b> · средний: ${a==null?"—":a} · оценок: ${l.length}</summary><div class="gb">`+l.map(x=>`<div class="jr2"><b>${jdt(x.t)}</b> ${esc(x.title||"")} — <span class="jg ${jcl(x)}" style="padding:2px 8px">${jLab(x)}</span>${x.comment?`<br><small>${arw(esc(x.comment))}</small>`:""} <button class="lnk jed" data-u="${esc(u)}" data-id="${esc(x.id)}">✎</button> <button class="lnk jdl" data-u="${esc(u)}" data-id="${esc(x.id)}">✕</button></div>`).join("")+jForm(u)+`</div></details>`).join("")}
 function jfRead(f,u){const t=f.querySelector(".jt2"),y2=yr(u)===2;let sc,gr="";if(y2){gr=f.querySelector(".jg2").value;sc=SC2[gr]}else{sc=Math.round(+f.querySelector(".jn").value);if(f.querySelector(".jn").value===""||isNaN(sc)||sc<0||sc>100){alert("Введи балл от 0 до 100");return null}}return{score:sc,grade:gr,comment:f.querySelector(".jc2").value.trim(),title:t?t.value.trim():""}}
 function hwList(){const r=[];Object.entries(HWL).forEach(([u,l])=>asArr(l).forEach(x=>r.push({u,...x})));return r.sort((a,b)=>b.t-a.t)}
