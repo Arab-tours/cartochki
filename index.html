@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=131;
+window.APPV=132;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -31,7 +31,7 @@ runMain()})};
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#09150f;--ink:#efe8d6;--mute:#9db3a4;--sea:#14804f;--sea2:#1b9a63;--gold:#dcb75e;--card:#102319;--line:#21392c}}
 :root[data-theme="dark"]{--bg:#09150f;--ink:#efe8d6;--mute:#9db3a4;--sea:#14804f;--sea2:#1b9a63;--gold:#dcb75e;--card:#102319;--line:#21392c}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,sans-serif;min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,sans-serif;min-height:100%;min-height:100vh;min-height:100dvh}
 body::before{content:"";position:fixed;inset:0;will-change:transform;transform:translateZ(0);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%230e5c3b' stroke-width='1.2'%3E%3Crect x='14' y='14' width='36' height='36'/%3E%3Crect x='14' y='14' width='36' height='36' transform='rotate(45 32 32)'/%3E%3Ccircle cx='32' cy='32' r='5'/%3E%3C/g%3E%3C/svg%3E");opacity:.05;pointer-events:none}
 .wrap{max-width:640px;margin:0 auto;padding:0 20px;position:relative}
 .ar{font-family:"Noto Sans Arabic","Segoe UI",Tahoma,"Geeza Pro",sans-serif;direction:rtl}
@@ -5654,7 +5654,7 @@ mm=false;cat={t:"Повторение"};full=w;start(full)}
 function openKill(){cur=0;const w=ALLW.filter(x=>(S.w[x.a]||{}).x>5);if(!w.length){endMsg("Пока нет сложных слов","Сюда попадают слова, в которых ошибся больше 5 раз.",0);return}
 cat={t:"Сложные для меня слова"};full=w;start(full)}
 home();
-function show(id){if(id!=="txt"&&typeof tstop==="function"&&!$("txt").hidden)tstop();["login","menu","study","end","dict","teach","admin","gram","hw","sch","txt","jrn","jrt","bg","lgn"].forEach(x=>$(x).hidden=x!==id);navr(id)}
+function show(id){try{window.scrollTo(0,0)}catch(e){}if(id!=="txt"&&typeof tstop==="function"&&!$("txt").hidden)tstop();["login","menu","study","end","dict","teach","admin","gram","hw","sch","txt","jrn","jrt","bg","lgn"].forEach(x=>$(x).hidden=x!==id);navr(id)}
 /*SCH*/
 const L_=(s,k,t,r,g,p)=>({s,k,t,r,g,p}),SG="16-араб/англ (2УП-05)",G5="2УП-05";
 const SCHD={
