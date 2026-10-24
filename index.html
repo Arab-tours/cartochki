@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=117;
+window.APPV=118;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -244,8 +244,9 @@ h2{color:var(--sea);font-weight:800;letter-spacing:-.01em}
 .lzt{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}.lzt.on{opacity:1}
 #bg input[type=file]{width:100%;margin:4px 0 8px;padding:8px;border-radius:10px;border:1px solid var(--line);font:inherit;background:var(--card);color:var(--ink)}
 /*TCHCSS*/
-#rep{position:fixed;left:10px;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:15;background:var(--card);color:#b4531a;border:1.5px solid #d9732b;border-radius:999px;padding:6px 11px;font:700 13px/1 Manrope,sans-serif;box-shadow:0 4px 14px -4px rgba(0,0,0,.35);cursor:pointer;-webkit-tap-highlight-color:transparent}
-@media(min-width:701px){#rep{bottom:16px;left:18px}}
+#rep{position:fixed;left:6px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:15;width:26px;height:26px;padding:0;display:grid;place-items:center;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:50%;font:700 13px/1 Manrope,sans-serif;opacity:.28;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#rep:active,#rep:hover{opacity:.9}
+@media(min-width:701px){#rep{bottom:14px;left:14px}}
 #tch{position:fixed;right:10px;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:15;width:54px;height:54px;transition:opacity .35s;-webkit-tap-highlight-color:transparent}
 @media(min-width:701px){#tch{bottom:16px;right:18px;width:62px;height:62px}}
 #tch.dim{opacity:.22}
@@ -410,7 +411,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adju
 <div id="login" class="lg"><div class="arch"><input id="nm" autocapitalize="off" autocomplete="off" placeholder="Имя латиницей"><button class="b ok" id="go" style="width:100%">Войти<small class="ar2" style="text-align:center">دُخُولٌ</small></button><p id="err" class="er"></p></div></div>
 <div id="menu" class="menu" hidden></div>
 <div id="dict" hidden><h2>Словарь<small class="ar2">القَامُوسُ</small></h2><input id="dq" placeholder="Поиск: арабский или русский"><select id="dg" style="width:auto;padding:8px"><option value="">Все слова</option><option value="c">Срез 1: категории</option><option value="x">Дополнительное</option></select> <select id="ds" hidden style="width:auto;max-width:100%;padding:8px"></select> <button class="b" id="dc" style="padding:8px 12px">Скопировать<small class="ar2" style="text-align:center">نَسْخٌ</small></button><div id="dres"></div></div>
-<button id="rep" type="button" aria-label="Сообщить об ошибке">⚠ Ошибка?</button>
+<button id="rep" type="button" aria-label="Сообщить об ошибке" title="Сообщить об ошибке">!</button>
 <div id="rpm" class="modal" hidden><div class="mbox"><h3>Сообщить об ошибке</h3><p class="mu" id="rpc"></p><textarea id="rpt" rows="4" maxlength="800" placeholder="Что не так? Например: неверный перевод, опечатка, не работает кнопка"></textarea><p id="rpe" class="mu"></p><div class="row"><button class="b ok" id="rps">Отправить</button><button class="b" id="rpx">Отмена</button></div></div></div>
 <div id="ed" class="modal" hidden><div class="mbox"><h3 id="edt"></h3><label class="mu">Арабский (с огласовками)</label><input id="ea" dir="rtl" class="ar" style="font-size:22px"><label class="mu">Русский</label><textarea id="er" rows="3"></textarea><div id="enw"><label class="mu">Комментарий для учителя (что не так)</label><textarea id="en" rows="2"></textarea></div><p id="em" class="mu"></p><div class="row"><button class="b ok" id="esv">Сохранить</button><button class="b" id="ecn">Отмена</button></div><button class="lnk" id="edl">Убрать слово</button></div></div>
 <div id="bg" hidden></div><div id="gram" hidden></div><div id="hw" hidden></div><div id="sch" hidden></div><div id="txt" hidden></div><div id="jrn" hidden></div><div id="jrt" hidden></div>
@@ -6263,7 +6264,7 @@ const TCHSVG=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 64C5 50 17
 const TNEWS=[
 {n:17,a:"2",d:"23 октября",t:"Карточки форм: сначала перевод",w:"Главный экран → «Все породы глаголов»",f:"Все породы глаголов",go:()=>fmv(),x:"В разделе «Все породы глаголов» карточка теперь начинается с русского перевода, затем глагол по-арабски и остальные формы по порядку."},
 {n:24,a:"2",d:"24 октября",t:"Вход в приложении",w:"При запуске приложения",x:"Приложение больше не выходит из аккаунта при перезапуске и сразу открывает ваш экран, без промежуточной страницы входа. На сайте после перезапуска нужно входить заново."},
-{n:23,a:"2",d:"24 октября",t:"Кнопка «Ошибка?»",w:"Внизу слева на любом экране",x:"Нашли неверный перевод, опечатку или баг — нажмите «⚠ Ошибка?» внизу слева, опишите в двух словах. Сообщение сразу уйдёт разработчику вместе с названием экрана и карточки."},
+{n:23,a:"2",d:"24 октября",t:"Сообщить об ошибке",w:"Значок «!» внизу слева",x:"Нашли неверный перевод, опечатку или баг — нажмите маленький значок «!» внизу слева, опишите в двух словах. Сообщение сразу уйдёт разработчику вместе с названием экрана и карточки."},
 {n:22,a:"2",d:"24 октября",t:"IV и X породы",w:"Главный экран → «Все породы глаголов»",f:"Все породы глаголов",go:()=>fmv(),x:"В «Все породы глаголов» добавлены IV порода (10 глаголов) и X порода (6 глаголов). У глагола أَوْجَبَ исправлено значение: «обязывать, вменять в обязанность»."},
 {n:21,a:"2",d:"24 октября",t:"III порода и новые глаголы",w:"Главный экран → «Все породы глаголов»",f:"Все породы глаголов",go:()=>fmv(),x:"В «Все породы глаголов» добавлена III порода (6 глаголов), к II породе — 7 глаголов (до 18), к V породе — 3 (до 14)."},
 {n:20,a:"*",d:"23 октября",t:"Окно обновления",w:"Приложение",x:"Исправлено окно обновления: оно больше не вылезает за экран, кнопка «Обновить» всегда на виду."},
@@ -6332,7 +6333,7 @@ case 11:return[{t:"Расписание и ДЗ",x:"Новая вкладка: �
 case 12:return[{t:"Установить как приложение",x:"Нажмите на меня и выберите «📲 Установить как приложение». На iPhone: «Поделиться» → «На экран Домой». Значок появится, как у обычного приложения.",el:()=>$("tchf"),m:"h"}];
 case 17:return[{t:"Карточки форм: сначала перевод",x:"В «Все породы глаголов» сначала показывается русский перевод, следующим нажатием — глагол по-арабски, дальше остальные формы.",go:H,el:()=>tchQ("#menu .cat","Все породы глаголов")}];
 case 24:return[{t:"Вход в приложении",x:"Приложение запоминает вход и открывается сразу на вашем экране.",go:H}];
-case 23:return[{t:"Кнопка «Ошибка?»",x:"Внизу слева на каждом экране. Нажмите, опишите проблему — и она уйдёт разработчику.",go:H,el:()=>$("rep")}];
+case 23:return[{t:"Кнопка «Ошибка?»",x:"Маленький значок «!» внизу слева. Нажмите, опишите проблему — и она уйдёт разработчику.",go:H,el:()=>$("rep")}];
 case 22:return[{t:"IV и X породы",x:"В «Все породы глаголов» добавлены IV и X породы.",go:H,el:()=>tchQ("#menu .cat","Все породы глаголов")}];
 case 21:return[{t:"III порода и новые глаголы",x:"В «Все породы глаголов» теперь есть III порода, а во II и V породах стало больше глаголов.",go:H,el:()=>tchQ("#menu .cat","Все породы глаголов")}];
 case 19:return[{t:"Породы II, V и VI",x:"В «Все породы глаголов» теперь четыре породы: II, V, VI и VIII. Выберите породу и листайте формы.",go:H,el:()=>tchQ("#menu .cat","Все породы глаголов")}];
