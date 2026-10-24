@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=129;
+window.APPV=130;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -6417,6 +6417,8 @@ function tchAct(ok,keep){if(!ok||!tchOn()||!TCH.el)return;if(keep&&S){S.ta=Date.
 lgCache();$("admin").addEventListener("click",lgAdmClick);dbp.then(()=>lgLoad());{const m=ld("me"),cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));if(cap&&m&&NAMES[m]){show("none");login(m).catch(()=>{try{logout()}catch(e){show("login")}})}else{if(!cap){try{localStorage.removeItem("me")}catch(e){}}show("login")}}
 setInterval(async()=>{if(!me||document.hidden)return;if(isT(me)||me==="admin")await lgLoad();if(me!=="admin"){const oa=JSON.stringify(ASG);await loadAssign();if(oa!==JSON.stringify(ASG)&&!$("menu").hidden&&cur===0&&!isT(me))home();if(oa!==JSON.stringify(ASG)&&!$("teach").hidden)renderAS()}const ob=PB.join();await loadPB();const ch=await loadEdits();if(!isT(me)){await loadMyProps()}if(ch&&me!=="admin")afterEdit();if(ob!==PB.join()&&!$("study").hidden)draw();if(isT(me))return;const o=JSON.stringify(L);await loadLocks();if(o!==JSON.stringify(L)&&!$("menu").hidden)cur===X?extra():cur===C?s1():cur===SR?sr():cur===SV?sr8():cur===PY?py():cur===DK?dkv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()},15000);
 
+/*KBFIX*/(function(){const fix=()=>{try{const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;const v=window.visualViewport;if(v&&(v.offsetTop>1||Math.abs(v.height-window.innerHeight)>2)||document.documentElement.scrollLeft){const y=window.scrollY;window.scrollTo(0,y>0?y-1:y+1);window.scrollTo(0,y)}}catch(e){}};
+document.addEventListener("focusout",()=>{[80,300,700].forEach(t=>setTimeout(fix,t))});if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(fix,150))})();
 /*NOZOOM*/
 ["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
