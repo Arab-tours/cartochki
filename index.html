@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=168;
+window.APPV=169;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -4984,6 +4984,8 @@ m8("ه","م","обвинять (кого-л. <i>вин. п.</i> о чём-л. "+
 const FMV=[{t:"I порода",s:"وَعَدَ",ic:"I",w:FMF.I},{t:"II порода",s:"فَعَّلَ",ic:"II",w:FMF.II},{t:"III порода",s:"فَاعَلَ",ic:"III",w:FMF.III},{t:"IV порода",s:"أَفْعَلَ",ic:"IV",w:FMF.IV},{t:"V порода",s:"تَفَعَّلَ",ic:"V",w:FMF.V},{t:"VI порода",s:"تَفَاعَلَ",ic:"VI",w:FMF.VI},{t:"VIII порода",s:"افْتَعَلَ",ic:"VIII",w:FMF.VIII},{t:"X порода",s:"اِسْتَفْعَلَ",ic:"X",w:FMF.X}];
 const FMN=FMV.reduce((a,c)=>a+c.w.length,0);
 const FML="Перфект · 3 л. ед. ч. м. р.";
+const fcard=(v,j)=>({a:j?v.f[j-1].a:v.a,r:v.r,k:v.a+"~"+j,fq:{v:j?v.a:"",l:j?v.f[j-1].l:FML,m:v.r},n:0});
+const fcards=c=>{const o=[];c.w.forEach(v=>{for(let j=0;j<=v.f.length;j++)o.push(fcard(v,j))});return o};
 function fmv(){cur=FMV;menu.innerHTML="";crumb([{t:"Карточки",f:()=>{home();show("menu")}},{t:"Все породы подобноправильных глаголов для контрольной"}]);
 menu.insertAdjacentHTML("beforeend",`<h2 class="pt">Все породы подобноправильных глаголов для контрольной</h2><p style="color:var(--mute);font-size:14px;margin:0 4px 12px">Из табличек к контрольной. Страдательный залог не входит.</p>`);
 FMV.forEach((c,k)=>{const pc=c.w.length?Math.round(lrn(S,c)/c.w.length*100):0;mi("m"+k,U2(c.ic,c.t,c.w.length+" гл. · 7 форм каждого",pc+"%",pc),()=>open(k))});
@@ -5113,7 +5115,7 @@ async function saveMyProps(){try{localStorage.setItem("props_"+me,JSON.stringify
 const canProp=()=>!!me&&!isT(me)&&me!=="admin"&&!PB.includes(me);
 const canEdit=()=>isT(me)||canProp();
 function openEd(w){if(!w||!canEdit())return;edW=w;const t=isT(me);$("edt").textContent=t?"Править слово":"Предложить правку учителю";$("ea").value=w.a;$("er").value=w.r;$("enw").hidden=t;$("edl").hidden=!t;$("esv").textContent=t?"Сохранить для всех":"Отправить учителю";$("em").textContent=t?"Изменение увидят все ученики в течение 15 секунд.":(DB?"":"Нет общей базы: предложение не дойдёт до учителя с другого устройства.");$("en").value="";$("ed").hidden=false}
-function afterEdit(){if(!$("study").hidden&&deck){deck=deck.map(d=>{const n=findW(d.o||d.a);if(!n)return null;const r={...n};if(d.m!=null)r.m=d.m;if(d.n!=null)r.n=d.n;return r}).filter(Boolean);if(cat&&cat.w)full=cat.w.slice();if(i>=deck.length)i=Math.max(0,deck.length-1);if(deck.length)draw();else home()}if(!$("dict").hidden)dsr();if(!$("menu").hidden&&typeof cur!=="undefined")cur===X?extra():cur===C?s1():cur===SR?sr():cur===SV?sr8():cur===PY?py():cur===DK?dkv():cur===FMV?fmv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()}
+function afterEdit(){if(!$("study").hidden&&deck){deck=deck.map(d=>{if(d.fq)return d;const n=findW(d.o||d.a);if(!n)return null;const r={...n};if(d.m!=null)r.m=d.m;if(d.n!=null)r.n=d.n;return r}).filter(Boolean);if(cat&&cat.w)full=cat.w.slice();if(i>=deck.length)i=Math.max(0,deck.length-1);if(deck.length)draw();else home()}if(!$("dict").hidden)dsr();if(!$("menu").hidden&&typeof cur!=="undefined")cur===X?extra():cur===C?s1():cur===SR?sr():cur===SV?sr8():cur===PY?py():cur===DK?dkv():cur===FMV?fmv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home()}
 $("ecn").onclick=()=>{$("ed").hidden=true};
 $("esv").onclick=async()=>{const a=$("ea").value.trim(),r=$("er").value.trim(),o=edW.o||edW.a;if(!a||!r){$("em").textContent="Заполни оба поля";return}
 if(isT(me)){const i=E.findIndex(e=>e.o===o),e={o,a,r};i<0?E.push(e):E[i]=e;await saveEdits();applyEdits();$("ed").hidden=true;afterEdit();return}
@@ -5210,7 +5212,7 @@ function push(){if(!stores().length||!me)return;if(!PUL){if(!isT(me))syncTry();r
 const dk=t=>{const d=new Date(t);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const dayE=(t)=>{S.d=S.d||{};const k=dk(t);const e=S.d[k]||(S.d[k]={v:0,n:0,ok:0,c:{}});e.c=e.c||{};return e};
 const save=()=>{if(!me)return;S.m=miss;S.t.last=Date.now();try{localStorage.setItem("p_"+me,JSON.stringify(S))}catch(e){}push()};
-function rec(d,ok){const now=Date.now(),de=dayE(now);de.n++;if(ok)de.ok++;de.l=now;de.f=de.f||now;const ck=cat.t.replace(/[.$#\[\]\/]/g,"_");de.c[ck]=(de.c[ck]||0)+1;S.la=now;const w=S.w[d.a]||(S.w[d.a]={r:0,x:0});ok?(w.r++,w.s=(w.s||0)+1):(w.x++,w.s=0);S.t.n++;if(ok)S.t.ok++;const c=S.c[cat.t]||(S.c[cat.t]={n:0,ok:0});c.n++;if(ok)c.ok++;try{tchAct(ok)}catch(e){}}
+function rec(d,ok,q){const kk=d.k||d.a;if(q){const w=S.w[kk]||(S.w[kk]={r:0,x:0});ok?(w.r++,w.s=(w.s||0)+1):(w.x++,w.s=0);return}const now=Date.now(),de=dayE(now);de.n++;if(ok)de.ok++;de.l=now;de.f=de.f||now;const ck=cat.t.replace(/[.$#\[\]\/]/g,"_");de.c[ck]=(de.c[ck]||0)+1;S.la=now;const w=S.w[kk]||(S.w[kk]={r:0,x:0});ok?(w.r++,w.s=(w.s||0)+1):(w.x++,w.s=0);S.t.n++;if(ok)S.t.ok++;const c=S.c[cat.t]||(S.c[cat.t]={n:0,ok:0});c.n++;if(ok)c.ok++;try{tchAct(ok)}catch(e){}}
 let mm=false;
 const menu=$("menu");let cur=C;
 const D={"Логин":"اِسْمُ الدُّخُولِ","Расписание":"الْجَدْوَلُ","Проверка ДЗ":"فَحْصُ الوَاجِبِ","Успеваемость":"التَّحْصِيلُ","Журнал":"السِّجِلُّ","Срез 1: 1 и 2 урок":"الاِخْتِبَارُ الأَوَّلُ: الدَّرْسُ الأَوَّلُ وَالثَّانِي","Срез 2":"الاِخْتِبَارُ الثَّانِي","Урок 3":"الدَّرْسُ الثَّالِثُ","Урок 4":"الدَّرْسُ الرَّابِعُ","Урок 5":"الدَّرْسُ الخَامِسُ","Урок 6":"الدَّرْسُ السَّادِسُ","Самостоятельная Сардаровой по 3 породе":"عَمَلٌ مُسْتَقِلٌّ: الصِّيغَةُ الثَّالِثَةُ","Самостоятельная по VIII породе":"عَمَلٌ مُسْتَقِلٌّ: الصِّيغَةُ الثَّامِنَةُ","Масдары":"المَصَادِرُ","Грамматика":"القَوَاعِدُ","Проверка домашнего задания":"فَحْصُ الوَاجِبِ","Причастия":"اِسْمُ الفَاعِلِ","Сложные для меня слова":"كَلِمَاتِي الصَّعْبَةُ","Слова для повторения":"كَلِمَاتٌ لِلتَّكْرَارِ","Дополнительное":"إِضَافِيٌّ","← Назад":"رُجُوعٌ","Карточки":"البِطَاقَاتُ","Словарь":"القَامُوسُ","Учитель":"المُعَلِّمُ","Выйти":"خُرُوجٌ",
@@ -5694,12 +5696,12 @@ mi("miss",U("!","Слова для повторения","3 верных под�
 function extra(){cur=X;menu.innerHTML="";mk(BK(),s1);X.forEach((c,k)=>mi("x"+k,U(k+1,c.t,c.s,c.w.length),()=>open(k)))}
 /*RV*/const rvOk=w=>w&&(w.s!=null?w.s>=2:w.r>=(w.x||0)+2);
 function rvSets(){return yr(me)===1?[C1,C2]:[C3,C4,C5,C6,FMV]}
-function rvWords(){const out=[],seenK={};rvSets().forEach(L=>L.forEach(c=>{const n=c.w.length;if(!n)return;const st=k=>(S.w&&S.w[k.a])||{r:0,x:0};const sn=c.w.filter(w=>{const q=st(w);return(q.r||0)+(q.x||0)>0});if(!sn.length)return;
+function rvWords(){const out=[],seenK={};rvSets().forEach(L=>L.forEach(c=>{const W=L===FMV?fcards(c):c.w,n=W.length;if(!n)return;const st=k=>(S.w&&S.w[k.k||k.a])||{r:0,x:0};const sn=W.filter(w=>{const q=st(w);return(q.r||0)+(q.x||0)>0});if(!sn.length)return;
 let R=0,T=0;sn.forEach(w=>{const q=st(w);R+=q.r||0;T+=(q.r||0)+(q.x||0)});const acc=R/T,kmin=Math.max(1,Math.round(n*.1)),kmax=Math.max(1,Math.ceil(n*.2));
 const sc=w=>{const q=st(w);return(q.x||0)/((q.r||0)+(q.x||0))+.01*(q.x||0)};
 let pick=sn.filter(w=>(st(w).x||0)>0&&!rvOk(st(w))).sort((a,b)=>sc(b)-sc(a)).slice(0,kmax);
 if(acc<.81&&pick.length<kmin&&sn.length>=5){const rest=sn.filter(w=>!pick.includes(w)).sort((a,b)=>sc(b)-sc(a)||(st(a).r||0)-(st(b).r||0));pick=pick.concat(rest.slice(0,kmin-pick.length))}
-pick.forEach(w=>{if(!seenK[w.a]){seenK[w.a]=1;out.push(w)}})}));return out}
+pick.forEach(w=>{const q=w.k||w.a;if(!seenK[q]){seenK[q]=1;out.push(w)}})}));return out}
 function openRv(){window.__rv=1;cur=0;const w=rvWords();if(!w.length){endMsg("Пока нечего повторять","Сюда попадают слова, которые не получалось запомнить: от 10 до 20% каждого набора. Если вы отвечаете верно с первого раза в 81% и больше, остаются только действительно ошибочные.",0);return}
 mm=false;cat={t:"Повторение"};full=w;start(full)}
 function openKill(){cur=0;const w=ALLW.filter(x=>(S.w[x.a]||{}).x>5);if(!w.length){endMsg("Пока нет сложных слов","Сюда попадают слова, в которых ошибся больше 5 раз.",0);return}
@@ -5959,7 +5961,7 @@ function win(){endMsg("молодец батракан, иди учи грамм
 function openMiss(){cur=C;const w=Object.values(miss);if(!w.length){endMsg("Пока пусто","Нажми «Ещё раз» на любой карточке — слово попадёт сюда.",0);return}
 mm=true;cat={t:"Слова для повторения"};deck=w.sort(()=>Math.random()-.5);i=0;know=0;ans=[];flipped=false;$("ct").textContent=cat.t;show("study");draw()}
 function start(list,key){pkey=key||null;mm=false;deck=list.slice();for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}i=0;know=0;ans=[];flipped=false;$("ct").textContent=cat.t;show("study");draw()}
-let fst=0;
+let fst=0,fqs=false;
 function draw(){
  psSave();
  if(mm&&i>=deck.length){deck=Object.values(miss).sort(()=>Math.random()-.5);i=0;if(!deck.length){win();return}}
@@ -5967,22 +5969,25 @@ function draw(){
  const d=deck[i],f=$("face");
  const ar=`<div class="big ar">${d.a}</div>`,ru=`<div class="ru">${d.r}</div>`;
  const q=rev?ru:ar,a=rev?ar:ru;
- if(!flipped)fst=0;
- f.className="face"+(flipped?" ans ":" ")+st(d.a);
- if(d.f){const n=d.f.length,pr=t=>`<div class="hint" style="margin-top:14px"><b>Назовите:</b> ${t}</div>`,lb=t=>`<div class="hint" style="margin:0 0 6px;font-weight:700">${t}</div>`;
+ if(!flipped){fst=0;fqs=false}
+ f.className="face"+(flipped?" ans ":" ")+st(d.k||d.a);
+ if(d.fq){const o=d.fq;f.innerHTML=flipped?`<div class="hint" style="margin:0 0 6px;font-weight:700">${o.l}</div><div class="big ar">${d.a}</div>`:`<div class="ru">${o.m}</div>${o.v?`<div class="big ar">${o.v}</div>`:""}<div class="hint" style="margin-top:14px"><b>Назовите:</b> ${o.l}</div>`}
+ else if(d.f){const n=d.f.length,pr=t=>`<div class="hint" style="margin-top:14px"><b>Назовите:</b> ${t}</div>`,lb=t=>`<div class="hint" style="margin:0 0 6px;font-weight:700">${t}</div>`;
   if(!flipped)f.innerHTML=ru+pr(FML);
+  else if(fqs)f.innerHTML=ar+pr(d.f[fst-1].l);
   else if(fst===0)f.innerHTML=lb(FML)+ar+pr(d.f[0].l);
   else{const x=d.f[fst-1],nx=d.f[fst];f.innerHTML=lb(x.l)+`<div class="big ar">${x.a}</div>`+(nx?pr(nx.l):`<div class="hint" style="margin-top:14px">↻ нажмите — вернуться к началу</div>`)}}
  else f.innerHTML=flipped?a:q+`<div class="hint">↻ нажмите, чтобы увидеть ответ</div>`;
  $("pb").style.width=(i/deck.length*100)+"%";
  $("pos").textContent=`${i+1} / ${deck.length}`;$("sc").textContent=mm?`Подряд: ${d.n||0} / 3`:`Знаю: ${know}`;
- $("dir").textContent=d.f?"Перевод → арабский → формы":rev?"Русский → арабский":"Арабский → русский";$("dir").disabled=!!d.f;
- $("yes").disabled=$("no").disabled=!flipped;$("edb").hidden=!canEdit()||!!d.f;$("edb").textContent=isT(me)?"✎ Править":"✎ Предложить правку";
+ $("dir").textContent=d.fq?"Форма глагола":d.f?"Перевод → арабский → формы":rev?"Русский → арабский":"Арабский → русский";$("dir").disabled=!!(d.f||d.fq);
+ $("yes").disabled=$("no").disabled=!flipped||fqs;$("edb").hidden=!canEdit()||!!d.f||!!d.fq;$("edb").textContent=isT(me)?"✎ Править":"✎ Предложить правку";
 }
 const next=ok=>{if(mm){if(ok)know++}else{ans[i]=ok?1:0;know=ans.filter(x=>x===1).length}if(!ok)deck[i].m=1;i++;flipped=false;draw();save()};
-$("face").onclick=()=>{const d=deck[i];if(d&&d.f){if(!flipped){flipped=true;fst=0}else if(fst<d.f.length)fst++;else{flipped=false;fst=0}draw();return}flipped=!flipped;draw()};
-$("yes").onclick=()=>{const d=deck[i];d.m=0;if(mm||ans[i]!==1)rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.a]}next(1)};
-$("no").onclick=()=>{const d=deck[i];if(mm||ans[i]!==0)rec(d,0);if(mm)d.n=0;else miss[d.a]={a:d.a,r:d.r,f:d.f,n:0};next(0)};
+$("face").onclick=()=>{const d=deck[i];if(d&&d.f){if(!flipped){flipped=true;fst=0}else if(fqs)fqs=false;else if(fst<d.f.length)fst++;else{flipped=false;fst=0}draw();return}flipped=!flipped;draw()};
+function finF(d){const fm=d.fm||[],v=fm.length?0:1;delete d.fm;if(ans[i]!==v){for(let j=0;j<=d.f.length;j++){const ok=!fm.includes(j),c=fcard(d,j);rec(c,ok?1:0,1);if(!ok)miss[c.k]=c}rec(d,v)}d.m=v?0:1;next(v)}
+$("yes").onclick=()=>{const d=deck[i];if(d.f&&!mm){finF(d);return}d.m=0;if(mm||ans[i]!==1)rec(d,1);if(mm){d.n=(d.n||0)+1;if(d.n>=3)delete miss[d.k||d.a]}next(1)};
+$("no").onclick=()=>{const d=deck[i];if(d.f&&!mm){(d.fm=d.fm||[]).includes(fst)||d.fm.push(fst);if(fst<d.f.length){fst++;fqs=true;draw();return}finF(d);return}if(mm||ans[i]!==0)rec(d,0);if(mm)d.n=0;else miss[d.k||d.a]={a:d.a,r:d.r,f:d.f,fq:d.fq,k:d.k,n:0};next(0)};
 $("nxt").onclick=()=>{const k=+$("nxt").dataset.k;if(k>=0)open(k)};
 $("dir").onclick=()=>{rev=!rev;flipped=false;draw()};
 $("back").onclick=$("back2").onclick=()=>{cur===X?extra():cur===C?s1():cur===SR?sr():cur===SV?sr8():cur===PY?py():cur===DK?dkv():cur===FMV?fmv():(cur===C1||cur===C2||cur===C3||cur===C4||cur===C5||cur===C6)?pg(cur,curP):home();show("menu")};
@@ -6363,6 +6368,7 @@ hi:[["اِسْتَمِرُّوا!","Продолжайте!"],["السَّلَا
 const TCHSVG=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 64C5 50 17 46 32 46s27 4 27 18z" fill="#f6f1e7" stroke="#cfc6b4" stroke-width="1"/><path d="M25.5 46.5 32 55l6.5-8.5" fill="none" stroke="#cfc6b4" stroke-width="1.2"/><rect x="28" y="38" width="8" height="10" rx="3" fill="#d9a67c"/><path d="M13 47l4-17 6 .5-1 15z M51 47l-4-17-6 .5 1 15z" fill="#fff" stroke="#d9d2c3" stroke-width=".8"/><ellipse cx="32" cy="30" rx="13" ry="15" fill="#e7b98f"/><path d="M16 31C13 12 24 7 32 7s19 5 16 24c-1-7-4-12-16-12S17 24 16 31z" fill="#fff" stroke="#d9d2c3" stroke-width=".9"/><path d="M17 15C24 10 40 10 47 15l-.4 3.2C40 14 24 14 17.4 18.2z" fill="#262626"/><path d="M23 37.6Q32 34 41 37.6Q32 40.2 23 37.6zM21.5 38.5Q32 56 42.5 38.5Q43 49 32 52 21 49 21.5 38.5z" fill="#2a1d16"/><g class="tcheek"><circle cx="21.5" cy="35" r="3" fill="#d6342b" opacity=".5"/><circle cx="42.5" cy="35" r="3" fill="#d6342b" opacity=".5"/></g><g fill="rgba(255,255,255,.3)" stroke="#202020" stroke-width="1.4"><circle cx="25.5" cy="30.5" r="4.6"/><circle cx="38.5" cy="30.5" r="4.6"/></g><path d="M30.1 30.2h3.8" stroke="#202020" stroke-width="1.3"/><g class="te" fill="#1a1a1a"><circle cx="25.5" cy="30.8" r="1.6"/><circle cx="38.5" cy="30.8" r="1.6"/></g><g class="teye2" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round"><path d="M23.2 31.4q2.3-3 4.6 0M36.2 31.4q2.3-3 4.6 0"/></g><path class="tbl" d="M20.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tbr" d="M34.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tm tm1" d="M29 44.2h6" stroke="#e8c9b4" stroke-width="1.7" stroke-linecap="round" fill="none"/><path class="tm tm2" d="M28.3 46q3.7-4 7.4 0" stroke="#e8c9b4" stroke-width="1.8" stroke-linecap="round" fill="none"/><path class="tm tm3" d="M28 43.2q4 6 8 0z" fill="#fff" stroke="#e8c9b4" stroke-width="1" stroke-linejoin="round"/><g class="tx2" fill="#fff" stroke="#c4c4c4" stroke-width=".8"><circle cx="12" cy="13" r="3.4"/><circle cx="52" cy="13" r="3.4"/></g><g class="ts" fill="#f3b61f"><path d="M8 15l1.6 3.4 3.4 1.6-3.4 1.6L8 25l-1.6-3.4L3 20l3.4-1.6z"/><path d="M56 6l1.2 2.6L60 10l-2.8 1.2L56 14l-1.2-2.8L52 10l2.8-1.4z"/></g></svg>`;
 const TNEWS=[
 {n:17,a:"2",d:"23 октября",t:"Карточки форм: сначала перевод",w:"Главный экран → «Все породы подобноправильных глаголов для контрольной»",f:"Все породы подобноправильных глаголов для контрольной",go:()=>fmv(),x:"В разделе «Все породы подобноправильных глаголов для контрольной» карточка теперь начинается с русского перевода, затем глагол по-арабски и остальные формы по порядку."},
+{n:67,a:"2",d:"25 октября",t:"«Не знаю» — только для одной формы",w:"В карточках с формами породы кнопка «Ещё раз» теперь отмечает только ту форму, которую не знаешь, и карточка продолжается со следующей формы. Ошибочные формы попадают в «Повторение» и «Слова для повторения» по отдельности, а не весь глагол.",x:"«Все породы…» → открой глагол → «Ещё раз» на нужной форме."},
 {n:66,a:"2",d:"24 октября",t:"I порода в контрольной",w:"В «Все породы подобноправильных глаголов для контрольной» добавлена I порода: 13 глаголов с начальным «و» (وَعَدَ، وَجَدَ، وَصَلَ، وَقَفَ، وَضَعَ…) по таблицам учителя, 7 форм у каждого.",x:"Открой «Все породы…» → I порода."},
 {n:65,a:"*",d:"24 октября",t:"Живая озвучка слогов",w:"В алфавите у каждой буквы можно послушать слоги с а, и, у в записи чтеца. Кнопка «Все три подряд» проигрывает их друг за другом.",x:"Слоги вырезаны из записи таблицы Нурания (урок 4)."},
 {n:64,a:"*",d:"24 октября",t:"Заставка при каждом запуске",w:"В приложении заставка с логотипом теперь показывается при каждом запуске, а не пропадает после обновления.",x:"Заставка больше не отключается обновлением по воздуху."},
