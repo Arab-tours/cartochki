@@ -1,5 +1,6 @@
 // Cloudflare Worker: прокси для проверки домашнего задания на GitHub Pages.
 // ВЕРСИЯ НА GOOGLE GEMINI (есть бесплатный лимит). Ключ хранится только здесь (секрет GEMINI_API_KEY), в сайте его нет.
+// Необязательное поле ref — второе изображение (образец рука’а МГИМО для прописей), идёт после фото.
 // Настройки (Settings → Variables): GEMINI_API_KEY (secret), ALLOWED_ORIGINS (необязательно),
 // MODEL (необязательно, по умолчанию gemini-flash-latest), DAILY_LIMIT (необязательно, число проверок на ученика в сутки; нужен KV с именем KV).
 export default {
@@ -17,7 +18,7 @@ export default {
     if (req.method !== "POST" || !allowed.includes(origin)) return json({ error: "forbidden" }, 403);
     let b; try { b = await req.json(); } catch { return json({ error: "bad json" }, 400); }
     if (b.ping) return json({ ok: true });
-    if (!b.prompt || !b.image || b.prompt.length > 200000 || b.image.length > 4000000) return json({ error: "bad request" }, 400);
+    if (!b.prompt || !b.image || b.prompt.length > 200000 || b.image.length > 4000000 || (b.ref && b.ref.length > 3000000)) return json({ error: "bad request" }, 400);
     const user = String(b.user || "").slice(0, 40);
     if (env.KV && env.DAILY_LIMIT) {
       const key = "u:" + user + ":" + new Date().toISOString().slice(0, 10);
@@ -32,6 +33,7 @@ export default {
       body: JSON.stringify({
         contents: [{ role: "user", parts: [
           { inline_data: { mime_type: b.mime || "image/jpeg", data: b.image } },
+          ...(b.ref ? [{ inline_data: { mime_type: "image/jpeg", data: b.ref } }] : []),
           { text: b.prompt }
         ] }],
         generationConfig: { maxOutputTokens: 3000, temperature: 0.2 }
