@@ -1,6 +1,22 @@
-{"date":"2026-10-28",
-"ru":"ОАЭ выдвинули министра Лану Нусейбе кандидатом на пост генсека ООН; её кандидатуру единогласно поддержали все страны Совета сотрудничества стран Залива.",
-"head":"ОАЭ выдвинули Лану Нусейбе на пост генсека ООН",
-"ar":"الْإِمَارَاتُ تُرَشِّحُ لَانَا نُسَيْبَةَ لِمَنْصِبِ الْأَمِينِ الْعَامِّ لِلْأُمَمِ الْمُتَّحِدَةِ",
-"src":[{"n":"Gulf Today, 22.10","u":"https://www.gulftoday.ae/news/2026/10/22/uae-formally-nominates-lana-nusseibeh-for-united-nations-secretary-general"},{"n":"Kuwait Times (KUNA), 23.10","u":"https://kuwaittimes.com/article/52180/world/gcc-backs-uaes-lana-nusseibeh-for-un-secretary-general/"},{"n":"Gulf News, 27.10","u":"https://gulfnews.com/uae/who-is-lana-nusseibeh-meet-the-uaes-pick-for-un-chief-1.500726393"}],
-"mourn":null}
+{
+"date": "2026-10-29",
+"ru": "Президент ОАЭ наградил орденом Заида II первой степени капитана flydubai Смита Маччхара и экипаж: 30 сентября они отбили нападение в кабине и посадили самолёт в Табуке.",
+"head": "Пилоты flydubai получили орден Заида II за спасение пассажиров",
+"ar": "الْإِمَارَاتُ تُكَرِّمُ طَيَّارِي «فْلَاي دُبَي» بِوِسَامِ زَايِدٍ الثَّانِي",
+"src": [
+{
+"n": "Arab News, 27.10",
+"u": "https://www.arabnews.pk/middle-east/uae-president-honours-flydubai-pilot-crew-for-saving-passengers-during-attempted-hijacking-3005432"
+},
+{
+"n": "The New Arab, 28.10",
+"u": "https://www.newarab.com/news/uae-honours-flydubai-pilot-who-stopped-attempted-hijacking"
+},
+{
+"n": "Telangana Today, 28.10",
+"u": "https://telanganatoday.com/uae-honours-flydubai-pilot-smit-machchhar-for-courage-during-mid-air-attack"
+}
+],
+"mourn": null,
+"pin": "2026-10-29"
+}
