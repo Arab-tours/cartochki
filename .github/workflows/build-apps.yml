@@ -22,6 +22,8 @@ jobs:
           npm install
           bash fonts.sh
           npx cap add android
+          # микрофон (тюнер уда, запись произношения)
+          python3 -c "p='android/app/src/main/AndroidManifest.xml';s=open(p).read();s=s if 'RECORD_AUDIO' in s else s.replace('</manifest>','    <uses-permission android:name=\"android.permission.RECORD_AUDIO\" />\n    <uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\" />\n</manifest>');open(p,'w').write(s)"
           # иконки (без adaptive, обычные PNG)
           pip install --break-system-packages pillow || pip install pillow || true
           python3 - <<'PY'
@@ -57,6 +59,7 @@ jobs:
           npm install
           bash fonts.sh
           npx cap add ios
+          /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Микрофон нужен для тюнера уда и записи произношения'" ios/App/App/Info.plist || true
           cp icon-1024.png ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
           npx cap sync ios
       - name: Archive (без подписи)
