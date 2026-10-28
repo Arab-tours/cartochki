@@ -5786,7 +5786,7 @@ const strC=i=>+((st.ct[pk()]||{})[i]||0);
 const tgtHz=i=>st.a4*Math.pow(2,(strM(i)-69+strC(i)/100)/12);
 const ofC=c=>SI.filter(s=>s.c===c).map(s=>s.i);
 const lab=m=>{const n=mname(m),o=n.slice(-1);return `${n.slice(0,-1)}<sub>${o}</sub>`};
-let den=0,root,ac,an,ms,raf=0,buf,selC=0,selS=-1,okT=0,done={},hist=[],silent=0,mute=0,lastShow=0,tabMode=false,openSheet=0;
+let nf=0,jump=0,den=0,root,ac,an,ms,raf=0,buf,selC=0,selS=-1,okT=0,done={},hist=[],silent=0,mute=0,lastShow=0,tabMode=false,openSheet=0;
 const CSS=`#oudT{position:fixed;left:0;right:0;top:0;bottom:0;z-index:19;background:#1d1e21;color:#fff;font-family:Manrope,-apple-system,system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;padding-top:env(safe-area-inset-top)}
 #oudT.full{z-index:99990;padding-bottom:env(safe-area-inset-bottom)}
 html.oudon #tchf,html.oudon .tchf{visibility:hidden}
@@ -5818,7 +5818,7 @@ html.oudon #tchf,html.oudon .tchf{visibility:hidden}
 #oudT .ocn b{color:#fff;font-weight:600}
 #oudT .omsg{position:relative;margin:4px auto 0;padding:14px 24px;border-radius:30px;background:#2c2d31;font-size:17px;text-align:center;max-width:calc(100% - 32px);transition:background .2s,color .2s}
 #oudT .omsg.g{background:#10c98a;color:#05251a;font-weight:700}#oudT .omsg button{display:block;margin:10px auto 0;background:#10c98a;border:0;border-radius:18px;padding:10px 18px;font:inherit;font-size:16px;font-weight:700;color:#05251a;cursor:pointer}
-#oudT .omsg small{display:block;color:#a9aab0;font-size:13px;margin-top:6px;line-height:1.4}
+#oudT .omsg.w{background:#3a2c22}#oudT .omsg .obig{display:block;font-size:26px;font-weight:800;color:#ff9a52;letter-spacing:.01em}#oudT .omsg small{display:block;color:#a9aab0;font-size:13px;margin-top:6px;line-height:1.4}
 #oudT .ohs{position:relative;width:100%;max-width:440px;margin:8px auto 0;flex:1 1 300px;min-height:0;max-height:400px}
 #oudT .ohs svg{position:absolute;left:50%;top:0;height:100%;transform:translateX(-50%);overflow:visible}
 #oudT .ob{position:absolute;width:48px;height:48px;margin-top:-24px;border-radius:50%;border:0;background:#2c2d31;color:#fff;font-family:inherit;font-size:19px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s,box-shadow .2s}
@@ -5844,6 +5844,7 @@ html.oudon #tchf,html.oudon .tchf{visibility:hidden}
 #oudT .osr.mod{box-shadow:inset 0 0 0 1px #10c98a}
 #oudT .osr .pl{background:#10c98a;color:#05251a}
 #oudT .oseg{display:flex;gap:8px;margin-bottom:6px}#oudT .oseg button{flex:1;background:#2f3035;border:0;border-radius:14px;color:#fff;font:700 20px/1.2 Manrope,sans-serif;padding:10px;cursor:pointer}#oudT .oseg button small{display:block;font-size:12px;font-weight:400;color:#9b9ca2}#oudT .oseg button.on{box-shadow:inset 0 0 0 2px #10c98a}
+#oudT .olv{width:120px;height:4px;border-radius:2px;background:#34353a;margin:10px auto 0;overflow:hidden;flex:none}#oudT .olv i{display:block;height:100%;width:0;background:#10c98a;transition:width .08s linear}
 #oudT .ohint{color:#8d8e94;font-size:13px;line-height:1.45;margin:12px 4px 0}
 @media (max-height:740px){#oudT .obr h1{font-size:28px}#oudT .oar{font-size:21px}#oudT .opr{font-size:18px}#oudT .ohs{max-width:380px}#oudT .ob{width:42px;height:42px;margin-top:-21px;font-size:16px}#oudT .ohd{padding-top:8px;min-height:46px}}`;
 const YL=[330,215,100],YR=[100,215,330];
@@ -5869,7 +5870,7 @@ function ui(){const p=pre();root.innerHTML=`<style>${CSS}</style><div class="og"
 <div class="ohd">${tabMode?"":`<button class="ox" aria-label="Закрыть">✕</button>`}<button class="oau${st.auto?" on":""}">АВТОМАТ.<span class="osw"></span></button></div>
 <div class="obr"><div class="obt"><h1>oud<i>tuner</i></h1><div class="oar">دَوْزَنَةُ الْعُودِ</div></div><button class="opr">Арабский уд · ${p.t}${modded()?" (свой)":""} <span>›</span></button><div class="ops"></div></div>
 <div class="om"><div class="ofs"><span>♭</span><span>♯</span></div><div class="oind idle"><div class="ocir">–</div></div><div class="ocn"></div></div>
-<div class="omsg"></div>
+<div class="omsg"></div><div class="olv" title="уровень микрофона"><i></i></div>
 <div class="ohs">${svg()}${btns()}</div>
 <div class="oshb"></div><div class="osh">${sheetHTML()}</div>`;
 const q=s=>root.querySelector(s);
@@ -5900,7 +5901,7 @@ const isDone=i=>!!done[pk()+":"+i];
 function mark(act){const on=!st.auto||act;root.querySelectorAll(".ob").forEach(b=>{const i=+b.dataset.s,s=SI[i];b.classList.toggle("on",on&&s.c===selC&&(selS<0||selS===i));b.classList.toggle("ok",isDone(i))});
 root.querySelectorAll(".st").forEach(l=>{const i=+l.dataset.s,s=SI[i],a=on&&s.c===selC&&(selS<0||selS===i);l.classList.toggle("on",a);l.classList.toggle("g",isDone(i)&&!a)});
 root.querySelectorAll(".pg").forEach(g=>{const i=+g.dataset.s;g.classList.toggle("on",on&&selS===i);g.classList.toggle("ok",isDone(i))})}
-function msg(t,o){const m=root&&root.querySelector(".omsg");if(!m)return;o=o||{};m.className="omsg"+(o.g?" g":"");m.innerHTML=t+(o.sub?`<small>${o.sub}</small>`:"")+(o.btn?`<button>${o.btn}</button>`:"");if(o.btn)m.querySelector("button").onclick=o.fn||start}
+function msg(t,o){const m=root&&root.querySelector(".omsg");if(!m)return;o=o||{};m.className="omsg"+(o.g?" g":o.w?" w":"");m.innerHTML=t+(o.sub?`<small>${o.sub}</small>`:"")+(o.btn?`<button>${o.btn}</button>`:"");if(o.btn)m.querySelector("button").onclick=o.fn||start}
 const nat=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()),ios=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 function idleMsg(){if(den===2)return deniedMsg();if(!ms)return msg("Тюнеру нужен микрофон",{sub:"Нажмите кнопку и разрешите доступ в окне, которое появится.",btn:"🎤 Разрешить микрофон"});
 if(selS>=0)msg(`Сыграйте: ${sName(selS)}`,{sub:"вторую струну пары приглушите пальцем"});else msg(st.auto?"Начните настройку, играя любую струну":`Сыграйте: ${sName(ofC(selC)[0])}`)}
@@ -5913,14 +5914,18 @@ s.playbackRate.value=f/(sr/P);s.buffer=b;s.connect(lp);lp.connect(g);g.connect(a
 function yin(x,sr){const W=x.length>>1,lo=Math.floor(sr/1050),hi=Math.min(W-2,Math.ceil(sr/58)),d=new Float32Array(hi+2);
 for(let t=1;t<=hi+1;t++){let s=0;for(let i=0;i<W;i++){const v=x[i]-x[i+t];s+=v*v}d[t]=s}
 let run=0;d[0]=1;for(let t=1;t<=hi+1;t++){run+=d[t];d[t]=run?d[t]*t/run:1}
-let T=-1;for(let t=lo;t<=hi;t++){if(d[t]<.13){while(t+1<=hi&&d[t+1]<d[t])t++;T=t;break}}
-if(T<0){let m=1;for(let t=lo;t<=hi;t++)if(d[t]<m){m=d[t];T=t}if(m>.3)return 0}
+let T=-1;for(let t=lo;t<=hi;t++){if(d[t]<.2){while(t+1<=hi&&d[t+1]<d[t])t++;T=t;break}}
+if(T<0){let m=1;for(let t=lo;t<=hi;t++)if(d[t]<m){m=d[t];T=t}if(m>.45)return 0}
+for(let n=0;n<2;n++){const T2=2*T;if(T2+1>hi)break;let bt=T2,bv=d[T2];for(let t=T2-2;t<=T2+2;t++)if(t>0&&t<=hi&&d[t]<bv){bv=d[t];bt=t}if(d[T]>.04&&bv<d[T]*.5)T=bt;else break}
+if(T<2||T>=hi)return 0;
 const a=d[T-1],b=d[T],c=d[T+1],den_=a+c-2*b,sh=den_?(a-c)/(2*den_):0;return sr/(T+(Math.abs(sh)<1?sh:0))}
-function loop(){raf=requestAnimationFrame(loop);if(!an||!root)return;const now=performance.now();if(now-lastShow<45)return;lastShow=now;an.getFloatTimeDomainData(buf);
-let r=0;for(let i=0;i<buf.length;i++)r+=buf[i]*buf[i];r=Math.sqrt(r/buf.length);if(now<mute)return;
-const f=r>.006?yin(buf,ac.sampleRate):0;
-if(!f){if(++silent>14){hist=[];idle()}return}silent=0;hist.push(f);if(hist.length>5)hist.shift();
-const s=hist.slice().sort((a,b)=>a-b);show(s[s.length>>1])}
+function loop(){raf=requestAnimationFrame(loop);if(!an||!root)return;const now=performance.now();if(now-lastShow<33)return;lastShow=now;an.getFloatTimeDomainData(buf);
+let r=0;for(let i=0;i<buf.length;i++)r+=buf[i]*buf[i];r=Math.sqrt(r/buf.length);nf=nf?(r<nf?nf*.85+r*.15:nf*.996+r*.004):r;lvl(r);if(now<mute)return;
+const f=r>Math.max(.0006,nf*2)?yin(buf,ac.sampleRate):0;
+if(!f){if(++silent>45){hist=[];idle()}return}silent=0;
+if(hist.length){const s0=hist.slice().sort((a,b)=>a-b),m0=s0[s0.length>>1];if(Math.abs(1200*Math.log2(f/m0))>60){if(++jump<3)return;hist=[]}}jump=0;
+hist.push(f);if(hist.length>4)hist.shift();const s=hist.slice().sort((a,b)=>a-b);show(s[s.length>>1])}
+function lvl(r){const e=root.querySelector(".olv i");if(!e)return;const v=Math.max(0,Math.min(1,(20*Math.log10(r+1e-9)+70)/55));e.style.width=(v*100).toFixed(0)+"%"}
 function idle(){const ind=root.querySelector(".oind");if(!ind||ind.classList.contains("idle"))return;ind.className="oind idle";ind.style.transform="";root.querySelector(".ocn").innerHTML="";okT=0;mark();idleMsg()}
 function show(f){const cents=i=>1200*Math.log2(f/tgtHz(i));
 if(st.auto){let b=0;for(let i=1;i<SI.length;i++)if(Math.abs(cents(i))<Math.abs(cents(b)))b=i;const c=SI[b].c;if(c!==selC){selC=c;okT=0}selS=-1;
@@ -5933,14 +5938,15 @@ const g=Math.abs(c)<4;ind.className="oind"+(g?" g":Math.abs(c)<15?"":" w");mark(
 const tn=mname(strM(ti)).replace(/\d/,""),nr=NR[tn[0]]||"";
 if(g){if(!okT)okT=performance.now();if(performance.now()-okT>450){const ids=selS>=0?[selS]:ofC(selC);if(ids.some(i=>!isDone(i))){ids.forEach(i=>done[pk()+":"+i]=1);try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}mark(true)}}
 const all=SI.every(s=>isDone(s.i));msg(all?`Все ${SI.length} струн настроены ✓`:`Отлично! ${selS>=0?sName(selS):tn+(nr?` (${nr})`:"")} настроена`,{g:1})}
-else{okT=0;if(Math.abs(c)>300)msg(c>0?"Слишком высоко — ослабьте сильно":"Слишком низко — подтяните сильно");else msg(c>0?"Высоко — ослабьте ↓":"Низко — подтяните ↑")}}
+else{okT=0;const ac_=Math.abs(c),how=ac_>300?"сильно":ac_>100?"заметно":ac_>30?"немного":ac_>12?"чуть-чуть":"совсем чуть-чуть";
+msg(`<span class="obig">${c>0?"Ослабьте ↓":"Подтяните ↑"}</span>`,{w:1,sub:`${c>0?"звучит выше":"звучит ниже"} на ${Math.round(ac_)} ц — ${how}`})}}
 async function start(){try{if(!ac||ac.state==="closed")ac=new (window.AudioContext||window.webkitAudioContext)();ac.resume().catch(()=>{})}catch(e){}
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg("Микрофон недоступен",{sub:"Откройте сайт в Safari или Chrome либо установите свежую версию приложения."});return}
 if(ms){return}
 msg("Запрашиваю доступ к микрофону…",{sub:"Нажмите «Разрешить» в появившемся окне."});
-try{const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+try{const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:true}});
 if(!root){s.getTracks().forEach(t=>t.stop());return}ms=s;den=0;try{localStorage.setItem("oudMic","1")}catch(e){}
-const src=ac.createMediaStreamSource(ms),hp=ac.createBiquadFilter();hp.type="highpass";hp.frequency.value=50;an=ac.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);src.connect(hp);hp.connect(an);idleMsg();cancelAnimationFrame(raf);loop()}
+const src=ac.createMediaStreamSource(ms),hp=ac.createBiquadFilter();hp.type="highpass";hp.frequency.value=55;const lp=ac.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1400;const gn=ac.createGain();gn.gain.value=4;an=ac.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);nf=0;src.connect(hp);hp.connect(lp);lp.connect(gn);gn.connect(an);idleMsg();cancelAnimationFrame(raf);loop()}
 catch(e){ms=null;den=(e&&(e.name==="NotAllowedError"||e.name==="SecurityError"||e.name==="PermissionDeniedError"))?2:1;if(den===2)deniedMsg();else msg("Не удалось включить микрофон",{sub:String(e&&e.message||e),btn:"Попробовать снова"})}}
 function stopMic(){cancelAnimationFrame(raf);raf=0;if(ms){ms.getTracks().forEach(t=>t.stop());ms=null}an=null;try{ac&&ac.suspend()}catch(e){}}
 function unmount(){stopMic();if(root){root.remove();root=null}document.documentElement.classList.remove("oudon");document.removeEventListener("visibilitychange",vis);removeEventListener("resize",fit)}
@@ -6665,6 +6671,7 @@ const TCHSVG=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 64C5 50 17
 const TNEWS=[
 {n:17,a:"2",d:"23 октября",t:"Карточки форм: сначала перевод",w:"Главный экран → «Все породы подобноправильных глаголов для контрольной»",f:"Все породы подобноправильных глаголов для контрольной",go:()=>fmv(),x:"В разделе «Все породы подобноправильных глаголов для контрольной» карточка теперь начинается с русского перевода, затем глагол по-арабски и остальные формы по порядку."},
 {n:103,a:"2",d:"28 октября",t:"Уд: кнопка у каждой струны",w:"Только у Димы: во вкладке «Уд» у каждой струны теперь своя кнопка рядом с колком, а в «Строй ›» можно выбрать 11 или 12 струн.",x:"Уд → кнопки у колков; Строй › → 11/12 струн."},
+{n:103,a:"2",d:"28 октября",t:"Уд слышит лучше",w:"Тюнер уда стал намного чувствительнее: ловит тихие струны и бас, держит показание, пока струна затухает, и не путает октавы. Крупно пишет «Подтяните ↑» или «Ослабьте ↓» и насколько. Под подсказкой — полоска уровня микрофона.",x:"Вкладка «Уд»."},
 {n:102,a:"2",d:"28 октября",t:"Архив самостоятельных пополнился",w:"Контрольная по всем породам, V и X породы и «Цепочки глаголов» переехали с главного экрана в «Архив самостоятельных».",x:"Контрольная, V и X породы, цепочки глаголов — теперь в архиве самостоятельных."},
 {n:101,a:"2",d:"28 октября",t:"Уд: вкладка и каждая струна",w:"Только у Димы: тюнер уда теперь отдельная вкладка «Уд» внизу. Каждую из 11 струн можно настроить отдельно — нажмите на её колок; в «Строй ›» для любой струны меняются нота и подстройка в центах. Микрофон запрашивается кнопкой, при запрете — подсказка, где его включить.",x:"Нижняя панель → «Уд»."},
 {n:100,a:"2",d:"28 октября",t:"Настройка уда",w:"Только у Димы: тюнер для арабского уда через микрофон — 6 строев, автоопределение струны, эталонный тон, камертон A4.",x:"Карточки → «Настройка уда»."},
