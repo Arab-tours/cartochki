@@ -1,16 +1,20 @@
 {
 "date": "2026-10-31",
-"ru": "США и Саудовская Аравия подписали в Атланте соглашение об официальном участии американцев в «Экспо‑2030» в Эр-Рияде: выставка пройдёт с 1 октября 2030 по 31 марта 2031 года.",
-"head": "США официально станут участником «Экспо‑2030» в Эр-Рияде",
-"ar": "الْوِلَايَاتُ الْمُتَّحِدَةُ مُشَارِكٌ رَسْمِيٌّ فِي مَعْرِضِ إِكْسْبُو ٢٠٣٠ بِالرِّيَاضِ",
+"ru": "В Дубае наградили победителей 10-го «Арабского вызова чтения»: в нём участвовал рекордный 40 млн школьников из 60 стран.",
+"head": "Дубай подвёл итоги «Арабского вызова чтения» — рекорд в 40 млн учеников",
+"ar": "دُبَيُّ تُكَرِّمُ الْفَائِزِينَ فِي تَحَدِّي الْقِرَاءَةِ الْعَرَبِيِّ بِمُشَارَكَةِ ٤٠ مِلْيُونَ طَالِبٍ",
 "src": [
 {
-"n": "The National, 30.10",
-"u": "https://www.thenationalnews.com/news/us/2026/10/30/saudi-arabia-us-world-expo-2030/"
+"n": "Gulf News, 29.10",
+"u": "https://gulfnews.com/uae/education/dubai-to-crown-arab-reading-challenge-winners-from-record-40-million-students-1.500722103"
 },
 {
-"n": "Arab News, 31.10",
-"u": "https://arabnews.com/saudi-arabia/us-joins-expo-2030-riyadh-as-official-participant-under-new-agreement-3009090"
+"n": "Khaleej Times, 24.10",
+"u": "https://www.khaleejtimes.com/uae/dh11million-prizes-arab-reading-challenge-winner-oct-29"
+},
+{
+"n": "Travels Dubai, 30.10",
+"u": "https://www.travelsdubai.com/30-Oct-2026/dubai-unveils-dh500mn-endowment-boost-arab-reading-challenge"
 }
 ],
 "mourn": null
