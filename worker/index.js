@@ -5,7 +5,7 @@
 // MODEL (необязательно, по умолчанию gemini-flash-latest), DAILY_LIMIT (необязательно, число проверок на ученика в сутки; нужен KV с именем KV).
 export default {
   async fetch(req, env) {
-    const allowed = (env.ALLOWED_ORIGINS || "https://arab-tours.github.io").split(",").map(s => s.trim());
+    const allowed = (env.ALLOWED_ORIGINS || "https://arab-tours.github.io,capacitor://localhost,https://localhost,http://localhost").split(",").map(s => s.trim());
     const origin = req.headers.get("Origin") || "";
     const cors = {
       "Access-Control-Allow-Origin": allowed.includes(origin) ? origin : allowed[0],
