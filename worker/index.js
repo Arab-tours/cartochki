@@ -36,7 +36,7 @@ export default {
           ...(b.ref ? [{ inline_data: { mime_type: "image/jpeg", data: b.ref } }] : []),
           { text: b.prompt }
         ] }],
-        generationConfig: { maxOutputTokens: 3000, temperature: 0.2 }
+        generationConfig: { maxOutputTokens: Math.min(16384, Math.max(1000, +b.maxTokens || 3000)), temperature: 0.2 }
       })
     });
     const j = await r.json();
