@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=219;
+window.APPV=220;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -6073,11 +6073,71 @@ const hzOf=n=>st.a4*Math.pow(2,(n.m-69+strC(ofC(n.c)[0])/100)/12);
 const grade=c=>c<=8?"отлично":c<=14?"хорошо":"нормально";
 const where=n=>`${n.c+1}-й хор (${ruM(openM(n.c))}) · ${n.o<.25?"открытая струна":`палец ${fing(n.o)} — ${FN[fing(n.o)]}`}${n.hi?" · выше первой позиции":""}`;
 function place(m){let b=null;for(let c=0;c<6;c++){const o=m-openM(c);if(o>-.01&&o<5.01&&(!b||o<b.o))b={c,o}}if(!b)for(let c=5;c>=0;c--){const o=m-openM(c);if(o>0){b={c,o,hi:1};break}}return b}
-const curMel=()=>MELS.find(x=>x.id===st.mel)||MELS[0];
+/*OUD user melodies: text format + sheet-music recognition*/
+const RUN={"до":"C","ре":"D","ми":"E","фа":"F","соль":"G","сол":"G","ля":"A","си":"B"};
+function parseOud(txt){const out={t:"",bpm:100,num:4,den:4,toks:[],err:[],bars:[]};let cur=0,bi=1;
+const lines=String(txt||"").replace(/\r/g,"").split("\n");
+for(let ln of lines){const raw=ln.trim();if(!raw||raw.startsWith("//"))continue;
+const h=raw.match(/^(название|title|темп|tempo|bpm|размер|time)\s*[:=]\s*(.+)$/i);
+if(h){const k=h[1].toLowerCase(),v=h[2].trim();if(/назв|title/.test(k))out.t=v.slice(0,60);else if(/темп|tempo|bpm/.test(k)){const b=parseFloat(v);if(b>=20&&b<=300)out.bpm=b}else{const m=v.match(/(\d+)\s*\/\s*(\d+)/);if(m){out.num=+m[1];out.den=+m[2]}}continue}
+for(let w of raw.split(/[\s,;]+/)){if(!w)continue;if(w==="|"||w==="||"){out.bars.push([bi,cur]);bi++;cur=0;out.toks.push("|");continue}
+let [p,d]=w.split(":");let du=d==null?1:Number(String(d).replace(",","."));
+if(d!=null&&String(d).includes("/")){const q=String(d).split("/");du=+q[0]/+q[1]}
+if(!(du>0&&du<=16)){out.err.push(`«${w}»: непонятная длительность`);continue}
+if(/^(r|п|пауза|-)$/i.test(p)){out.toks.push("R:"+(+du.toFixed(3)));cur+=du;continue}
+p=p.replace("♯","#").replace("♭","b").replace("½♭","q").replace("𝄳","q");
+const rm=p.toLowerCase().match(/^(до|ре|ми|фа|соль|сол|ля|си)([#bq]?)(\d)$/);if(rm)p=RUN[rm[1]]+rm[2]+rm[3];
+const m=p.match(/^([A-Ga-g])([#bq]?)(\d)$/);if(!m){out.err.push(`«${w}»: не нота (пример: D4, Bb3:0.5, ре4, R:1)`);continue}
+const tok=m[1].toUpperCase()+m[2]+m[3];out.toks.push(tok+(du===1?"":":"+(+du.toFixed(3))));cur+=du}}
+if(cur>0)out.bars.push([bi,cur]);
+const need=out.num*4/out.den,hasBars=out.toks.includes("|");out.bad=hasBars?out.bars.filter(([i,s])=>Math.abs(s-need)>.02).map(([i,s])=>`такт ${i}: ${+s.toFixed(2)} из ${need}`):[];
+out.notes=out.toks.filter(t=>t!=="|"&&!t.startsWith("R")).length;return out}
+function shiftOud(txt,k){return String(txt).replace(/(^|[\s|,;])([A-G]|до|ре|ми|фа|соль|сол|ля|си)([#bq♯♭]?)(\d)(?=$|[\s:|,;])/gim,(a,pre,l,ac,o)=>pre+l+ac+Math.max(1,Math.min(7,+o+k)))}
+const umKey=()=>"oudUM_"+(me||"");
+function umList(){try{return JSON.parse(localStorage.getItem(umKey())||"[]")}catch(e){return[]}}
+function umSave(L){try{localStorage.setItem(umKey(),JSON.stringify(L))}catch(e){}}
+function umToMel(u){const p=parseOud(u.src);return {id:u.id,t:"★ "+(p.t||u.t||"Моя мелодия"),s:`моя мелодия · ${p.notes} нот · ${p.num}/${p.den}`,bpm:p.bpm,bar:p.num*4/p.den,nodr:p.num*4/p.den!==4,n:p.toks.filter(t=>t!=="|").join(" "),user:1}}
+const allMels=()=>MELS.concat(umList().map(umToMel));
+const OMR_PROMPT=`You are an optical music recognition engine. The image shows sheet music. Transcribe ONLY the main melody: the top voice of the treble staff. Ignore chords in the accompaniment, the bass staff, chord symbols and lyrics.
+Rules: apply the key signature to every note; accidentals last until the barline; tied notes become one note with the summed duration; scientific pitch (C4 = middle C, B3 just below it). Durations are in quarter-note beats: whole 4, half 2, dotted quarter 1.5, quarter 1, eighth 0.5, sixteenth 0.25, triplet eighth 0.333. Rests: R:duration. Expand repeat signs, 1st/2nd endings, D.C./D.S. al Fine in playing order. Separate measures with " | ".
+Token format: Letter + optional accidental (# or b) + octave + optional ":duration" when duration is not 1. Example: "D4 E4:0.5 F4:0.5 G4:2 | R:1 A4 Bb4:1.5 C#5:0.5".
+Return ONLY JSON: {"title":"title printed on the sheet or empty","bpm":number or null,"time":"4/4","notes":"..."}. If the image is not sheet music, return {"error":"no music"}.`;
+function imgJpeg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,2200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(),"image/jpeg",.9)};im.onerror=rej;im.src=u})}
+function umEditor(edit){const q=s=>root.querySelector(s);let ed=q(".umed");if(ed)ed.remove();ed=document.createElement("div");ed.className="umed";const u=edit||{id:"u"+Date.now().toString(36),src:""};
+ed.innerHTML=`<div class="umc"><div class="umh"><b>${edit?"Изменить мелодию":"Своя мелодия по нотам"}</b><button class="umx" aria-label="Закрыть">✕</button></div>
+<div class="umr"><label class="umb umf">📷 Распознать с фото нот<input type="file" accept="image/*" multiple hidden></label><button class="umb" data-a="help">Формат</button></div>
+<div class="umhelp" hidden><p><b>Как записывать.</b> Нота — буква и октава: <code>D4</code>, <code>Bb3</code>, <code>F#4</code>, полубемоль — <code>Eq4</code>; можно по-русски: <code>ре4</code>, <code>си♭3</code>. Длительность в долях после двоеточия (четверть = 1): <code>:2</code> половинная, <code>:0.5</code> восьмая, <code>:1.5</code> четверть с точкой, <code>:0.25</code> шестнадцатая. Пауза — <code>R:1</code>. Такты разделяйте <code>|</code> — тогда сайт проверит, что такты полные. Средняя «до» = C4; на уде удобный диапазон — от D2 до F4.</p>
+<p>Шапка (необязательно): <code>Название: …</code>, <code>Темп: 90</code>, <code>Размер: 3/4</code>. Строки с <code>//</code> — комментарии.</p><pre>Название: Упражнение
+Темп: 90
+Размер: 4/4
+D4 E4 F4 G4 | A4:2 G4:0.5 F4:0.5 E4 | D4:4</pre></div>
+<textarea class="umt" spellcheck="false" placeholder="Название: …&#10;Темп: 100&#10;Размер: 4/4&#10;D4 E4 F4:0.5 G4:0.5 A4 | …"></textarea>
+<div class="umr"><button class="umb" data-a="o-">Октава −1</button><button class="umb" data-a="o+">Октава +1</button><button class="umb" data-a="try">▶ Послушать</button></div>
+<div class="ums"></div>
+<div class="umr"><button class="umb umok" data-a="save">Сохранить</button>${edit?`<button class="umb umdel" data-a="del">Удалить</button>`:""}<button class="umb" data-a="copy">Скопировать текст</button></div></div>`;
+root.appendChild(ed);const ta=ed.querySelector(".umt"),stt=ed.querySelector(".ums");ta.value=u.src||"";
+const check=()=>{const p=parseOud(ta.value);if(!ta.value.trim()){stt.innerHTML="";return p}const hi=p.toks.filter(t=>/\d/.test(t)&&!t.startsWith("R")).map(t=>pnote(t.split(":")[0]).m),med=hi.length?hi.slice().sort((a,b)=>a-b)[hi.length>>1]:60;
+stt.innerHTML=`<b>${p.notes}</b> нот · ${p.num}/${p.den} · темп ${p.bpm}${p.err.length?`<div class="umw">Ошибки: ${p.err.slice(0,4).join("; ")}${p.err.length>4?"…":""}</div>`:""}${p.bad.length?`<div class="umw">Неполные такты: ${p.bad.slice(0,4).join("; ")}${p.bad.length>4?` и ещё ${p.bad.length-4}`:""}</div>`:""}${med>67?`<div class="umw">Мелодия высоковата для уда — нажмите «Октава −1».</div>`:med<50?`<div class="umw">Мелодия низковата — нажмите «Октава +1».</div>`:""}`;return p};
+ta.oninput=check;check();
+ed.querySelector(".umx").onclick=()=>ed.remove();
+ed.querySelector('input[type=file]').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!HWAPI){stt.innerHTML='<div class="umw">Сервер распознавания не настроен (Учитель → адрес проверки ДЗ). Ноты можно вписать вручную.</div>';return}
+const parts=[];let title="",bpm=null,time="";for(let i=0;i<fs.length;i++){stt.innerHTML=`Распознаю лист ${i+1} из ${fs.length}… (до минуты)`;try{const j=await hwFetch(OMR_PROMPT,await imgJpeg(fs[i]));if(j.error){parts.push(`// лист ${i+1}: нот не найдено`);continue}title=title||j.title||"";bpm=bpm||j.bpm;time=time||j.time||"";parts.push(`// лист ${i+1}\n`+String(j.notes||"").trim())}catch(er){parts.push(`// лист ${i+1}: не удалось распознать (${er&&er.code||"ошибка"})`)}}
+const head=[title&&!/^Название/m.test(ta.value)?`Название: ${title}`:"",bpm&&!/^Темп/m.test(ta.value)?`Темп: ${bpm}`:"",time&&!/^Размер/m.test(ta.value)?`Размер: ${time}`:""].filter(Boolean).join("\n");
+ta.value=(ta.value.trim()?ta.value.trim()+"\n":"")+(head?head+"\n":"")+parts.join("\n");const p=check();stt.insertAdjacentHTML("afterbegin",`<div class="umi">Распознано автоматически — сверьте с листом: ИИ ошибается в длительностях и знаках. Неполные такты ниже подскажут, где искать.</div>`);e.target.value=""};
+ed.querySelectorAll(".umb[data-a]").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
+if(a==="help"){const h=ed.querySelector(".umhelp");h.hidden=!h.hidden;return}
+if(a==="o-"||a==="o+"){ta.value=shiftOud(ta.value,a==="o+"?1:-1);check();return}
+if(a==="copy"){try{navigator.clipboard.writeText(ta.value)}catch(e){}b.textContent="Скопировано";return}
+if(a==="del"){umSave(umList().filter(x=>x.id!==u.id));if(st.mel===u.id)st.mel=MELS[0].id;sv();ed.remove();playStop();melLoad();melUI();return}
+const p=check();if(!p.notes){stt.innerHTML='<div class="umw">Нет ни одной ноты.</div>';return}
+const L=umList().filter(x=>x.id!==u.id);L.push({id:u.id,t:p.t||"Моя мелодия",src:ta.value});umSave(L);
+if(a==="try"){st.mel=u.id;sv();ed.remove();playStop();melLoad();melUI();setTimeout(()=>playAll(),50);return}
+st.mel=u.id;sv();ed.remove();playStop();melLoad();melUI()})}
+const curMel=()=>allMels().find(x=>x.id===st.mel)||MELS[0];
 let MN=[],MI=0,MR=[],mhT=0,mhv=[],mw=0,mmn=1,mlock=0,mpt=0,mIdle=0,mKey="";
 const melKey=()=>st.mel+"|"+pk()+"|"+JSON.stringify(st.cu[pk()]||{});
-function melLoad(){const M=curMel(),src=M.gen?[0,1,2,3,4,5].map(c=>mname(openM(c)).replace("♯","#")):M.n.split(" ");
-MN=src.map(s=>{const [a,b]=s.split(":"),n=pnote(a),p=place(n.m);if(b)n.d=+b;return p?Object.assign(n,p):null}).filter(Boolean);MI=0;MR=[];mhT=0;mhv=[];mw=0;mKey=melKey()}
+function melLoad(){const M=curMel(),src=M.gen?[0,1,2,3,4,5].map(c=>mname(openM(c)).replace("♯","#")):M.n.split(/\s+/).filter(t=>t&&t!=="|");
+MN=[];for(const s of src){const [a,b]=s.split(":");if(/^R$/i.test(a)){if(MN.length)MN[MN.length-1].r=(MN[MN.length-1].r||0)+(+b||1);continue}let n;try{n=pnote(a)}catch(e){continue}const p=place(n.m);if(b)n.d=+b;if(p)MN.push(Object.assign(n,p))}MI=0;MR=[];mhT=0;mhv=[];mw=0;mKey=melKey()}
 const FX=n=>34+1065*(1-Math.pow(2,-n/12)),FY=c=>20+c*21;
 function fb(){const n=MN[MI],nx=MN[MI+1];let s=`<svg viewBox="0 0 360 150" class="mfs"><defs><linearGradient id="mgW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2814"/><stop offset=".5" stop-color="#7a4422"/><stop offset="1" stop-color="#4a2814"/></linearGradient></defs><rect x="30" y="6" width="330" height="128" rx="3" fill="url(#mgW)"/><rect x="27" y="4" width="7" height="132" rx="1" fill="#efe6d2"/>`;
 for(let k=1;k<=6;k++)s+=`<line x1="${FX(k).toFixed(1)}" y1="8" x2="${FX(k).toFixed(1)}" y2="132" stroke="#fff" stroke-opacity="${k===5?.22:.1}" stroke-dasharray="2 3"/>`;
@@ -6119,7 +6179,7 @@ if(!SZ.oud){if(a0)a0.innerHTML="⏳ Загрузка…";sndReady().catch(()=>{}
 function playGo(t){const E=eng(),M=curMel(),bpm=(M.bpm||104)*(st.tmp||1),beat=60/bpm,acc=st.acc!==false&&!M.gen,dr=acc&&st.drm!==false&&!M.nodr,bs=acc&&st.bas!==false,ny=acc&&st.ney!==false,BL=M.bar||4;
 const ob=oudBus(),gN=ac.createGain(),gD=ac.createGain(),gP=ac.createGain();gN.connect(ob);gD.gain.value=.55;gD.connect(E.mst);gP.gain.value=.5;gP.connect(E.mst);
 const sc=[...new Set(MN.map(n=>Math.round(n.m*2)/2))].sort((a,b)=>a-b),up=m=>{for(const x of sc)if(x>m+.4&&x<m+2.6)return x;return m+2};
-const ev=[];let tt=0;const start=MI;for(let i=start;i<MN.length;i++){const n=MN[i];let d=(n.d||1)*beat;if(i===MN.length-1)d=Math.max(d,beat*3);ev.push({k:"n",i,t:tt,d,f:hzOf(n),m:n.m,last:i===MN.length-1});tt+=d}
+const ev=[];let tt=0;const start=MI;for(let i=start;i<MN.length;i++){const n=MN[i];let d=(n.d||1)*beat;if(i===MN.length-1)d=Math.max(d,beat*3);ev.push({k:"n",i,t:tt,d,f:hzOf(n),m:n.m,last:i===MN.length-1});tt+=d+(n.r||0)*beat}
 const total=tt,bar=beat*BL,lo=Math.min(...MN.map(n=>n.m)),hi_=Math.max(...MN.map(n=>n.m)),hz=m=>st.a4*Math.pow(2,(m-69)/12);
 if(acc){const last=MN[MN.length-1],ton=((Math.round(last.m)%12)+12)%12;let bm=36+ton;if(bm<38)bm+=12;const bhz=hz(bm),fhz=hz(bm+7);
 if(ny&&!M.nony&&!M.ch)ev.push({k:"y",t:0,f:hz(bm+12),d:total+1.5});if(ny&&M.ch){for(let b=0,k=0;b<total-.01;b+=bar,k++){const r=pnote(M.ch[k%M.ch.length]).m;ev.push({k:"y",t:b,f:hz(r+24),d:bar*1.02})}ev.push({k:"y",t:total,f:hz(pnote(M.ch[0]).m+24),d:beat*4})}
@@ -6144,7 +6204,7 @@ if(el>total+(acc?2.2:1.2)){fadePB()}};
 PB={t,g:[gN,gD,gP],iv:setInterval(tick,40)};mute=performance.now()+(total+3)*1000;tick()}
 const accRow=()=>{const M=curMel(),on=st.acc!==false;return M.gen?"":`<div class="macc"><button data-x="acc" class="${on?"on":""}">${on?"Аккомпанемент: вкл":"Аккомпанемент: выкл"}</button>${M.nodr?"":`<button data-x="drm" class="${on&&st.drm!==false?"on":""}" ${on?"":"disabled"}>🥁 Дарбука</button>`}<button data-x="bas" class="${on&&st.bas!==false?"on":""}" ${on?"":"disabled"}>Бас</button><button data-x="ney" class="${on&&st.ney!==false?"on":""}" ${on?"":"disabled"}>Най</button><button data-x="tm-">−</button><span>${Math.round((M.bpm||104)*(st.tmp||1))}</span><button data-x="tm+">+</button></div>`};
 function bindAcc(){const r=root&&root.querySelector(".macc");if(!r)return;r.querySelectorAll("button").forEach(b=>b.onclick=()=>{const x=b.dataset.x;if(x==="acc")st.acc=st.acc===false;else if(x==="drm")st.drm=st.drm===false;else if(x==="bas")st.bas=st.bas===false;else if(x==="ney")st.ney=st.ney===false;else st.tmp=Math.max(.6,Math.min(1.5,Math.round(((st.tmp||1)+(x==="tm+"?.1:-.1))*10)/10));sv();const was=!!PB;if(was)playStop();r.outerHTML=accRow();bindAcc();if(was)playAll()})}
-function melSheet(){return `<div class="gr"></div><h3>Мелодии и упражнения</h3>${MELS.map(x=>`<button class="opi${x.id===curMel().id?" on":""}" data-m="${x.id}"><span><b>${x.t}</b><small>${x.s}</small></span><code>${x.gen?6:x.n.split(" ").length} нот</code></button>`).join("")}
+function melSheet(){return `<div class="gr"></div><h3>Мелодии и упражнения</h3><button class="opi umadd"><span><b>＋ Своя мелодия по нотам</b><small>вписать ноты или распознать с фото нотного листа</small></span><code>✎</code></button>${allMels().map(x=>`<button class="opi${x.id===curMel().id?" on":""}" data-m="${x.id}"><span><b>${x.t}</b><small>${x.s}</small></span><code>${x.user?`<i class="ued" data-u="${x.id}">✎ изменить</i>`:(x.gen?6:x.n.split(" ").filter(t=>!t.startsWith("R")).length)+" нот"}</code></button>`).join("")}
 <p class="ohint">Строй берётся из вкладки «Настройка» (сейчас: ${pre().t}). Гриф показан так, как вы видите его, держа уд: сверху бас, слева порожек. Зелёная точка — куда прижать струну, цифра — палец (1 указательный, 2 средний, 3 безымянный, 4 мизинец, 0 — открытая). Пунктирный кружок — следующая нота. Пунктирные линии и цифры снизу — полутоны от порожка. Оранжевая точка — куда по звуку попадает ваш палец прямо сейчас. Андалусские наубы (Марокко, традиция аль-Андалуса) взяты из нотных записей открытого корпуса Arab-Andalusian Music (MTG, Университет Помпеу Фабра) — первые фразы каждой пьесы. Нота засчитывается, если держать её в пределах ±20 центов (полубемоль — это 50 центов, поэтому их тоже можно попадать).</p>`}
 function bindSeg(){root.querySelectorAll(".omd button").forEach(b=>b.onclick=()=>{if(st.md===b.dataset.m)return;st.md=b.dataset.m;sv();playStop();hist=[];okT=0;ui()})}
 const seg=()=>`<div class="omd"><button data-m="tun" class="${st.md==="mel"?"":"on"}">Настройка</button><button data-m="mel" class="${st.md==="mel"?"on":""}">Мелодии</button></div>`;
@@ -6157,7 +6217,7 @@ root.innerHTML=`<style>${CSS}${MCSS}</style><div class="ohd">${tabMode?"":`<butt
 <div class="oshb"></div><div class="osh">${melSheet()}</div>`;
 const q=s=>root.querySelector(s);if(q(".ox"))q(".ox").onclick=close;bindSeg();
 const sh=q(".osh"),bd=q(".oshb"),cl=()=>{sh.classList.remove("on");bd.classList.remove("on")};q(".mpk").onclick=()=>{sh.classList.add("on");bd.classList.add("on")};bd.onclick=cl;
-sh.querySelectorAll(".opi").forEach(b=>b.onclick=()=>{st.mel=b.dataset.m;sv();playStop();melLoad();melUI()});
+sh.querySelectorAll(".opi").forEach(b=>b.onclick=e=>{if(b.classList.contains("umadd")){umEditor();return}const ue=e.target.closest(".ued");if(ue){const u=umList().find(x=>x.id===ue.dataset.u);if(u){umEditor(u);return}}st.mel=b.dataset.m;sv();playStop();melLoad();melUI()});
 q(".mctl").querySelectorAll("button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
 if(a==="hear"){if(MN[MI])pluckF(hzOf(MN[MI]));return}if(a==="all"){playAll();return}playStop();
 if(a==="pv"){if(MI>0){MI--;MR[MI]=undefined}}else if(a==="nx"){if(MI<MN.length){MR[MI]=null;MI++}}else if(a==="rs")melLoad();
@@ -6193,6 +6253,7 @@ const MCSS=`#oudT.mel{overflow-y:auto}
 #oudT .mch::-webkit-scrollbar{display:none}
 #oudT .mc{flex:none;background:#2c2d31;border:0;color:#d7d7da;border-radius:12px;padding:8px 11px;font:600 14px Manrope,-apple-system,sans-serif;cursor:pointer}
 #oudT .mc.cur{background:#fff;color:#1d1e21}#oudT .mc.g1{background:#10c98a;color:#05251a}#oudT .mc.g2{background:#0e7d58;color:#e7fff5}#oudT .mc.g3{background:#7a6a2a;color:#fff}#oudT .mc.sk{background:#4a2c2c;color:#f0b8b8}#oudT .mc.pl{box-shadow:0 0 0 2px #ff9a52}
+#oudT .umed{position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.55);display:flex;align-items:flex-end}#oudT .umc{background:#26272b;width:100%;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:14px 16px 20px}#oudT .umh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:10px}#oudT .umx{background:#3b3c42;border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px}#oudT .umr{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}#oudT .umb{background:#3b3c42;border:0;color:#fff;border-radius:12px;padding:10px 12px;font:600 14px Manrope,-apple-system,sans-serif;cursor:pointer}#oudT .umok{background:#10c98a;color:#05251a}#oudT .umdel{background:#5a2a2a}#oudT .umt{width:100%;min-height:180px;background:#1d1e21;color:#fff;border:1px solid #3b3c42;border-radius:12px;padding:10px;font:14px/1.5 ui-monospace,Menlo,monospace}#oudT .ums{font-size:14px;color:#d7d7da;line-height:1.5}#oudT .umw{color:#ff9a52;margin-top:4px}#oudT .umi{color:#9fd8c4;margin-bottom:4px}#oudT .umhelp{font-size:13px;color:#c9cacf;line-height:1.5;background:#1d1e21;border-radius:12px;padding:10px;margin-bottom:8px}#oudT .umhelp code{color:#10c98a}#oudT .umhelp pre{margin:6px 0 0;color:#fff;font-size:13px}#oudT .ued{font-style:normal;color:#10c98a}#oudT .umadd{box-shadow:inset 0 0 0 1px #10c98a}
 #oudT .macc{display:flex;align-items:center;gap:6px;padding:8px 16px 0;flex:none;flex-wrap:wrap}#oudT .macc button{background:#2c2d31;border:0;color:#b9bac0;border-radius:12px;padding:8px 10px;font:600 13px Manrope,-apple-system,sans-serif;cursor:pointer}#oudT .macc button.on{background:#10c98a;color:#05251a}#oudT .macc button:disabled{opacity:.4}#oudT .macc span{min-width:30px;text-align:center;font:700 14px Manrope,sans-serif;color:#fff;font-variant-numeric:tabular-nums}
 #oudT .mctl{display:flex;gap:8px;padding:10px 16px 16px;flex:none;margin-top:auto}
 #oudT .mctl button{flex:1;min-width:0;white-space:nowrap;padding:0 6px;background:#2c2d31;border:0;color:#fff;border-radius:14px;height:48px;font:700 15px Manrope,-apple-system,sans-serif;cursor:pointer;transition:transform .1s}
@@ -6953,6 +7014,7 @@ hi:[["اِسْتَمِرُّوا!","Продолжайте!"],["السَّلَا
 const TCHSVG=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 64C5 50 17 46 32 46s27 4 27 18z" fill="#f6f1e7" stroke="#cfc6b4" stroke-width="1"/><path d="M25.5 46.5 32 55l6.5-8.5" fill="none" stroke="#cfc6b4" stroke-width="1.2"/><rect x="28" y="38" width="8" height="10" rx="3" fill="#d9a67c"/><path d="M13 47l4-17 6 .5-1 15z M51 47l-4-17-6 .5 1 15z" fill="#fff" stroke="#d9d2c3" stroke-width=".8"/><ellipse cx="32" cy="30" rx="13" ry="15" fill="#e7b98f"/><path d="M16 31C13 12 24 7 32 7s19 5 16 24c-1-7-4-12-16-12S17 24 16 31z" fill="#fff" stroke="#d9d2c3" stroke-width=".9"/><path d="M17 15C24 10 40 10 47 15l-.4 3.2C40 14 24 14 17.4 18.2z" fill="#262626"/><path d="M23 37.6Q32 34 41 37.6Q32 40.2 23 37.6zM21.5 38.5Q32 56 42.5 38.5Q43 49 32 52 21 49 21.5 38.5z" fill="#2a1d16"/><g class="tcheek"><circle cx="21.5" cy="35" r="3" fill="#d6342b" opacity=".5"/><circle cx="42.5" cy="35" r="3" fill="#d6342b" opacity=".5"/></g><g fill="rgba(255,255,255,.3)" stroke="#202020" stroke-width="1.4"><circle cx="25.5" cy="30.5" r="4.6"/><circle cx="38.5" cy="30.5" r="4.6"/></g><path d="M30.1 30.2h3.8" stroke="#202020" stroke-width="1.3"/><g class="te" fill="#1a1a1a"><circle cx="25.5" cy="30.8" r="1.6"/><circle cx="38.5" cy="30.8" r="1.6"/></g><g class="teye2" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round"><path d="M23.2 31.4q2.3-3 4.6 0M36.2 31.4q2.3-3 4.6 0"/></g><path class="tbl" d="M20.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tbr" d="M34.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tm tm1" d="M29 44.2h6" stroke="#e8c9b4" stroke-width="1.7" stroke-linecap="round" fill="none"/><path class="tm tm2" d="M28.3 46q3.7-4 7.4 0" stroke="#e8c9b4" stroke-width="1.8" stroke-linecap="round" fill="none"/><path class="tm tm3" d="M28 43.2q4 6 8 0z" fill="#fff" stroke="#e8c9b4" stroke-width="1" stroke-linejoin="round"/><g class="tx2" fill="#fff" stroke="#c4c4c4" stroke-width=".8"><circle cx="12" cy="13" r="3.4"/><circle cx="52" cy="13" r="3.4"/></g><g class="ts" fill="#f3b61f"><path d="M8 15l1.6 3.4 3.4 1.6-3.4 1.6L8 25l-1.6-3.4L3 20l3.4-1.6z"/><path d="M56 6l1.2 2.6L60 10l-2.8 1.2L56 14l-1.2-2.8L52 10l2.8-1.4z"/></g></svg>`;
 const TNEWS=[
 {n:17,a:"2",d:"23 октября",t:"Карточки форм: сначала перевод",w:"Главный экран → «Все породы подобноправильных глаголов для контрольной»",f:"Все породы подобноправильных глаголов для контрольной",go:()=>fmv(),x:"В разделе «Все породы подобноправильных глаголов для контрольной» карточка теперь начинается с русского перевода, затем глагол по-арабски и остальные формы по порядку."},
+{n:117,a:"2",d:"3 ноября",t:"Уд: свои мелодии по нотам",w:"Только у Димы: в «Мелодиях» кнопка «＋ Своя мелодия по нотам». Ноты можно вписать текстом (D4, Bb3:0.5, ре4, паузы R:1, такты через |) или распознать с фото нотного листа — сайт сам переведёт их в формат уда. Затем мелодия работает как остальные: гриф, пальцы, проверка точности, звук с аккомпанементом.",x:"Уд → Мелодии → ＋ Своя мелодия по нотам."},
 {n:116,a:"2",d:"30 октября",t:"Уд: аккомпанемент под запись нашида",w:"Только у Димы: «Дарбуна дарбун · аккомпанемент под запись» идёт по всей песне — 101 такт, аккорды подобраны под голос в каждом такте (Bbm, F, Ebm, Gb), темп 114,85 как в записи. Включите запись и нажмите ♫ на первом слове; камертон A4 = 435 Гц.",x:"Уд → Мелодии → Дарбуна дарбун · аккомпанемент под запись."},
 {n:115,a:"2",d:"30 октября",t:"Уд: серьёзный аккомпанемент",w:"Только у Димы: «Дарбуна дарбун · аккомпанемент» переделан под серьёзный характер нашида: тремоло ришей на басу, минорные терции, протяжный най, редкая глубокая дарбука без бубна.",x:"Уд → Мелодии → Дарбуна дарбун · аккомпанемент."},
 {n:114,a:"2",d:"30 октября",t:"Уд: восточная ритм-партия",w:"Только у Димы: «Дарбуна дарбун» теперь играется в манере уда, а не как западный перебор: бас и октава в ритме максума, квинта, подход к каждому аккорду по ладу нахаванд (с характерным ля-бекаром перед си-бемолем).",x:"Уд → Мелодии → Дарбуна дарбун · ритм-партия."},
