@@ -1,14 +1,15 @@
 /* KURS: автономный курс + рука'а «от руки» */
-svg.rqa{width:100%;height:auto;display:block;overflow:visible}
-svg.rqa path{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:1;animation-name:rqDraw;animation-timing-function:cubic-bezier(.45,.05,.55,.95);animation-fill-mode:forwards}
+.rqx.rqm{display:block;width:100%;background:none!important}
+.rqm svg.rqa{width:100%;height:100%;display:block;overflow:hidden}
+svg.rqa path{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:1;animation-name:rqDraw;animation-timing-function:linear;animation-fill-mode:forwards}
 svg.rqa.still path{animation:none;stroke-dashoffset:0}
 @keyframes rqDraw{to{stroke-dashoffset:0}}
 @media(prefers-reduced-motion:reduce){svg.rqa path{animation-duration:.01s!important;animation-delay:0s!important}}
 .rqon{color:var(--sea);cursor:pointer}
 .lzh .lzhb.rqon{display:flex;flex-direction:column;align-items:center;min-width:120px}
-.lzh .lzhb.rqon svg.rqa{width:150px}
+.lzh .lzhb.rqon .rqm{width:150px}
 .rqbtn{font-size:13px;margin-top:2px}
-.lzhw.rqon svg.rqa{width:100%;max-width:110px;margin:0 auto}
+.lzhw.rqon .rqm{max-width:110px;margin:0 auto}
 #ku{padding-bottom:24px}
 #ku h2{margin-top:6px}
 #ku .ar{font-family:"Noto Sans Arabic",serif;direction:rtl}
@@ -87,7 +88,7 @@ svg.rqa.still path{animation:none;stroke-dashoffset:0}
 .kuvh{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .kuvst{min-height:230px;display:flex;align-items:center;justify-content:center;border-radius:18px;margin:10px 0;background:linear-gradient(160deg,var(--rd,#10285a),color-mix(in srgb,var(--rd,#10285a) 70%,#000));color:#fff;overflow:hidden;padding:12px}
 .kuvs{width:100%;text-align:center;animation:kuvIn .5s cubic-bezier(.23,1,.32,1)}
-.kuvs svg.rqa{width:200px;margin:0 auto;color:var(--rdg,#e0bd62)}
+.kuvs .rqm{width:220px;margin:0 auto;color:var(--rdg,#e0bd62)}
 .kuva{font-size:clamp(40px,11vw,68px);line-height:1.6}
 .kuva .kuh{color:var(--rdg,#e0bd62);font-weight:inherit;display:inline-block;animation:kuvHl 1.2s ease .5s both}
 .kuva s{opacity:.7}

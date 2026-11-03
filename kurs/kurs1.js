@@ -26,12 +26,13 @@ const kuWeak=()=>{const K=kuS();if(!K)return[];return Object.keys(K.it).filter(i
 
 /* ---------- Почерк рука'а «от руки»: штрихи из таблицы МГИМО ---------- */
 function rqLen(d){const p=d.slice(1).split(" L").map(x=>x.split(" ").map(Number));let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);return Math.max(L,2)}
-function rqSVG(c,k,opt){opt=opt||{};const f=(KU_RQS[c]||{})[k];if(!f)return"";const sp=opt.speed||140;let t=opt.delay||0;
-const ps=f.map(([w,d])=>{const L=rqLen(d),du=Math.max(.12,L/sp);const s=`<path d="${d}" stroke-width="${w}" pathLength="1" style="animation-delay:${t.toFixed(2)}s;animation-duration:${du.toFixed(2)}s"/>`;t+=du+.08;return s}).join("");
-return`<svg class="rqa${opt.still?" still":""}" viewBox="0 0 193 168" data-c="${c}" data-k="${k}" aria-label="рука’а: ${c}" role="img">${ps}</svg>`}
-const rqDur=(c,k,sp)=>{const f=(KU_RQS[c]||{})[k];if(!f)return 0;return f.reduce((a,[w,d])=>a+Math.max(.12,rqLen(d)/(sp||140))+.08,0)};
+function rqSVG(c,k,opt){opt=opt||{};const f=(KU_RQS[c]||{})[k],i=LZRQR.indexOf(c);if(!f||i<0)return"";const sp=opt.speed||140;let t=opt.delay||0;
+const ps=f.map(([w,d])=>{const L=rqLen(d),du=Math.max(.12,L/sp);const s=`<path d="${d}" stroke-width="${w}" pathLength="1" style="animation-delay:${t.toFixed(2)}s;animation-duration:${du.toFixed(2)}s"/>`;t+=du+.12;return s}).join("");
+const px=((5*LZRQX[k]-.5)/4*100).toFixed(2),py=(i/27*100).toFixed(3);
+return`<span class="rqx rqm" style="-webkit-mask-position:${px}% ${py}%;mask-position:${px}% ${py}%"><svg class="rqa" viewBox="0 0 192.6 168" preserveAspectRatio="none" aria-label="рука’а: ${c}" role="img">${ps}</svg></span>`}
+const rqDur=(c,k,sp)=>{const f=(KU_RQS[c]||{})[k];if(!f)return 0;return f.reduce((a,[w,d])=>a+Math.max(.12,rqLen(d)/(sp||140))+.12,0)};
 function rqReplay(svg){if(!svg)return;const n=svg.cloneNode(true);svg.replaceWith(n);return n}
-document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest("svg.rqa");if(s&&!s.closest(".kuvid"))rqReplay(s)});
+document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest(".rqm");if(s&&!s.closest(".kuvid"))rqReplay(s.querySelector("svg.rqa"))});
 /* алфавит: большая буква и формы пишутся «от руки» */
 if(typeof lzDet==="function"){const _lzDet=lzDet;lzDet=function(c){_lzDet(c);try{const d=$("lzd");if(!d||!KU_RQS[c])return;const hb=d.querySelector(".lzh .lzhb");if(hb){hb.innerHTML=rqSVG(c,1,{speed:120})+`<button class="lnk rqbtn" type="button">✍ Написать ещё раз</button>`;hb.classList.add("rqon");hb.querySelector(".rqbtn").onclick=ev=>{ev.stopPropagation();rqReplay(hb.querySelector("svg.rqa"))}}
 const T0=rqDur(c,1,120)+.3;const cols=c==="ا"?[1,4]:"ادذرزو".includes(c)?[1,4]:[1,2,3,4];let t=T0;d.querySelectorAll(".lzfms .lzhw").forEach((w,n)=>{const k=cols[n];if(k==null||!KU_RQS[c][k])return;w.innerHTML=rqSVG(c,k,{delay:t,speed:160});w.classList.add("rqon");t+=rqDur(c,k,160)+.15})}catch(e){}}}
