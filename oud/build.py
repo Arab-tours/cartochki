@@ -19,6 +19,12 @@ const blobURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.resul
 async function loadHwApi(){HWAPI=(ld("hwapi")||{}).url||HWAPI}
 """ + hwfetch + "\n"
 boot = r"""
+/* мелодии и настройки: копия в IndexedDB (переживает обновления и чистку localStorage), постоянное хранилище */
+(function(){const RX=/^(oud|hwapi)/,snap=()=>{const m={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(RX.test(k))m[k]=localStorage.getItem(k)}}catch(e){}return m};let tm=0;
+const save=()=>{clearTimeout(tm);tm=setTimeout(()=>otaDB().then(db=>{db.transaction("kv","readwrite").objectStore("kv").put({at:Date.now(),map:snap()},"data")}).catch(()=>{}),300)};
+const si=Storage.prototype.setItem,ri=Storage.prototype.removeItem;Storage.prototype.setItem=function(k,v){si.call(this,k,v);if(this===localStorage&&RX.test(k))save()};Storage.prototype.removeItem=function(k){ri.call(this,k);if(this===localStorage&&RX.test(k))save()};
+try{const site=JSON.parse(localStorage.getItem("oudUM_dima")||"[]"),mine=JSON.parse(localStorage.getItem("oudUM_oud")||"[]");if(site.length&&!localStorage.getItem("oudUMsite")){site.forEach(x=>{if(x&&x.id&&!mine.some(y=>y.id===x.id))mine.push(x)});localStorage.setItem("oudUM_oud",JSON.stringify(mine));localStorage.setItem("oudUMsite","1")}}catch(e){}
+save();document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}})();
 loadHwApi();OUD.open(true);
 ["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,()=>OUD.wake(),{passive:true}));
 function oudToast(msg,btn,fn){const t=document.createElement("div");t.className="otoast";t.setAttribute("role","status");t.innerHTML='<span></span>'+(btn?'<button type="button"></button>':"");t.firstChild.textContent=msg;if(btn){const b=t.querySelector("button");b.textContent=btn;b.onclick=e=>{e.stopPropagation();fn()}}document.body.appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add("on")));const rm=()=>{t.classList.remove("on");setTimeout(()=>t.remove(),400)};return rm}
@@ -42,19 +48,20 @@ function otaPut(v){return otaDB().then(db=>new Promise((res,rej)=>{const t=db.tr
 loader = r"""(function(){var V=__V__;
 function run(){var s=document.createElement("script");s.textContent=document.getElementById("app").textContent;document.body.appendChild(s)}
 var app=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
-if(!app||!window.indexedDB){run();return}
-var done=false,go=function(rec){if(done)return;done=true;
-if(rec&&rec.v>V&&rec.html&&rec.html.indexOf("window.OUDV="+rec.v+";")>0){var h=rec.html;if(document.querySelector('link[href="fonts/manrope.css"]'))h=h.replace("</head>",'<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"></head>');document.open();document.write(h);document.close()}else run()};
-setTimeout(function(){go(null)},1500);
-try{var r=indexedDB.open("oud-ota",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onerror=function(){go(null)};r.onsuccess=function(){try{var q=r.result.transaction("kv").objectStore("kv").get("app");q.onsuccess=function(){go(q.result)};q.onerror=function(){go(null)}}catch(e){go(null)}}}catch(e){go(null)}})();"""
+if(!window.indexedDB){run();return}
+var done=false,go=function(rec,data){if(done)return;done=true;
+try{if(data&&data.map)for(var k in data.map)if(localStorage.getItem(k)==null)localStorage.setItem(k,data.map[k])}catch(e){}
+if(app&&rec&&rec.v>V&&rec.html&&rec.html.indexOf("window.OUDV="+rec.v+";")>0){var h=rec.html;if(document.querySelector('link[href="fonts/manrope.css"]'))h=h.replace("</head>",'<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"><link rel="stylesheet" href="fonts/cormorant.css"></head>');document.open();document.write(h);document.close()}else run()};
+setTimeout(function(){go(null,null)},1500);
+try{var r=indexedDB.open("oud-ota",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onerror=function(){go(null,null)};r.onsuccess=function(){try{var os=r.result.transaction("kv").objectStore("kv"),a=os.get("app"),d=os.get("data");d.onsuccess=function(){go(a.result,d.result)};d.onerror=function(){go(null,null)}}catch(e){go(null,null)}}}catch(e){go(null,null)}})();"""
 css = r""".otoast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);box-sizing:border-box;background:#10c98a;color:#05251a;font:700 15px Manrope,sans-serif;padding:10px 10px 10px 18px;border-radius:24px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translate(-50%,100%);transition:opacity .4s ease,transform .4s ease}.otoast.on{opacity:1;transform:translate(-50%,0)}.otoast span{padding:4px 8px 4px 0}.otoast button{min-height:40px;padding:0 16px;border:0;border-radius:20px;background:#05251a;color:#fff;font:700 14px Manrope,sans-serif;-webkit-tap-highlight-color:transparent;transition:transform .16s cubic-bezier(.23,1,.32,1)}.otoast button:active{transform:scale(.97)}@media (prefers-reduced-motion:reduce){.otoast{transform:translate(-50%,0);transition:opacity .2s ease}}"""
 html = f"""<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Уд — тюнер и мелодии</title><meta name="theme-color" content="#1d1e21">
+<title>Уд — тюнер и мелодии</title><meta name="theme-color" content="#15110d">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Уд">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
-<style>html,body{{margin:0;height:100%;background:#1d1e21;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}}body{{font-family:Manrope,-apple-system,system-ui,sans-serif}}{css}</style>
+<style>html,body{{margin:0;height:100%;background:#15110d;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}}body{{font-family:Manrope,-apple-system,system-ui,sans-serif}}{css}</style>
 </head><body>
 <script type="text/plain" id="app">/* Уд v{ver} — собрано из index.html скриптом oud/build.py, не правьте вручную */
 window.OUDV={ver};

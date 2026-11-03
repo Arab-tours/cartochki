@@ -1,13 +1,13 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Уд — тюнер и мелодии</title><meta name="theme-color" content="#1d1e21">
+<title>Уд — тюнер и мелодии</title><meta name="theme-color" content="#15110d">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Уд">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
-<style>html,body{margin:0;height:100%;background:#1d1e21;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}body{font-family:Manrope,-apple-system,system-ui,sans-serif}.otoast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);box-sizing:border-box;background:#10c98a;color:#05251a;font:700 15px Manrope,sans-serif;padding:10px 10px 10px 18px;border-radius:24px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translate(-50%,100%);transition:opacity .4s ease,transform .4s ease}.otoast.on{opacity:1;transform:translate(-50%,0)}.otoast span{padding:4px 8px 4px 0}.otoast button{min-height:40px;padding:0 16px;border:0;border-radius:20px;background:#05251a;color:#fff;font:700 14px Manrope,sans-serif;-webkit-tap-highlight-color:transparent;transition:transform .16s cubic-bezier(.23,1,.32,1)}.otoast button:active{transform:scale(.97)}@media (prefers-reduced-motion:reduce){.otoast{transform:translate(-50%,0);transition:opacity .2s ease}}</style>
+<style>html,body{margin:0;height:100%;background:#15110d;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}body{font-family:Manrope,-apple-system,system-ui,sans-serif}.otoast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);box-sizing:border-box;background:#10c98a;color:#05251a;font:700 15px Manrope,sans-serif;padding:10px 10px 10px 18px;border-radius:24px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translate(-50%,100%);transition:opacity .4s ease,transform .4s ease}.otoast.on{opacity:1;transform:translate(-50%,0)}.otoast span{padding:4px 8px 4px 0}.otoast button{min-height:40px;padding:0 16px;border:0;border-radius:20px;background:#05251a;color:#fff;font:700 14px Manrope,sans-serif;-webkit-tap-highlight-color:transparent;transition:transform .16s cubic-bezier(.23,1,.32,1)}.otoast button:active{transform:scale(.97)}@media (prefers-reduced-motion:reduce){.otoast{transform:translate(-50%,0);transition:opacity .2s ease}}</style>
 </head><body>
-<script type="text/plain" id="app">/* Уд v232 — собрано из index.html скриптом oud/build.py, не правьте вручную */
-window.OUDV=232;
+<script type="text/plain" id="app">/* Уд v233 — собрано из index.html скриптом oud/build.py, не правьте вручную */
+window.OUDV=233;
 
 const D={};let me="oud";let DB=null;let HWAPI="";
 const ld=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
@@ -112,7 +112,7 @@ return `<svg viewBox="0 0 200 400"><defs><linearGradient id="ogW" x1="0" x2="1">
 <path d="M52 400 L68 28 Q70 6 100 4 Q130 6 132 28 L148 400 Z" fill="url(#ogW)" stroke="#e9d9b8" stroke-width="2.5"/><path d="M52 400 L68 28 Q70 6 100 4 Q130 6 132 28 L148 400 Z" fill="url(#ogG)"/>
 <path d="M80 60 L120 60 L130 390 L70 390 Z" fill="#1b0f08" opacity=".55"/><path d="M92 30 Q100 18 108 30 L106 44 L94 44 Z" fill="#e9d9b8" opacity=".85"/>
 ${str}${pegs}<rect x="62" y="392" width="76" height="8" fill="#efe6d2"/></svg>`}
-function btns(){let h="";SI.forEach(s=>{const c=s.c,left=c<3,y0=left?YL[c]:YR[c-3],dbl=ofC(c).length>1,y=dbl?y0+(s.k?18:-18):y0,col=dbl&&s.k?"15%":"2%";h+=`<button class="ob" data-s="${s.i}" style="top:${y/4}%;${left?"left":"right"}:${col}">${lab(strM(s.i))}</button>`});return h}
+function btns(){let h="";SI.forEach(s=>{const c=s.c,left=c<3,y0=left?YL[c]:YR[c-3],dbl=ofC(c).length>1,y=dbl?y0+(s.k?18:-18):y0,col=dbl&&s.k?"calc(2% + 52px)":"2%";h+=`<button class="ob" data-s="${s.i}" style="top:${y/4}%;${left?"left":"right"}:${col}">${lab(strM(s.i))}</button>`});return h}
 const sName=i=>{const s=SI[i];return ofC(s.c).length>1?`${s.c+1}-й хор · струна ${s.k+1}`:"1-й хор · басовая"};
 const modded=()=>Object.keys(st.cu[pk()]||{}).length+Object.keys(st.ct[pk()]||{}).length>0;
 function sheetHTML(){const p=pre();return `<div class="gr"></div><h3>Строй</h3>${PR.map(x=>`<button class="opi${x.id===p.id?" on":""}" data-p="${x.id}"><span><b>${x.t}</b>${x.s?`<small>${x.s}</small>`:""}</span><code>${x.n.map(s=>s.replace(/\d/,"")).join(" ")}</code></button>`).join("")}
@@ -121,7 +121,7 @@ function sheetHTML(){const p=pre();return `<div class="gr"></div><h3>Строй<
 ${SI.map(s=>{const i=s.i,m=strM(i),c=strC(i),md=(st.cu[pk()]||{})[i]!=null||c;return `<div class="osr${md?" mod":""}" data-s="${i}"><span class="nm">${sName(i)}<small>${tgtHz(i).toFixed(1)} Гц</small></span><button data-a="n-">−</button><span class="v">${lab(m)}</span><button data-a="n+">+</button><button data-a="c-">−5</button><span class="cv">${c>0?"+":""}${c} ц</span><button data-a="c+">+5</button><button class="pl" data-a="go" aria-label="Настраивать эту струну">▶</button></div>`}).join("")}
 <h3>Камертон</h3><div class="oa4"><span>A4</span><button data-d="-1">−</button><input type="range" min="415" max="466" step="1" value="${st.a4}"><button data-d="1">+</button><b>${st.a4} Гц</b></div>
 <p class="ohint">Строй указан от самого низкого хора к самому высокому. «Автомат.» сам узнаёт, какой хор звучит. У каждой струны своя кнопка рядом с колком: нажмите её (или сам колок, или ▶ в списке) — прозвучит эталон, и тюнер будет слушать только её (вторую струну пары лучше приглушить пальцем). Ноту и подстройку в центах можно менять для каждой струны отдельно.</p>`}
-function ui(){if(st.md==="mel")return melUI();root.classList.remove("mel");const p=pre();root.innerHTML=`<style>${CSS}${MCSS}</style><div class="og"></div><div class="ol"></div>
+function ui(){if(st.md==="mel")return melUI();root.classList.remove("mel");const p=pre();root.innerHTML=`<style>${OFONT}${CSS}${MCSS}${ACSS}</style><div class="og"></div><div class="ol"></div>
 <div class="ohd">${tabMode?"":`<button class="ox" aria-label="Закрыть">✕</button>`}${seg()}<button class="oau${st.auto?" on":""}">АВТОМАТ.<span class="osw"></span></button></div>
 <div class="obr"><div class="obt"><h1>oud<i>tuner</i></h1><div class="oar">دَوْزَنَةُ الْعُودِ</div></div><button class="opr">Арабский уд · ${p.t}${modded()?" (свой)":""} <span>›</span></button><div class="ops"></div></div>
 <div class="om"><div class="ofs"><span>♭</span><span>♯</span></div><div class="oind idle"><div class="ocir">–</div></div><div class="ocn"></div></div>
@@ -138,6 +138,9 @@ bindSheet();ops();mark();idleMsg()}
 function ops(){const e=root.querySelector(".ops");if(e)e.innerHTML=SI.filter(s=>s.k===0).map(s=>mname(strM(s.i)).replace(/\d/,"")).join(" · ")+(st.a4!==440?` · A4 = ${st.a4} Гц`:"")}
 function bindSheet(){const q=s=>root.querySelector(s),sh=q(".osh");
 sh.querySelectorAll(".oseg button").forEach(b=>b.onclick=()=>{st.n12=b.dataset.n==="1";sv();bSI();done={};selC=0;selS=-1;rebuild(true)});
+const ex=sh.querySelector(".umexp");if(ex)ex.onclick=()=>{const L=umList();if(!L.length)return;const bl=new Blob([JSON.stringify({oud:1,at:new Date().toISOString(),mels:L},null,1)],{type:"application/json"}),u=URL.createObjectURL(bl),A=document.createElement("a");A.href=u;A.download="oud-melodies.json";document.body.appendChild(A);A.click();A.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)};
+const fi=sh.querySelector(".umio input");if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;let n=0;try{let j=JSON.parse(await f.text());const L=Array.isArray(j)?j:j.mels||[],cur=umList();L.forEach(x=>{if(x&&x.id&&typeof x.src==="string"){const i=cur.findIndex(y=>y.id===x.id);if(i>=0)cur[i]=x;else cur.push(x);n++}});umSave(cur)}catch(e){}
+if(!n){const t=sh.querySelector(".umio");t.insertAdjacentHTML("afterend",'<div class="umw" style="margin:0 4px 8px">В файле не нашлось мелодий.</div>');return}melUI()};
 sh.querySelectorAll(".opi").forEach(b=>b.onclick=()=>{st.p=b.dataset.p;sv();done={};selC=0;selS=-1;rebuild(true)});
 const rs=sh.querySelector(".rs");if(rs)rs.onclick=()=>{delete st.cu[pk()];delete st.ct[pk()];sv();done={};rebuild(true)};
 sh.querySelectorAll(".osr button").forEach(b=>b.onclick=()=>{const i=+b.closest(".osr").dataset.s,a=b.dataset.a;
@@ -480,10 +483,10 @@ const melKey=()=>st.mel+"|"+pk()+"|"+JSON.stringify(st.cu[pk()]||{});
 function melLoad(){const M=curMel(),src=M.gen?[0,1,2,3,4,5].map(c=>mname(openM(c)).replace("♯","#")):M.n.split(/\s+/).filter(t=>t&&t!=="|");
 MN=[];for(const s of src){const [a,b]=s.split(":");if(/^R$/i.test(a)){if(MN.length)MN[MN.length-1].r=(MN[MN.length-1].r||0)+(+b||1);continue}let n;try{n=pnote(a)}catch(e){continue}const p=place(n.m);if(b)n.d=+b;if(p)MN.push(Object.assign(n,p))}MI=0;MR=[];mhT=0;mhv=[];mw=0;mKey=melKey()}
 const FX=n=>34+1065*(1-Math.pow(2,-n/12)),FY=c=>20+c*21;
-function fb(){const n=MN[MI],nx=MN[MI+1];let s=`<svg viewBox="0 0 360 150" class="mfs"><defs><linearGradient id="mgW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2814"/><stop offset=".5" stop-color="#7a4422"/><stop offset="1" stop-color="#4a2814"/></linearGradient></defs><rect x="30" y="6" width="330" height="128" rx="3" fill="url(#mgW)"/><rect x="27" y="4" width="7" height="132" rx="1" fill="#efe6d2"/>`;
+function fb(){const n=MN[MI],nx=MN[MI+1];let s=`<svg viewBox="-18 0 378 150" class="mfs"><defs><linearGradient id="mgW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2814"/><stop offset=".5" stop-color="#7a4422"/><stop offset="1" stop-color="#4a2814"/></linearGradient></defs><rect x="30" y="6" width="330" height="128" rx="3" fill="url(#mgW)"/><rect x="27" y="4" width="7" height="132" rx="1" fill="#efe6d2"/>`;
 for(let k=1;k<=6;k++)s+=`<line x1="${FX(k).toFixed(1)}" y1="8" x2="${FX(k).toFixed(1)}" y2="132" stroke="#fff" stroke-opacity="${k===5?.22:.1}" stroke-dasharray="2 3"/>`;
 for(let k=1;k<=5;k++)s+=`<text x="${FX(k).toFixed(1)}" y="146" class="msn" text-anchor="middle">${k}</text>`;
-for(let c=0;c<6;c++){const y=FY(c),on=n&&n.c===c,cls=`mst${on?" on":""}`,w=c<2?1.9:1.4;s+=`<text x="13" y="${y+4}" class="msl${on?" on":""}" text-anchor="middle">${ruM(openM(c))}</text>`;
+for(let c=0;c<6;c++){const y=FY(c),on=n&&n.c===c,cls=`mst${on?" on":""}`,w=c<2?1.9:1.4;s+=`<text x="0" y="${y+4}" class="msl${on?" on":""}" text-anchor="middle">${ruM(openM(c))}</text>`;
 s+=ofC(c).length>1?`<line class="${cls}" x1="34" y1="${y-1.7}" x2="360" y2="${y-1.7}" stroke-width="${w*.7}"/><line class="${cls}" x1="34" y1="${y+1.7}" x2="360" y2="${y+1.7}" stroke-width="${w*.7}"/>`:`<line class="${cls}" x1="34" y1="${y}" x2="360" y2="${y}" stroke-width="${w}"/>`}
 const px=o=>o<.25?30.5:FX(o);
 if(nx&&n&&!(nx.c===n.c&&Math.abs(nx.o-n.o)<.1))s+=`<circle cx="${px(nx.o).toFixed(1)}" cy="${FY(nx.c)}" r="8" fill="none" stroke="#fff" stroke-opacity=".45" stroke-dasharray="3 2"/>`;
@@ -545,12 +548,12 @@ if(el>total+(acc?2.2:1.2)){fadePB()}};
 PB={t,g:[gN,gD,gP],iv:setInterval(tick,40)};mute=performance.now()+(total+3)*1000;tick()}
 const accRow=()=>{const M=curMel(),on=st.acc!==false;return M.gen?"":`<div class="macc"><button data-x="acc" class="${on?"on":""}">${on?"Аккомпанемент: вкл":"Аккомпанемент: выкл"}</button>${M.nodr?"":`<button data-x="drm" class="${on&&st.drm!==false?"on":""}" ${on?"":"disabled"}>🥁 Дарбука</button>`}<button data-x="bas" class="${on&&st.bas!==false?"on":""}" ${on?"":"disabled"}>Бас</button><button data-x="ney" class="${on&&st.ney!==false?"on":""}" ${on?"":"disabled"}>Най</button><button data-x="tm-">−</button><span>${Math.round((M.bpm||104)*(st.tmp||1))}</span><button data-x="tm+">+</button></div>`};
 function bindAcc(){const r=root&&root.querySelector(".macc");if(!r)return;r.querySelectorAll("button").forEach(b=>b.onclick=()=>{const x=b.dataset.x;if(x==="acc")st.acc=st.acc===false;else if(x==="drm")st.drm=st.drm===false;else if(x==="bas")st.bas=st.bas===false;else if(x==="ney")st.ney=st.ney===false;else st.tmp=Math.max(.6,Math.min(1.5,Math.round(((st.tmp||1)+(x==="tm+"?.1:-.1))*10)/10));sv();const was=!!PB;if(was)playStop();r.outerHTML=accRow();bindAcc();if(was)playAll()})}
-function melSheet(){return `<div class="gr"></div><h3>Мелодии и упражнения</h3><button class="opi umadd"><span><b>＋ Своя мелодия по нотам</b><small>вписать ноты или распознать с фото нотного листа</small></span><code>✎</code></button>${allMels().map(x=>`<button class="opi${x.id===curMel().id?" on":""}" data-m="${x.id}"><span><b>${x.t}</b><small>${x.s}</small></span><code>${x.user?`<i class="ued" data-u="${x.id}">✎ изменить</i>`:(x.gen?6:x.n.split(" ").filter(t=>!t.startsWith("R")).length)+" нот"}</code></button>`).join("")}
+function melSheet(){return `<div class="gr"></div><h3>Мелодии и упражнения</h3><button class="opi umadd"><span><b>＋ Своя мелодия по нотам</b><small>вписать ноты или распознать с фото нотного листа</small></span><code>✎</code></button><div class="umio"><button class="umb umexp"${umList().length?"":" disabled"}>⤓ Мои мелодии в файл</button><label class="umb">⤒ Загрузить из файла<input type="file" accept=".json,application/json,text/plain" hidden></label></div>${allMels().map(x=>`<button class="opi${x.id===curMel().id?" on":""}" data-m="${x.id}"><span><b>${x.t}</b><small>${x.s}</small></span><code>${x.user?`<i class="ued" data-u="${x.id}">✎ изменить</i>`:(x.gen?6:x.n.split(" ").filter(t=>!t.startsWith("R")).length)+" нот"}</code></button>`).join("")}
 <p class="ohint">Строй берётся из вкладки «Настройка» (сейчас: ${pre().t}). Гриф показан так, как вы видите его, держа уд: сверху бас, слева порожек. Зелёная точка — куда прижать струну, цифра — палец (1 указательный, 2 средний, 3 безымянный, 4 мизинец, 0 — открытая). Пунктирный кружок — следующая нота. Пунктирные линии и цифры снизу — полутоны от порожка. Оранжевая точка — куда по звуку попадает ваш палец прямо сейчас. Андалусские наубы (Марокко, традиция аль-Андалуса) взяты из нотных записей открытого корпуса Arab-Andalusian Music (MTG, Университет Помпеу Фабра) — первые фразы каждой пьесы. Нота засчитывается, если держать её в пределах ±20 центов (полубемоль — это 50 центов, поэтому их тоже можно попадать).</p>`}
 function bindSeg(){root.querySelectorAll(".omd button").forEach(b=>b.onclick=()=>{if(st.md===b.dataset.m)return;st.md=b.dataset.m;sv();playStop();hist=[];okT=0;ui()})}
 const seg=()=>`<div class="omd"><button data-m="tun" class="${st.md==="mel"?"":"on"}">Настройка</button><button data-m="mel" class="${st.md==="mel"?"on":""}">Мелодии</button></div>`;
 function melUI(){try{sndReady().catch(()=>{})}catch(e){}if(mKey!==melKey())melLoad();root.classList.add("mel");
-root.innerHTML=`<style>${CSS}${MCSS}</style><div class="ohd">${tabMode?"":`<button class="ox" aria-label="Закрыть">✕</button>`}${seg()}</div>
+root.innerHTML=`<style>${OFONT}${CSS}${MCSS}${ACSS}</style><div class="ohd">${tabMode?"":`<button class="ox" aria-label="Закрыть">✕</button>`}${seg()}</div>
 <div class="mtp"><button class="mpk"></button><span class="mct"></span></div><div class="mnt"></div><div class="mfb"></div>
 <div class="mmt"><div class="mbar"><b class="mnd"></b></div><div class="mbl"><span>ниже</span><span>точно</span><span>выше</span></div></div>
 <div class="omsg"></div><div class="olv" title="уровень микрофона"><i></i></div><div class="mch"></div>${accRow()}
@@ -558,6 +561,9 @@ root.innerHTML=`<style>${CSS}${MCSS}</style><div class="ohd">${tabMode?"":`<butt
 <div class="oshb"></div><div class="osh">${melSheet()}</div>`;
 const q=s=>root.querySelector(s);if(q(".ox"))q(".ox").onclick=close;bindSeg();
 const sh=q(".osh"),bd=q(".oshb"),cl=()=>{sh.classList.remove("on");bd.classList.remove("on")};q(".mpk").onclick=()=>{sh.classList.add("on");bd.classList.add("on")};bd.onclick=cl;
+const ex=sh.querySelector(".umexp");if(ex)ex.onclick=()=>{const L=umList();if(!L.length)return;const bl=new Blob([JSON.stringify({oud:1,at:new Date().toISOString(),mels:L},null,1)],{type:"application/json"}),u=URL.createObjectURL(bl),A=document.createElement("a");A.href=u;A.download="oud-melodies.json";document.body.appendChild(A);A.click();A.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)};
+const fi=sh.querySelector(".umio input");if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;let n=0;try{let j=JSON.parse(await f.text());const L=Array.isArray(j)?j:j.mels||[],cur=umList();L.forEach(x=>{if(x&&x.id&&typeof x.src==="string"){const i=cur.findIndex(y=>y.id===x.id);if(i>=0)cur[i]=x;else cur.push(x);n++}});umSave(cur)}catch(e){}
+if(!n){const t=sh.querySelector(".umio");t.insertAdjacentHTML("afterend",'<div class="umw" style="margin:0 4px 8px">В файле не нашлось мелодий.</div>');return}melUI()};
 sh.querySelectorAll(".opi").forEach(b=>b.onclick=e=>{if(b.classList.contains("umadd")){umEditor();return}const ue=e.target.closest(".ued");if(ue){const u=umList().find(x=>x.id===ue.dataset.u);if(u){umEditor(u);return}}st.mel=b.dataset.m;sv();playStop();melLoad();melUI()});
 q(".mctl").querySelectorAll("button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
 if(a==="hear"){if(MN[MI])pluckF(hzOf(MN[MI]));return}if(a==="all"){playAll();return}playStop();
@@ -595,15 +601,59 @@ const MCSS=`#oudT.mel{overflow-y:auto}
 #oudT .mc{flex:none;background:#2c2d31;border:0;color:#d7d7da;border-radius:12px;padding:8px 11px;font:600 14px Manrope,-apple-system,sans-serif;cursor:pointer}
 #oudT .mc.cur{background:#fff;color:#1d1e21}#oudT .mc.g1{background:#10c98a;color:#05251a}#oudT .mc.g2{background:#0e7d58;color:#e7fff5}#oudT .mc.g3{background:#7a6a2a;color:#fff}#oudT .mc.sk{background:#4a2c2c;color:#f0b8b8}#oudT .mc.pl{box-shadow:0 0 0 2px #ff9a52}
 #oudT .umed{position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.55);display:flex;align-items:flex-end}#oudT .umc{background:#26272b;width:100%;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:14px 16px 20px}#oudT .umh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:10px}#oudT .umx{background:#3b3c42;border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px}#oudT .umr{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}#oudT .umb{background:#3b3c42;border:0;color:#fff;border-radius:12px;padding:10px 12px;font:600 14px Manrope,-apple-system,sans-serif;cursor:pointer}#oudT .umok{background:#10c98a;color:#05251a}#oudT .umdel{background:#5a2a2a}#oudT .umt{width:100%;min-height:180px;background:#1d1e21;color:#fff;border:1px solid #3b3c42;border-radius:12px;padding:10px;font:14px/1.5 ui-monospace,Menlo,monospace}#oudT .ums{font-size:14px;color:#d7d7da;line-height:1.5}#oudT .umw{color:#ff9a52;margin-top:4px}#oudT .umopt{align-items:center;font-size:13px;color:#b9bac0;gap:6px}#oudT .umopt input:not([type=checkbox]){width:60px;background:#1d1e21;color:#fff;border:1px solid #3b3c42;border-radius:8px;padding:6px;font:inherit}#oudT .umopt label{display:flex;align-items:center;gap:4px}
+#oudT .umio{display:flex;gap:8px;margin:0 0 8px}#oudT .umio .umb{flex:1;text-align:center;padding:12px 8px}#oudT .umio .umb:disabled{opacity:.4}
 #oudT .umgo{width:100%;padding:14px;font-size:16px;margin:4px 0 8px}#oudT .umrep{color:#ffcf9a;margin:6px 0;font-size:13px}#oudT .umrep ul{margin:4px 0 0;padding-left:18px}#oudT .umi{color:#9fd8c4;margin-bottom:4px}#oudT .umhelp{font-size:13px;color:#c9cacf;line-height:1.5;background:#1d1e21;border-radius:12px;padding:10px;margin-bottom:8px}#oudT .umhelp code{color:#10c98a}#oudT .umhelp pre{margin:6px 0 0;color:#fff;font-size:13px}#oudT .ued{font-style:normal;color:#10c98a}#oudT .umadd{box-shadow:inset 0 0 0 1px #10c98a}
 #oudT .macc{display:flex;align-items:center;gap:6px;padding:8px 16px 0;flex:none;flex-wrap:wrap}#oudT .macc button{background:#2c2d31;border:0;color:#b9bac0;border-radius:12px;padding:8px 10px;font:600 13px Manrope,-apple-system,sans-serif;cursor:pointer}#oudT .macc button.on{background:#10c98a;color:#05251a}#oudT .macc button:disabled{opacity:.4}#oudT .macc span{min-width:30px;text-align:center;font:700 14px Manrope,sans-serif;color:#fff;font-variant-numeric:tabular-nums}
 #oudT .mctl{display:flex;gap:8px;padding:10px 16px 16px;flex:none;margin-top:auto}
 #oudT .mctl button{flex:1;min-width:0;white-space:nowrap;padding:0 6px;background:#2c2d31;border:0;color:#fff;border-radius:14px;height:48px;font:700 15px Manrope,-apple-system,sans-serif;cursor:pointer;transition:transform .1s}
 #oudT .mctl button.w2{flex:2}#oudT .mctl button:active{transform:scale(.95)}
 @media (max-height:740px){#oudT .mbig{font-size:36px}#oudT .mnt{min-height:76px}#oudT .mtp{padding-top:8px}}`;
+const OFONT=`@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap");`;
+const ACSS=`#oudT{background:#15110d;color:#f3e9dc;--br:#d4a35a;--brl:#e8bf7d}
+#oudT .og{background-image:linear-gradient(rgba(232,191,125,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(232,191,125,.04) 1px,transparent 1px)}
+#oudT .ol{background:rgba(232,191,125,.22)}
+#oudT .obr h1,#oudT .mbig,#oudT .mpk,#oudT .opr{font-family:"Cormorant Garamond",Georgia,serif;letter-spacing:0}
+#oudT .obr h1{font-size:40px;font-weight:700}#oudT .obr h1 i{color:var(--br)}
+#oudT .oar{color:#c9b9a3}#oudT .opr span,#oudT .ops,#oudT .ocn,#oudT .mct,#oudT .mbig sub,#oudT .osh h3,#oudT .opi small,#oudT .ohint,#oudT .mbl{color:#a8998a}
+#oudT .opr{font-size:24px;font-weight:700}#oudT .mpk{font-size:24px}#oudT .mbig{font-size:56px;font-weight:600}
+#oudT .ofs{color:#8a7458}
+#oudT .ocir{border-color:#f3e9dc;background:#15110d;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px}#oudT .ocir::after{border-top-color:#f3e9dc}
+#oudT .oind.w .ocir{border-color:#e0704a}#oudT .oind.w .ocir::after{border-top-color:#e0704a}
+#oudT .ocn b{color:#f3e9dc}
+#oudT .omsg{background:#211a14;box-shadow:inset 0 0 0 1px #3a2f24}#oudT .omsg.w{background:#2a1a12}#oudT .omsg .obig{color:#e8a06a}#oudT .omsg small{color:#a8998a}
+#oudT .omsg button{background:var(--br);color:#15110d}#oudT .omsg.g{box-shadow:none}
+#oudT .ob{width:46px;height:46px;margin-top:-23px;background:#211a14;color:#f3e9dc;box-shadow:inset 0 0 0 1px #3a2f24;transition:background .15s,transform .16s cubic-bezier(.23,1,.32,1),box-shadow .2s}
+#oudT .ob.on{background:#2a2016;color:var(--brl);box-shadow:inset 0 0 0 2px var(--br)}#oudT .ob.ok{box-shadow:0 0 0 3px #10c98a}#oudT .ob:active{transform:scale(.97)}
+#oudT .st.on{filter:drop-shadow(0 0 3px var(--br))}#oudT .pg.on .pb{fill:var(--br)}
+#oudT .osw{background:#3a2f24}#oudT .oau{color:#c9b9a3}#oudT .oau.on .osw{background:var(--br)}
+#oudT .omd{background:#211a14;box-shadow:inset 0 0 0 1px #3a2f24}#oudT .omd button{color:#a8998a}#oudT .omd button.on{background:var(--br);color:#15110d}
+#oudT .ox{background:#211a14;color:#f3e9dc}
+#oudT .osh{background:#1c1611;box-shadow:0 -1px 0 #3a2f24}#oudT .osh .gr{background:#4a3c2e}#oudT .osh h3 button{color:var(--brl)}
+#oudT .opi,#oudT .oa4,#oudT .osr,#oudT .oseg button{background:#211a14;color:#f3e9dc}#oudT .opi code,#oudT .osr .cv{color:#c9b9a3}
+#oudT .opi.on,#oudT .oseg button.on{box-shadow:inset 0 0 0 2px var(--br)}#oudT .osr.mod,#oudT .umadd{box-shadow:inset 0 0 0 1px var(--br)}
+#oudT .oa4 button,#oudT .osr button{background:#2a2016;color:#f3e9dc}#oudT .oa4 input{accent-color:var(--br)}
+#oudT .olv{background:#2c241c}#oudT .olv i{background:var(--br)}
+#oudT .msub{color:#d9cbb8}#oudT .msl{fill:#a8998a}#oudT .msl.on{fill:var(--brl)}#oudT .msn{fill:#7a6a58}
+#oudT .mst.on{filter:drop-shadow(0 0 3px var(--br))}#oudT .mfs circle[fill="#10c98a"]{fill:var(--br);stroke:#15110d}#oudT .mtg{fill:#15110d}
+#oudT .mc{background:#211a14;color:#d9cbb8}#oudT .mc.cur{background:var(--br);color:#15110d}
+#oudT .macc button{background:#211a14;color:#c9b9a3}#oudT .macc button.on{background:var(--br);color:#15110d}#oudT .macc span{color:#f3e9dc}
+#oudT .mctl button{background:#211a14;color:#f3e9dc;box-shadow:inset 0 0 0 1px #3a2f24;overflow:hidden;text-overflow:ellipsis;transition:transform .16s cubic-bezier(.23,1,.32,1)}#oudT .mctl button:active{transform:scale(.97)}
+#oudT .umc{background:#1c1611}#oudT .umb,#oudT .umx{background:#2a2016;color:#f3e9dc}#oudT .umok{background:var(--br);color:#15110d}#oudT .umt,#oudT .umhelp,#oudT .umopt input:not([type=checkbox]){background:#15110d;border-color:#3a2f24}#oudT .umhelp code,#oudT .ued{color:var(--brl)}
+#oudT:not(.mel){overflow-y:auto;overscroll-behavior:contain}
+#oudT .om{min-height:176px}#oudT .ohs{flex:1 0 260px;min-height:260px;margin-bottom:14px}
+#oudT .mctl{gap:6px}#oudT .mctl button{font-size:14px;padding:0 4px}#oudT .mctl button.w2{flex:2.6}
+@media (max-height:740px){#oudT .om{min-height:132px}#oudT .ohs{flex:1 1 220px;min-height:220px;margin-bottom:8px}#oudT .obr h1{font-size:32px}#oudT .opr{font-size:20px}#oudT .mbig{font-size:44px}}
+@media (prefers-reduced-motion:reduce){#oudT .ob,#oudT .mctl button{transition:background .15s}#oudT .ob:active,#oudT .mctl button:active{transform:none}}`;
+
 
 return {open,close:()=>{if(root)unmount()},on:()=>!!root,wake:()=>{try{if(ac&&ac.state!=="running")ac.resume()}catch(e){}},asleep:()=>!!(ac&&ac.state==="suspended")}})();
 
+/* мелодии и настройки: копия в IndexedDB (переживает обновления и чистку localStorage), постоянное хранилище */
+(function(){const RX=/^(oud|hwapi)/,snap=()=>{const m={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(RX.test(k))m[k]=localStorage.getItem(k)}}catch(e){}return m};let tm=0;
+const save=()=>{clearTimeout(tm);tm=setTimeout(()=>otaDB().then(db=>{db.transaction("kv","readwrite").objectStore("kv").put({at:Date.now(),map:snap()},"data")}).catch(()=>{}),300)};
+const si=Storage.prototype.setItem,ri=Storage.prototype.removeItem;Storage.prototype.setItem=function(k,v){si.call(this,k,v);if(this===localStorage&&RX.test(k))save()};Storage.prototype.removeItem=function(k){ri.call(this,k);if(this===localStorage&&RX.test(k))save()};
+try{const site=JSON.parse(localStorage.getItem("oudUM_dima")||"[]"),mine=JSON.parse(localStorage.getItem("oudUM_oud")||"[]");if(site.length&&!localStorage.getItem("oudUMsite")){site.forEach(x=>{if(x&&x.id&&!mine.some(y=>y.id===x.id))mine.push(x)});localStorage.setItem("oudUM_oud",JSON.stringify(mine));localStorage.setItem("oudUMsite","1")}}catch(e){}
+save();document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}})();
 loadHwApi();OUD.open(true);
 ["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,()=>OUD.wake(),{passive:true}));
 function oudToast(msg,btn,fn){const t=document.createElement("div");t.className="otoast";t.setAttribute("role","status");t.innerHTML='<span></span>'+(btn?'<button type="button"></button>':"");t.firstChild.textContent=msg;if(btn){const b=t.querySelector("button");b.textContent=btn;b.onclick=e=>{e.stopPropagation();fn()}}document.body.appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add("on")));const rm=()=>{t.classList.remove("on");setTimeout(()=>t.remove(),400)};return rm}
@@ -619,11 +669,12 @@ if(!m||!h.includes("window.OUDV="+nv+";"))return;new Function(m[1]);
 await otaPut({v:nv,html:h,at:Date.now()});oudToast("Готова новая версия Уда","Обновить",()=>location.reload())}catch(e){}}
 setTimeout(otaCheck,2500);window.addEventListener("online",()=>setTimeout(otaCheck,1500));
 </script>
-<script>(function(){var V=232;
+<script>(function(){var V=233;
 function run(){var s=document.createElement("script");s.textContent=document.getElementById("app").textContent;document.body.appendChild(s)}
 var app=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
-if(!app||!window.indexedDB){run();return}
-var done=false,go=function(rec){if(done)return;done=true;
-if(rec&&rec.v>V&&rec.html&&rec.html.indexOf("window.OUDV="+rec.v+";")>0){var h=rec.html;if(document.querySelector('link[href="fonts/manrope.css"]'))h=h.replace("</head>",'<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"></head>');document.open();document.write(h);document.close()}else run()};
-setTimeout(function(){go(null)},1500);
-try{var r=indexedDB.open("oud-ota",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onerror=function(){go(null)};r.onsuccess=function(){try{var q=r.result.transaction("kv").objectStore("kv").get("app");q.onsuccess=function(){go(q.result)};q.onerror=function(){go(null)}}catch(e){go(null)}}}catch(e){go(null)}})();</script></body></html>
+if(!window.indexedDB){run();return}
+var done=false,go=function(rec,data){if(done)return;done=true;
+try{if(data&&data.map)for(var k in data.map)if(localStorage.getItem(k)==null)localStorage.setItem(k,data.map[k])}catch(e){}
+if(app&&rec&&rec.v>V&&rec.html&&rec.html.indexOf("window.OUDV="+rec.v+";")>0){var h=rec.html;if(document.querySelector('link[href="fonts/manrope.css"]'))h=h.replace("</head>",'<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"><link rel="stylesheet" href="fonts/cormorant.css"></head>');document.open();document.write(h);document.close()}else run()};
+setTimeout(function(){go(null,null)},1500);
+try{var r=indexedDB.open("oud-ota",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onerror=function(){go(null,null)};r.onsuccess=function(){try{var os=r.result.transaction("kv").objectStore("kv"),a=os.get("app"),d=os.get("data");d.onsuccess=function(){go(a.result,d.result)};d.onerror=function(){go(null,null)}}catch(e){go(null,null)}}}catch(e){go(null,null)}})();</script></body></html>

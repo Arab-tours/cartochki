@@ -6,5 +6,7 @@ for p in manrope noto-sans-arabic; do
   cp -r node_modules/@fontsource-variable/$p/files www/fonts/$p-files
   sed "s#./files/#./$p-files/#g; s/Manrope Variable/Manrope/g; s/Noto Sans Arabic Variable/Noto Sans Arabic/g" node_modules/@fontsource-variable/$p/index.css > www/fonts/$p.css
 done
-sed -i.bak 's#</head>#<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"></head>#' www/index.html && rm -f www/index.html.bak
+cp -r node_modules/@fontsource/cormorant-garamond/files www/fonts/cormorant-files
+for w in 600 700; do sed "s#./files/#./cormorant-files/#g" node_modules/@fontsource/cormorant-garamond/$w.css; done > www/fonts/cormorant.css
+sed -i.bak 's#</head>#<link rel="stylesheet" href="fonts/manrope.css"><link rel="stylesheet" href="fonts/noto-sans-arabic.css"><link rel="stylesheet" href="fonts/cormorant.css"></head>#' www/index.html && rm -f www/index.html.bak
 node -e 'const s=require("fs").readFileSync("www/index.html","utf8");const m=s.match(/<script type="text\/plain" id="app">([\s\S]*?)<\/script>/);if(!m)throw new Error("script не найден");new Function(m[1]);if(!s.includes("OUD.open(true)"))throw new Error("нет запуска");console.log("oud www OK")'
