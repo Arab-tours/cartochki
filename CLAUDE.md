@@ -25,3 +25,4 @@
 
 ## Проверка
 - Перед push загрузите страницу в браузере (playwright) и убедитесь, что нет ошибок `pageerror`.
+- Автономный курс для начинающих (учётки `kurs1`…`kurs3`) и анимация рука’а: исходники в `kurs/` (`kurs1-5.js`, `kurs.css`, `rqs.json`). В `index.html` вставляется между `/*KURS-BEGIN*/…/*KURS-END*/` и `/*KURS-CSS-BEGIN*/…/*KURS-CSS-END*/` командой `python3 kurs/apply.py` — правьте исходники в `kurs/`, а не сам блок в `index.html`.
