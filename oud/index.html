@@ -1,0 +1,606 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Уд — тюнер и мелодии</title><meta name="theme-color" content="#1d1e21">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Уд">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>html,body{margin:0;height:100%;background:#1d1e21;overscroll-behavior:none;-webkit-text-size-adjust:100%}body{font-family:Manrope,-apple-system,system-ui,sans-serif}</style>
+</head><body>
+<script>/* Уд v231 — собрано из index.html скриптом oud/build.py, не правьте вручную */
+
+const D={};let me="oud";let DB=null;let HWAPI="";
+const ld=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const blobURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+async function loadHwApi(){HWAPI=(ld("hwapi")||{}).url||HWAPI}
+async function hwFetch(prompt,blob,ref,maxTokens){const d=await blobURL(blob),rf=ref?(await blobURL(ref)).split(",")[1]:undefined,r=await fetch(HWAPI,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({prompt,image:d.split(",")[1],mime:"image/jpeg",ref:rf,user:me,maxTokens})});if(!r.ok)throw{code:r.status===429?"limit":"http"};const j=await r.json();if(j.error&&!j.text)throw{code:"api"};let t=String(j.text||"").trim();const i=t.indexOf("{"),k=t.lastIndexOf("}");if(i<0)throw{code:"parse"};return JSON.parse(t.slice(i,k+1))}
+/*OUD tuner*/D["Настройка уда"]="دَوْزَنَةُ الْعُودِ";D["Уд"]="اَلْعُودُ";
+const OUD=(()=>{
+const PR=[
+{id:"std",t:"Стандарт",s:"арабский строй",n:["D2","G2","A2","D3","G3","C4"]},
+{id:"c",t:"Классический с до",s:"египетско-сирийский",n:["C2","F2","A2","D3","G3","C4"]},
+{id:"f",t:"С фа в басу",s:"вариант стандарта",n:["D2","F2","A2","D3","G3","C4"]},
+{id:"hi",t:"Высокий арабский",s:"",n:["F2","A2","D3","G3","C4","F4"]},
+{id:"leb",t:"Ливанский",s:"",n:["E2","A2","D3","G3","C4","F4"]},
+{id:"irq",t:"Иракский",s:"школа Мунира Башира",n:["F2","C3","D3","G3","C4","F4"]}];
+const NN=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],NR={C:"до",D:"ре",E:"ми",F:"фа",G:"соль",A:"ля",B:"си"};
+const midi=s=>{const m=s.match(/^([A-G])(#?)(\d)$/);return 12*(+m[3]+1)+[0,2,4,5,7,9,11]["CDEFGAB".indexOf(m[1])]+(m[2]?1:0)};
+const mname=m=>NN[((m%12)+12)%12]+(Math.floor(m/12)-1);
+let st={p:"std",a4:440,auto:true,cu:{},ct:{},n12:false};try{Object.assign(st,JSON.parse(localStorage.getItem("oudT")||"{}"))}catch(e){}st.cu=st.cu||{};st.ct=st.ct||{};
+const sv=()=>{try{localStorage.setItem("oudT",JSON.stringify(st))}catch(e){}};
+const pre=()=>PR.find(p=>p.id===st.p)||PR[0];
+// 11 strings: course 0 = single bass, courses 1..5 = pairs
+const SI=[],bSI=()=>{SI.length=0;for(let c=0;c<6;c++)for(let k=0;k<(c||st.n12?2:1);k++)SI.push({c,k,i:SI.length})};bSI();const pk=()=>st.p+(st.n12?"12":"");
+const strM=i=>{const u=(st.cu[pk()]||{})[i];return u!=null?u:midi(pre().n[SI[i].c])};
+const strC=i=>+((st.ct[pk()]||{})[i]||0);
+const tgtHz=i=>st.a4*Math.pow(2,(strM(i)-69+strC(i)/100)/12);
+const ofC=c=>SI.filter(s=>s.c===c).map(s=>s.i);
+const lab=m=>{const n=mname(m),o=n.slice(-1);return `${n.slice(0,-1)}<sub>${o}</sub>`};
+let nf=0,jump=0,cand=-1,candN=0,pr=0,onT=0,den=0,root,ac,an,ms,raf=0,buf,selC=0,selS=-1,okT=0,done={},hist=[],silent=0,mute=0,lastShow=0,tabMode=false,openSheet=0;
+const CSS=`#oudT{position:fixed;left:0;right:0;top:0;bottom:0;z-index:19;background:#1d1e21;color:#fff;font-family:Manrope,-apple-system,system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;padding-top:env(safe-area-inset-top)}
+#oudT.full{z-index:99990;padding-bottom:env(safe-area-inset-bottom)}
+html.oudon #tchf,html.oudon .tchf{visibility:hidden}
+#oudT *{box-sizing:border-box}
+#oudT .og{position:absolute;left:0;right:0;top:0;height:62%;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:34px 34px;-webkit-mask:linear-gradient(#000 60%,transparent);mask:linear-gradient(#000 60%,transparent);pointer-events:none}
+#oudT .ol{position:absolute;left:50%;top:0;bottom:38%;width:1px;background:rgba(255,255,255,.18);pointer-events:none}
+#oudT .ohd{position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;min-height:54px}
+#oudT .ox{background:rgba(255,255,255,.08);border:0;color:#fff;width:40px;height:40px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer}
+#oudT .oau{display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.06em;color:#d7d7da;cursor:pointer;background:none;border:0;font-family:inherit;padding:0;margin-left:auto}
+#oudT .osw{width:58px;height:34px;border-radius:17px;background:#4a4b50;position:relative;transition:background .2s}
+#oudT .osw::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;transition:transform .2s}
+#oudT .oau.on .osw{background:#10c98a}#oudT .oau.on .osw::after{transform:translateX(24px)}
+#oudT .obr{position:relative;padding:8px 22px 0}
+#oudT .obt{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+#oudT .obr h1{margin:0;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.05}#oudT .obr h1 i{font-style:normal;color:#10c98a}
+#oudT .oar{font-family:"Noto Sans Arabic","Segoe UI",Tahoma,"Geeza Pro",sans-serif;font-size:26px;color:#cfcfd4;direction:rtl;line-height:1.4}
+#oudT .opr{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:none;border:0;color:#fff;font-family:inherit;font-size:21px;font-weight:600;padding:0;cursor:pointer;text-align:left}
+#oudT .opr span{color:#9b9ca2}#oudT .ops{color:#9b9ca2;font-size:15px;margin-top:2px}
+#oudT .om{position:relative;flex:1 1 200px;min-height:140px;max-height:300px;display:flex;flex-direction:column;justify-content:center}
+#oudT .ofs{display:flex;justify-content:space-between;padding:0 22px;font-size:40px;color:#aeb0b6;font-family:Georgia,serif;line-height:1}
+#oudT .oind{position:absolute;left:50%;top:50%;width:78px;height:78px;margin:-52px 0 0 -39px;transition:transform .12s linear}
+#oudT .ocir{width:78px;height:78px;border-radius:50%;border:4px solid #fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;background:#1d1e21;transition:border-color .2s,background .2s}
+#oudT .ocir sub{font-size:13px;font-weight:600;margin-left:1px;opacity:.75}
+#oudT .ocir::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-7px;border:7px solid transparent;border-top-color:#fff;border-bottom:0;transition:border-color .2s}
+#oudT .oind.w .ocir{border-color:#ff8a3d}#oudT .oind.w .ocir::after{border-top-color:#ff8a3d}
+#oudT .oind.g .ocir{border-color:#10c98a;background:#10c98a}#oudT .oind.g .ocir::after{border-top-color:#10c98a}
+#oudT .oind.idle .ocir{color:transparent}
+#oudT .ocn{position:absolute;left:50%;top:50%;transform:translate(-50%,40px);font-size:15px;color:#9b9ca2;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:center;line-height:1.5}
+#oudT .ocn b{color:#fff;font-weight:600}
+#oudT .omsg{position:relative;margin:4px auto 0;padding:14px 24px;border-radius:30px;background:#2c2d31;font-size:17px;text-align:center;max-width:calc(100% - 32px);transition:background .2s,color .2s}
+#oudT .omsg.g{background:#10c98a;color:#05251a;font-weight:700}#oudT .omsg button{display:block;margin:10px auto 0;background:#10c98a;border:0;border-radius:18px;padding:10px 18px;font:inherit;font-size:16px;font-weight:700;color:#05251a;cursor:pointer}
+#oudT .omsg.w{background:#3a2c22}#oudT .omsg .obig{display:block;font-size:26px;font-weight:800;color:#ff9a52;letter-spacing:.01em}#oudT .omsg small{display:block;color:#a9aab0;font-size:13px;margin-top:6px;line-height:1.4}
+#oudT .ohs{position:relative;width:100%;max-width:440px;margin:8px auto 0;flex:1 1 300px;min-height:0;max-height:400px}
+#oudT .ohs svg{position:absolute;left:50%;top:0;height:100%;transform:translateX(-50%);overflow:visible}
+#oudT .ob{position:absolute;width:48px;height:48px;margin-top:-24px;border-radius:50%;border:0;background:#2c2d31;color:#fff;font-family:inherit;font-size:19px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s,box-shadow .2s}
+#oudT .ob sub{font-size:12px;opacity:.7}#oudT .ob:active{transform:scale(.94)}
+#oudT .ob.on{background:#fff;color:#1d1e21}#oudT .ob.ok{box-shadow:0 0 0 3px #10c98a}#oudT .ob.ok::after{content:"✓";position:absolute;right:-4px;top:-4px;width:18px;height:18px;border-radius:50%;background:#10c98a;color:#05251a;font-size:11px;font-weight:800;line-height:18px}
+#oudT .ob.half{box-shadow:0 0 0 3px rgba(16,201,138,.45)}
+#oudT .st{stroke:#d8d2c4;transition:stroke .15s}#oudT .st.on{stroke:#fff;filter:drop-shadow(0 0 3px #10c98a)}#oudT .st.g{stroke:#10c98a}
+#oudT .pg{cursor:pointer}#oudT .pg .hit{fill:transparent}#oudT .pg.on .pb{fill:#10c98a}#oudT .pg.ok .ph{fill:#10c98a}
+#oudT .osh{position:absolute;left:0;right:0;bottom:0;background:#26272b;border-radius:22px 22px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);max-height:88%;overflow:auto;-webkit-overflow-scrolling:touch;z-index:3}
+#oudT:not(.full) .osh{padding-bottom:18px}
+#oudT .osh.on{transform:none}#oudT .oshb{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:2}#oudT .oshb.on{opacity:1;pointer-events:auto}
+#oudT .osh h3{margin:14px 4px 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#9b9ca2;display:flex;justify-content:space-between;align-items:center}
+#oudT .osh h3 button{background:none;border:0;color:#10c98a;font:inherit;font-size:13px;cursor:pointer;text-transform:none;letter-spacing:0}
+#oudT .osh .gr{width:40px;height:5px;border-radius:3px;background:#55565b;margin:0 auto 4px}
+#oudT .opi{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;background:#2f3035;border:0;border-radius:14px;color:#fff;font-family:inherit;padding:12px 15px;margin:0 0 8px;cursor:pointer;text-align:left}
+#oudT .opi b{font-size:16px}#oudT .opi small{display:block;color:#9b9ca2;font-size:13px;margin-top:2px}#oudT .opi code{font-family:inherit;font-size:15px;color:#d7d7da;white-space:nowrap}
+#oudT .opi.on{box-shadow:inset 0 0 0 2px #10c98a}
+#oudT .oa4,#oudT .osr{display:flex;align-items:center;gap:8px;background:#2f3035;border-radius:14px;padding:10px 12px;margin-bottom:8px}
+#oudT .oa4 input{flex:1;accent-color:#10c98a;min-width:0}#oudT .oa4 b{min-width:66px;text-align:right;font-variant-numeric:tabular-nums}
+#oudT .oa4 button,#oudT .osr button{background:#3b3c42;border:0;color:#fff;border-radius:10px;min-width:34px;height:34px;font-size:16px;cursor:pointer;font-family:inherit;padding:0 6px}
+#oudT .osr{flex-wrap:wrap;row-gap:8px}#oudT .osr .nm{flex:1 0 100%;display:flex;justify-content:space-between;font-size:15px;color:#e6e6ea;line-height:1.25}#oudT .osr .nm small{color:#8d8e94;font-size:13px;font-variant-numeric:tabular-nums}#oudT .osr .v{flex:1}#oudT .osr .cv{flex:1}
+#oudT .osr .v{min-width:46px;text-align:center;font-weight:700;font-size:17px}#oudT .osr .cv{min-width:44px;text-align:center;font-size:13px;color:#d7d7da;font-variant-numeric:tabular-nums}
+#oudT .osr.mod{box-shadow:inset 0 0 0 1px #10c98a}
+#oudT .osr .pl{background:#10c98a;color:#05251a}
+#oudT .oseg{display:flex;gap:8px;margin-bottom:6px}#oudT .oseg button{flex:1;background:#2f3035;border:0;border-radius:14px;color:#fff;font:700 20px/1.2 Manrope,sans-serif;padding:10px;cursor:pointer}#oudT .oseg button small{display:block;font-size:12px;font-weight:400;color:#9b9ca2}#oudT .oseg button.on{box-shadow:inset 0 0 0 2px #10c98a}
+#oudT .olv{width:120px;height:4px;border-radius:2px;background:#34353a;margin:10px auto 0;overflow:hidden;flex:none}#oudT .olv i{display:block;height:100%;width:0;background:#10c98a;transition:width .08s linear}
+#oudT .ohint{color:#8d8e94;font-size:13px;line-height:1.45;margin:12px 4px 0}
+@media (max-width:420px){#oudT .oau{font-size:11px;gap:6px}#oudT .osw{width:48px;height:28px}#oudT .osw::after{width:22px;height:22px}#oudT .oau.on .osw::after{transform:translateX(20px)}#oudT .omd button{font-size:13px;padding:9px 11px}}
+@media (max-height:740px){#oudT .obr h1{font-size:28px}#oudT .oar{font-size:21px}#oudT .opr{font-size:18px}#oudT .ohs{max-width:380px}#oudT .ob{width:42px;height:42px;margin-top:-21px;font-size:16px}#oudT .ohd{padding-top:8px;min-height:46px}}`;
+const YL=[330,215,100],YR=[100,215,330];
+const edge=(y,side)=>{const t=(400-y)/380;return side<0?52+16*t:148-16*t};
+function svg(){let pegs="",str="";const nutX=[72,84,95,106,117,128];
+SI.forEach(s=>{const c=s.c,left=c<3,y0=left?YL[c]:YR[c-3],side=left?-1:1,dbl=ofC(c).length>1,y=dbl?y0+(s.k?18:-18):y0,ex=edge(y,side),hx=ex-side*9,px=side<0?ex-40:ex;
+pegs+=`<g class="pg" data-s="${s.i}"><rect class="hit" x="${side<0?ex-52:ex}" y="${y-13}" width="62" height="26"/><rect class="pb" x="${px}" y="${y-7}" width="40" height="14" rx="7" fill="url(#ogP)"/><ellipse class="pb" cx="${side<0?ex-40:ex+40}" cy="${y}" rx="9" ry="11" fill="url(#ogP)" stroke="#000" stroke-opacity=".4"/><circle class="ph" cx="${hx}" cy="${y}" r="3.4" fill="#e8dcc0" stroke="#5a3d20"/></g>`;
+const nx=(st.n12&&c===0?74:nutX[c])+(dbl?(s.k?2.2:-2.2):0);str+=`<line class="st" data-s="${s.i}" x1="${hx}" y1="${y}" x2="${nx}" y2="400" stroke-width="${c<2?1.8:1.3}"/>`});
+return `<svg viewBox="0 0 200 400"><defs><linearGradient id="ogW" x1="0" x2="1"><stop offset="0" stop-color="#3a1f0f"/><stop offset=".45" stop-color="#7a4422"/><stop offset=".6" stop-color="#8c5129"/><stop offset="1" stop-color="#3a1f0f"/></linearGradient><linearGradient id="ogP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3326"/><stop offset=".45" stop-color="#1b120d"/><stop offset="1" stop-color="#0b0705"/></linearGradient><pattern id="ogG" width="200" height="6" patternUnits="userSpaceOnUse"><path d="M0 3 Q50 1 100 3 T200 3" stroke="#000" stroke-opacity=".12" fill="none"/></pattern></defs>
+<path d="M52 400 L68 28 Q70 6 100 4 Q130 6 132 28 L148 400 Z" fill="url(#ogW)" stroke="#e9d9b8" stroke-width="2.5"/><path d="M52 400 L68 28 Q70 6 100 4 Q130 6 132 28 L148 400 Z" fill="url(#ogG)"/>
+<path d="M80 60 L120 60 L130 390 L70 390 Z" fill="#1b0f08" opacity=".55"/><path d="M92 30 Q100 18 108 30 L106 44 L94 44 Z" fill="#e9d9b8" opacity=".85"/>
+${str}${pegs}<rect x="62" y="392" width="76" height="8" fill="#efe6d2"/></svg>`}
+function btns(){let h="";SI.forEach(s=>{const c=s.c,left=c<3,y0=left?YL[c]:YR[c-3],dbl=ofC(c).length>1,y=dbl?y0+(s.k?18:-18):y0,col=dbl&&s.k?"15%":"2%";h+=`<button class="ob" data-s="${s.i}" style="top:${y/4}%;${left?"left":"right"}:${col}">${lab(strM(s.i))}</button>`});return h}
+const sName=i=>{const s=SI[i];return ofC(s.c).length>1?`${s.c+1}-й хор · струна ${s.k+1}`:"1-й хор · басовая"};
+const modded=()=>Object.keys(st.cu[pk()]||{}).length+Object.keys(st.ct[pk()]||{}).length>0;
+function sheetHTML(){const p=pre();return `<div class="gr"></div><h3>Строй</h3>${PR.map(x=>`<button class="opi${x.id===p.id?" on":""}" data-p="${x.id}"><span><b>${x.t}</b>${x.s?`<small>${x.s}</small>`:""}</span><code>${x.n.map(s=>s.replace(/\d/,"")).join(" ")}</code></button>`).join("")}
+<h3>Сколько струн</h3><div class="oseg"><button data-n="0" class="${st.n12?"":"on"}">11<small>бас одинарный</small></button><button data-n="1" class="${st.n12?"on":""}">12<small>все хоры двойные</small></button></div>
+<h3>Каждая струна отдельно ${modded()?`<button class="rs">сбросить</button>`:""}</h3>
+${SI.map(s=>{const i=s.i,m=strM(i),c=strC(i),md=(st.cu[pk()]||{})[i]!=null||c;return `<div class="osr${md?" mod":""}" data-s="${i}"><span class="nm">${sName(i)}<small>${tgtHz(i).toFixed(1)} Гц</small></span><button data-a="n-">−</button><span class="v">${lab(m)}</span><button data-a="n+">+</button><button data-a="c-">−5</button><span class="cv">${c>0?"+":""}${c} ц</span><button data-a="c+">+5</button><button class="pl" data-a="go" aria-label="Настраивать эту струну">▶</button></div>`}).join("")}
+<h3>Камертон</h3><div class="oa4"><span>A4</span><button data-d="-1">−</button><input type="range" min="415" max="466" step="1" value="${st.a4}"><button data-d="1">+</button><b>${st.a4} Гц</b></div>
+<p class="ohint">Строй указан от самого низкого хора к самому высокому. «Автомат.» сам узнаёт, какой хор звучит. У каждой струны своя кнопка рядом с колком: нажмите её (или сам колок, или ▶ в списке) — прозвучит эталон, и тюнер будет слушать только её (вторую струну пары лучше приглушить пальцем). Ноту и подстройку в центах можно менять для каждой струны отдельно.</p>`}
+function ui(){if(st.md==="mel")return melUI();root.classList.remove("mel");const p=pre();root.innerHTML=`<style>${CSS}${MCSS}</style><div class="og"></div><div class="ol"></div>
+<div class="ohd">${tabMode?"":`<button class="ox" aria-label="Закрыть">✕</button>`}${seg()}<button class="oau${st.auto?" on":""}">АВТОМАТ.<span class="osw"></span></button></div>
+<div class="obr"><div class="obt"><h1>oud<i>tuner</i></h1><div class="oar">دَوْزَنَةُ الْعُودِ</div></div><button class="opr">Арабский уд · ${p.t}${modded()?" (свой)":""} <span>›</span></button><div class="ops"></div></div>
+<div class="om"><div class="ofs"><span>♭</span><span>♯</span></div><div class="oind idle"><div class="ocir">–</div></div><div class="ocn"></div></div>
+<div class="omsg"></div><div class="olv" title="уровень микрофона"><i></i></div>
+<div class="ohs">${svg()}${btns()}</div>
+<div class="oshb"></div><div class="osh">${sheetHTML()}</div>`;
+const q=s=>root.querySelector(s);
+if(q(".ox"))q(".ox").onclick=close;bindSeg();
+q(".oau").onclick=()=>{st.auto=!st.auto;sv();q(".oau").classList.toggle("on",st.auto);if(st.auto)selS=-1;mark()};
+root.querySelectorAll(".ob").forEach(b=>b.onclick=()=>pickS(+b.dataset.s));
+root.querySelectorAll(".pg").forEach(g=>g.onclick=()=>pickS(+g.dataset.s));
+const sh=q(".osh"),bd=q(".oshb");q(".opr").onclick=()=>{sh.classList.add("on");bd.classList.add("on");openSheet=1};bd.onclick=()=>{sh.classList.remove("on");bd.classList.remove("on");openSheet=0};
+bindSheet();ops();mark();idleMsg()}
+function ops(){const e=root.querySelector(".ops");if(e)e.innerHTML=SI.filter(s=>s.k===0).map(s=>mname(strM(s.i)).replace(/\d/,"")).join(" · ")+(st.a4!==440?` · A4 = ${st.a4} Гц`:"")}
+function bindSheet(){const q=s=>root.querySelector(s),sh=q(".osh");
+sh.querySelectorAll(".oseg button").forEach(b=>b.onclick=()=>{st.n12=b.dataset.n==="1";sv();bSI();done={};selC=0;selS=-1;rebuild(true)});
+sh.querySelectorAll(".opi").forEach(b=>b.onclick=()=>{st.p=b.dataset.p;sv();done={};selC=0;selS=-1;rebuild(true)});
+const rs=sh.querySelector(".rs");if(rs)rs.onclick=()=>{delete st.cu[pk()];delete st.ct[pk()];sv();done={};rebuild(true)};
+sh.querySelectorAll(".osr button").forEach(b=>b.onclick=()=>{const i=+b.closest(".osr").dataset.s,a=b.dataset.a;
+if(a==="go"){sh.classList.remove("on");q(".oshb").classList.remove("on");openSheet=0;pickS(i);return}
+if(a[0]==="n"){const cu=st.cu[pk()]=st.cu[pk()]||{},base=midi(pre().n[SI[i].c]);let m=strM(i)+(a==="n+"?1:-1);m=Math.max(base-12,Math.min(base+12,m));if(m===base)delete cu[i];else cu[i]=m;if(!Object.keys(cu).length)delete st.cu[pk()]}
+else{const ct=st.ct[pk()]=st.ct[pk()]||{};let c=strC(i)+(a==="c+"?5:-5);c=Math.max(-50,Math.min(50,c));if(c)ct[i]=c;else delete ct[i];if(!Object.keys(ct).length)delete st.ct[pk()]}
+delete done[pk()+":"+i];sv();rebuild(false);pluck(i)});
+const r=sh.querySelector(".oa4 input"),setA=v=>{st.a4=Math.max(415,Math.min(466,v));sv();r.value=st.a4;sh.querySelector(".oa4 b").textContent=st.a4+" Гц";ops();sh.querySelectorAll(".osr").forEach(x=>{x.querySelector(".nm small").textContent=tgtHz(+x.dataset.s).toFixed(1)+" Гц"})};
+r.oninput=()=>setA(+r.value);sh.querySelectorAll(".oa4 button").forEach(b=>b.onclick=()=>setA(st.a4+ +b.dataset.d))}
+function rebuild(closeSh){const sh=root.querySelector(".osh"),sc=sh.scrollTop;if(closeSh){ui();return}
+sh.innerHTML=sheetHTML();sh.scrollTop=sc;bindSheet();ops();root.querySelectorAll(".ob").forEach(b=>b.innerHTML=lab(strM(+b.dataset.s)));root.querySelector(".opr").innerHTML=`Арабский уд · ${pre().t}${modded()?" (свой)":""} <span>›</span>`;mark()}
+function manual(){if(st.auto){st.auto=false;sv();root.querySelector(".oau").classList.remove("on")}mark()}
+function pickS(i){selC=SI[i].c;selS=ofC(selC).length>1?i:-1;manual();pluck(i);hist=[];okT=0}
+const cur=()=>selS>=0?selS:ofC(selC)[0];
+const isDone=i=>!!done[pk()+":"+i];
+function mark(act){const on=!st.auto||act;root.querySelectorAll(".ob").forEach(b=>{const i=+b.dataset.s,s=SI[i];b.classList.toggle("on",on&&s.c===selC&&(selS<0||selS===i));b.classList.toggle("ok",isDone(i))});
+root.querySelectorAll(".st").forEach(l=>{const i=+l.dataset.s,s=SI[i],a=on&&s.c===selC&&(selS<0||selS===i);l.classList.toggle("on",a);l.classList.toggle("g",isDone(i)&&!a)});
+root.querySelectorAll(".pg").forEach(g=>{const i=+g.dataset.s;g.classList.toggle("on",on&&selS===i);g.classList.toggle("ok",isDone(i))})}
+function msg(t,o){const m=root&&root.querySelector(".omsg");if(!m)return;o=o||{};m.className="omsg"+(o.g?" g":o.w?" w":"");m.innerHTML=t+(o.sub?`<small>${o.sub}</small>`:"")+(o.btn?`<button>${o.btn}</button>`:"");if(o.btn)m.querySelector("button").onclick=o.fn||start}
+const nat=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()),ios=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function idleMsg(){if(den===2)return deniedMsg();if(!ms)return msg("Тюнеру нужен микрофон",{sub:"Нажмите кнопку и разрешите доступ в окне, которое появится.",btn:"🎤 Разрешить микрофон"});if(st.md==="mel")return melMsg();
+if(selS>=0)msg(`Сыграйте: ${sName(selS)}`,{sub:"вторую струну пары приглушите пальцем"});else msg(st.auto?"Начните настройку, играя любую струну":`Сыграйте: ${sName(ofC(selC)[0])}`)}
+function deniedMsg(){const where=nat()?(ios()?"Настройки → Калима → Микрофон":"Настройки → Приложения → Калима → Разрешения → Микрофон"):(ios()?"«аА» в адресной строке → Настройки веб-сайта → Микрофон":"значок 🔒 слева от адреса → Разрешения → Микрофон");
+msg("Доступ к микрофону запрещён",{sub:`Включите его: ${where}. Если окно с запросом вообще не появлялось — установите свежую версию приложения.`,btn:"Попробовать снова"})}
+function pluck(i){pluckF(tgtHz(i))}
+/*OUD sound engine*/
+let EN=null;const KSC=new Map();
+function actx(){if(!ac||ac.state==="closed")try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}try{ac.resume()}catch(e){}return ac}
+function eng(){if(!actx())return null;if(EN&&EN.ac===ac)return EN;const sr=ac.sampleRate,c=ac.createDynamicsCompressor();c.threshold.value=-16;c.knee.value=10;c.ratio.value=3.5;c.attack.value=.004;c.release.value=.2;
+const out=ac.createGain();out.gain.value=.8;c.connect(out);out.connect(ac.destination);
+const mst=ac.createGain();mst.gain.value=1;mst.connect(c);
+// reverb: synthetic small-hall impulse
+const L=Math.floor(sr*2.1),ir=ac.createBuffer(2,L,sr);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);let lp=0;for(let i=0;i<L;i++){const t=i/sr,n=Math.random()*2-1;lp+=(n-lp)*(.55-.4*Math.min(1,t/1.6));d[i]=lp*Math.pow(1-t/2.1,2)*Math.exp(-t*2.6)*(t<.012?t/.012:1)}
+[.017,.029,.041,.057].forEach((e,k)=>{const p=Math.floor((e+ch*.0035)*sr);if(p<L)d[p]+=(.5-k*.09)*(ch?-1:1)})}
+const cv=ac.createConvolver();cv.buffer=ir;const wet=ac.createGain();wet.gain.value=.3;mst.connect(cv);cv.connect(wet);wet.connect(c);
+// oud body resonances
+const mk=(t,f,g,q)=>{const b=ac.createBiquadFilter();b.type=t;b.frequency.value=f;b.gain.value=g;if(q)b.Q.value=q;return b};
+const body=[mk("highpass",62,0,.7),mk("peaking",115,4,1.3),mk("peaking",240,3,1),mk("peaking",520,-2,1),mk("peaking",2700,3,.9),mk("highshelf",6500,-7)];
+for(let k=0;k<body.length-1;k++)body[k].connect(body[k+1]);body[body.length-1].connect(mst);
+const nz=ac.createBuffer(1,Math.floor(sr*.6),sr),nd=nz.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+EN={ac,sr,mst,body:body[0],nz};return EN}
+// Karplus–Strong string with plectrum (risha) excitation, cached per pitch
+function ksBuf(f,br){const E=EN,sr=E.sr,P=Math.max(2,Math.round(sr/f)),key=P+"|"+(br?1:0);if(KSC.has(key))return KSC.get(key);
+const T60=f<100?3.4:f<180?2.8:f<300?2.2:1.7,len=Math.floor(sr*Math.min(3.6,T60*1.05)),b=ac.createBuffer(1,len,sr),d=b.getChannelData(0),Ln=new Float32Array(P),q=Math.max(1,Math.round(P*.12));
+let lp=0;const raw=new Float32Array(P);const ec=br?.82:.5;for(let j=0;j<P;j++){lp+=((Math.random()*2-1)-lp)*ec;raw[j]=lp}for(let j=0;j<P;j++)Ln[j]=raw[j]-.9*raw[(j+q)%P];
+const S=Math.pow(.001,P/(sr*T60)),a=f<150?.5:.47;let k=0,pk=0;for(let j=0;j<len;j++){const x=Ln[k],y=Ln[(k+1)%P];d[j]=x;Ln[k]=S*(a*x+(1-a)*y)*1.0015;k=(k+1)%P;const v=x<0?-x:x;if(v>pk)pk=v}
+for(let j=0;j<len;j++)d[j]/=pk||1;const r={b,rate:f/(sr/P),len:len/sr};KSC.set(key,r);if(KSC.size>160)KSC.delete(KSC.keys().next().value);return r}
+// one plucked course: two strings, slightly detuned, plus plectrum click
+function oudNote(dst,f,t,vel,dur,single){const E=eng();if(!E)return;const det=single?[0]:[-2.2,2.6],br=vel>.7;det.forEach((cn,k)=>{const r=ksBuf(f*Math.pow(2,cn/1200),br),s=ac.createBufferSource(),g=ac.createGain(),tt=t+k*.007;s.buffer=r.b;s.playbackRate.setValueAtTime(r.rate*(1+.0045*vel),tt);s.playbackRate.exponentialRampToValueAtTime(r.rate,tt+.06);
+const pan=ac.createStereoPanner?ac.createStereoPanner():null;g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(vel*(k?.42:.5),tt+.0025);
+const end=dur?tt+dur:tt+r.len;if(dur){g.gain.setTargetAtTime(0,end,.06)}s.connect(g);if(pan){pan.pan.value=k?.18:-.12;g.connect(pan);pan.connect(dst)}else g.connect(dst);s.start(tt);s.stop(Math.min(tt+r.len,end+.5))});
+const c=ac.createBufferSource(),bp=ac.createBiquadFilter(),cg=ac.createGain();c.buffer=E.nz;bp.type="bandpass";bp.frequency.value=2400+f*2;bp.Q.value=.9;cg.gain.setValueAtTime(vel*.12,t);cg.gain.exponentialRampToValueAtTime(.0001,t+.012);c.connect(bp);bp.connect(cg);cg.connect(dst);c.start(t,Math.random()*.5);c.stop(t+.02)}
+// darbuka: doum / tek / ka
+function drum(dst,t,kind,v){const E=eng();if(!E)return;if(kind==="D"){const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.setValueAtTime(125,t);o.frequency.exponentialRampToValueAtTime(58,t+.16);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*.9,t+.004);g.gain.exponentialRampToValueAtTime(.001,t+.45);o.connect(g);g.connect(dst);o.start(t);o.stop(t+.5);
+const n=ac.createBufferSource(),lp=ac.createBiquadFilter(),ng=ac.createGain();n.buffer=E.nz;lp.type="lowpass";lp.frequency.value=700;ng.gain.setValueAtTime(v*.35,t);ng.gain.exponentialRampToValueAtTime(.001,t+.05);n.connect(lp);lp.connect(ng);ng.connect(dst);n.start(t,Math.random()*.4);n.stop(t+.06);return}
+const n=ac.createBufferSource(),bp=ac.createBiquadFilter(),hp=ac.createBiquadFilter(),g=ac.createGain(),hi=kind==="T";n.buffer=E.nz;bp.type="bandpass";bp.frequency.value=hi?3600:2600;bp.Q.value=hi?1.6:1.1;hp.type="highpass";hp.frequency.value=1200;
+g.gain.setValueAtTime(v*(hi?.55:.3),t);g.gain.exponentialRampToValueAtTime(.001,t+(hi?.085:.05));n.connect(bp);bp.connect(hp);hp.connect(g);g.connect(dst);n.start(t,Math.random()*.5);n.stop(t+.1);
+const o=ac.createOscillator(),og=ac.createGain();o.frequency.value=hi?820:640;og.gain.setValueAtTime(v*.08,t);og.gain.exponentialRampToValueAtTime(.001,t+.04);o.connect(og);og.connect(dst);o.start(t);o.stop(t+.05)}
+function riq(dst,t,v){const E=eng();if(!E)return;[5200,6900,8300,9700].forEach((fr,k)=>{const o=ac.createOscillator(),g=ac.createGain();o.type="square";o.frequency.value=fr*(1+(Math.random()-.5)*.01);g.gain.setValueAtTime(0,t+k*.003);g.gain.linearRampToValueAtTime(v*.018,t+k*.003+.002);g.gain.exponentialRampToValueAtTime(.0001,t+.16+k*.02);o.connect(g);g.connect(dst);o.start(t);o.stop(t+.25)});
+const n=ac.createBufferSource(),hp=ac.createBiquadFilter(),g=ac.createGain();n.buffer=E.nz;hp.type="highpass";hp.frequency.value=6000;g.gain.setValueAtTime(v*.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.09);n.connect(hp);hp.connect(g);g.connect(dst);n.start(t,Math.random()*.5);n.stop(t+.1)}
+/*OUD sampler*/
+const SND={};
+function loadSnd(n){if(SND[n])return SND[n];SND[n]=fetch("snd/"+n+".json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(zs=>Promise.all(zs.map(z=>{const bin=atob(z.file),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);delete z.file;return new Promise((res,rej)=>ac.decodeAudioData(u.buffer,b=>{z.buf=b;res()},rej))})).then(()=>zs)).catch(e=>{delete SND[n];throw e});return SND[n]}
+const SZ={};function sndReady(){if(!eng())return Promise.reject();return Promise.all(["oud","ney","perc"].map(n=>loadSnd(n).then(z=>SZ[n]=z)))}
+function zoneFor(zs,p){let b=null;for(const z of zs){if(p>=z.lo-.5&&p<=z.hi+.5)return z;if(!b||Math.abs((z.lo+z.hi)/2-p)<Math.abs((b.lo+b.hi)/2-p))b=z}return b}
+// sampled plucked string: oud-like EQ is on the bus; here: pitch, envelope, vibrato, pan
+function sNote(dst,zs,f,t,vel,dur,o){o=o||{};const p=69+12*Math.log2(f/440),z=zoneFor(zs,p);if(!z)return;const s=ac.createBufferSource(),g=ac.createGain();s.buffer=z.buf;const rate=Math.pow(2,(100*p-z.op)/1200);
+s.playbackRate.setValueAtTime(rate*(1+(o.bend||0)),t);if(o.bend)s.playbackRate.exponentialRampToValueAtTime(rate,t+.07);
+if(z.le>z.ls&&z.ls>0){s.loop=true;s.loopStart=z.ls;s.loopEnd=z.le}
+const T60=o.t60||(f<110?2.6:f<200?2.1:1.6),end=dur?t+dur:t+T60*1.2;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel,t+(o.att||.003));
+if(o.sus){g.gain.setTargetAtTime(vel*o.sus,t+.05,.4)}else g.gain.setTargetAtTime(0,t+.02,T60/6.9);if(dur)g.gain.setTargetAtTime(0,end,o.rel||.05);
+if(o.vib&&dur>.55){const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=5.2+Math.random();lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(rate*o.vib,t+Math.min(dur*.6,.6));l.connect(lg);lg.connect(s.playbackRate);l.start(t+.12);l.stop(end+.6)}
+let out=g;if(o.pan&&ac.createStereoPanner){const pn=ac.createStereoPanner();pn.pan.value=o.pan;g.connect(pn);out=pn}s.connect(g);out.connect(dst);s.start(t);s.stop(end+(o.rel||.05)*6+.1)}
+// oud bus: shapes a nylon string into a nasal, bright, short-sustain fretless oud
+function oudBus(){const E=eng();if(E.ob)return E.ob;const mk=(t,f,g,q)=>{const b=ac.createBiquadFilter();b.type=t;b.frequency.value=f;if(g!=null)b.gain.value=g;if(q)b.Q.value=q;return b};
+const ch=[mk("highpass",75,null,.7),mk("lowshelf",200,-3),mk("peaking",950,5,1.1),mk("peaking",2300,4,1.2),mk("peaking",4200,2.5,1),mk("highshelf",8000,-5)],sat=ac.createWaveShaper(),cu=new Float32Array(1024);
+for(let i=0;i<1024;i++){const x=i/511.5-1;cu[i]=Math.tanh(1.6*x)/Math.tanh(1.6)}sat.curve=cu;
+const inG=ac.createGain();inG.connect(ch[0]);for(let k=0;k<ch.length-1;k++)ch[k].connect(ch[k+1]);ch[ch.length-1].connect(sat);sat.connect(E.mst);E.ob=inG;return inG}
+// one oud course from samples (+ a little Karplus-Strong for the plectrum "zing")
+function oudS(dst,f,t,vel,dur,o){o=o||{};const zs=SZ.oud;if(!zs)return oudNote(dst,f,t,vel,dur);const tr=o.trem;
+[[-3.5,0,-.15],[3.5,.006,.15]].forEach(([c,dt,pn],k)=>sNote(dst,zs,f*Math.pow(2,c/1200),t+dt,vel*(k?.5:.6),dur,{bend:.004*vel,vib:o.vib,pan:(o.pan||0)+pn,t60:o.t60}));
+if(!tr)oudNote(dst,f,t,vel*.22,dur?Math.min(dur,.35):.35,1)}
+function ney(dst,f,t,dur,vel){const zs=SZ.ney;if(!zs)return;sNote(dst,zs,f,t,vel,dur,{att:1.1,sus:.85,rel:1.2,vib:.004,pan:.35,t60:99})}
+function perc(dst,n,t,v,pr){const zs=SZ.perc;if(!zs)return drum(dst,t,n===64?"D":"T",v);const z=zs.find(z=>z.lo===n);if(!z)return;const s=ac.createBufferSource(),g=ac.createGain();s.buffer=z.buf;s.playbackRate.value=Math.pow(2,(pr||0)/12);g.gain.value=v;
+let out=g;if(ac.createStereoPanner){const p=ac.createStereoPanner();p.pan.value=n===54?.3:n===64?-.1:-.25;g.connect(p);out=p}s.connect(g);out.connect(dst);s.start(t);s.stop(t+1.2)}
+function pluckF(f){const E=eng();if(!E)return;if(SZ.oud)oudS(oudBus(),f,ac.currentTime+.03,.8,2.2,{vib:0});else oudNote(E.body,f,ac.currentTime+.03,.95,0);mute=performance.now()+1800;hist=[];if(typeof idleMsg==="function")idleMsg()}
+function yin(x,sr){const W=x.length>>1,lo=Math.floor(sr/1050),hi=Math.min(W-2,Math.ceil(sr/58)),d=new Float32Array(hi+2);
+for(let t=1;t<=hi+1;t++){let s=0;for(let i=0;i<W;i++){const v=x[i]-x[i+t];s+=v*v}d[t]=s}
+let run=0;d[0]=1;for(let t=1;t<=hi+1;t++){run+=d[t];d[t]=run?d[t]*t/run:1}
+let T=-1;for(let t=lo;t<=hi;t++){if(d[t]<.2){while(t+1<=hi&&d[t+1]<d[t])t++;T=t;break}}
+if(T<0){let m=1;for(let t=lo;t<=hi;t++)if(d[t]<m){m=d[t];T=t}if(m>.45)return 0}
+if(T<2||T>=hi)return 0;
+// octave check: if the signal repeats much better at 2T, the true note is an octave lower (weak fundamental / strong 2nd harmonic)
+for(let n=0;n<2;n++){const T2=2*T;if(T2+2>hi)break;let bt=T2,bv=d[T2];for(let t=T2-2;t<=T2+2;t++)if(d[t]<bv){bv=d[t];bt=t}if(d[T]>.0015&&bv<d[T]*.55)T=bt;else break}
+const a=d[T-1],b=d[T],c=d[T+1],den_=a+c-2*b,sh=den_?(a-c)/(2*den_):0;let f=sr/(T+(Math.abs(sh)<1?sh:0));
+return f}
+function loop(){raf=requestAnimationFrame(loop);if(!an||!root)return;const now=performance.now();if(now-lastShow<33)return;lastShow=now;an.getFloatTimeDomainData(buf);
+let r=0;for(let i=0;i<buf.length;i++)r+=buf[i]*buf[i];r=Math.sqrt(r/buf.length);nf=nf?(r<nf?nf*.85+r*.15:nf*.996+r*.004):r;lvl(r);if(r>Math.max(pr*2.2,.002)){onT=now+70;hist=[];jump=0}pr=r;if(now<mute||now<onT)return;
+const f=r>Math.max(.0006,nf*2)?yin(buf,ac.sampleRate):0;if(st.md==="mel"&&mw){mmn=Math.min(mmn,r);if(!f||r>mmn*2.5)mw=0;else return}
+if(!f){if(st.md==="mel"&&mhv.length>=3&&MI<MN.length&&now>=mlock)accept();if(++silent>45){hist=[];idle()}return}silent=0;
+if(hist.length){const s0=hist.slice().sort((a,b)=>a-b),m0=s0[s0.length>>1];if(Math.abs(1200*Math.log2(f/m0))>60){if(++jump<3)return;hist=[]}}jump=0;
+hist.push(f);if(hist.length>4)hist.shift();const s=hist.slice().sort((a,b)=>a-b);show(s[s.length>>1])}
+function lvl(r){const e=root.querySelector(".olv i");if(!e)return;const v=Math.max(0,Math.min(1,(20*Math.log10(r+1e-9)+70)/55));e.style.width=(v*100).toFixed(0)+"%"}
+function idle(){if(st.md==="mel")return melIdle();const ind=root.querySelector(".oind");if(!ind||ind.classList.contains("idle"))return;ind.className="oind idle";ind.style.transform="";root.querySelector(".ocn").innerHTML="";okT=0;mark();idleMsg()}
+function show(f){if(st.md==="mel")return melShow(f);const near=g=>Math.min(...SI.map(s=>Math.abs(1200*Math.log2(g/tgtHz(s.i)))));
+if(st.auto){if(near(f)>250){if(near(f/2)<60)f/=2;else if(near(f*2)<60)f*=2}}
+else{const c0=1200*Math.log2(f/tgtHz(cur()));if(Math.abs(c0-1200)<150)f/=2;else if(Math.abs(c0+1200)<150)f*=2}
+const cents=i=>1200*Math.log2(f/tgtHz(i));
+if(st.auto){let b=0;for(let i=1;i<SI.length;i++)if(Math.abs(cents(i))<Math.abs(cents(b)))b=i;const c=SI[b].c;if(c!==selC){if(cand===c)candN++;else{cand=c;candN=1}if(candN>=3||Math.abs(cents(ofC(selC)[0]))>150){selC=c;okT=0;candN=0}}else candN=0;selS=-1;
+const ids=ofC(c);if(ids.length>1&&strM(ids[0])!==strM(ids[1])||ids.length>1&&strC(ids[0])!==strC(ids[1]))selS=b}
+const ti=cur(),c=cents(ti),ind=root.querySelector(".oind"),cir=ind.querySelector(".ocir"),W=root.querySelector(".om").clientWidth,span=W/2-95,cl=Math.max(-50,Math.min(50,c));
+ind.style.transform=`translateX(${(cl/50)*span}px)`;cir.innerHTML=lab(strM(ti));
+const tm=Math.round(12*Math.log2(f/st.a4))+69;
+root.querySelector(".ocn").innerHTML=`${selS>=0?`<b>${sName(selS)}</b><br>`:""}${mname(tm)} · ${f.toFixed(1)} Гц · ${c>0?"+":""}${Math.round(c)} ц`;
+const g=Math.abs(c)<4;ind.className="oind"+(g?" g":Math.abs(c)<15?"":" w");mark(true);
+const tn=mname(strM(ti)).replace(/\d/,""),nr=NR[tn[0]]||"";
+if(g){if(!okT)okT=performance.now();if(performance.now()-okT>450){const ids=selS>=0?[selS]:ofC(selC);if(ids.some(i=>!isDone(i))){ids.forEach(i=>done[pk()+":"+i]=1);try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}mark(true)}}
+const all=SI.every(s=>isDone(s.i));msg(all?`Все ${SI.length} струн настроены ✓`:`Отлично! ${selS>=0?sName(selS):tn+(nr?` (${nr})`:"")} настроена`,{g:1})}
+else{okT=0;const ac_=Math.abs(c),how=ac_>300?"сильно":ac_>100?"заметно":ac_>30?"немного":ac_>12?"чуть-чуть":"совсем чуть-чуть";
+msg(`<span class="obig">${c>0?"Ослабьте ↓":"Подтяните ↑"}</span>`,{w:1,sub:`${c>0?"звучит выше":"звучит ниже"} на ${Math.round(ac_)} ц — ${how}`})}}
+async function start(){try{if(!ac||ac.state==="closed")ac=new (window.AudioContext||window.webkitAudioContext)();ac.resume().catch(()=>{})}catch(e){}
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg("Микрофон недоступен",{sub:"Откройте сайт в Safari или Chrome либо установите свежую версию приложения."});return}
+if(ms){return}
+msg("Запрашиваю доступ к микрофону…",{sub:"Нажмите «Разрешить» в появившемся окне."});
+try{const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:true}});
+if(!root){s.getTracks().forEach(t=>t.stop());return}ms=s;den=0;try{localStorage.setItem("oudMic","1")}catch(e){}
+const src=ac.createMediaStreamSource(ms),hp=ac.createBiquadFilter();hp.type="highpass";hp.frequency.value=55;const lp=ac.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1400;const gn=ac.createGain();gn.gain.value=4;an=ac.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);nf=0;src.connect(hp);hp.connect(lp);lp.connect(gn);gn.connect(an);idleMsg();cancelAnimationFrame(raf);loop()}
+catch(e){ms=null;den=(e&&(e.name==="NotAllowedError"||e.name==="SecurityError"||e.name==="PermissionDeniedError"))?2:1;if(den===2)deniedMsg();else msg("Не удалось включить микрофон",{sub:String(e&&e.message||e),btn:"Попробовать снова"})}}
+function stopMic(){cancelAnimationFrame(raf);raf=0;if(ms){ms.getTracks().forEach(t=>t.stop());ms=null}an=null;try{ac&&ac.suspend()}catch(e){}}
+function unmount(){try{playStop()}catch(e){}stopMic();if(root){root.remove();root=null}document.documentElement.classList.remove("oudon");document.removeEventListener("visibilitychange",vis);removeEventListener("resize",fit)}
+function close(){const tm=tabMode;unmount();if(tm)return;try{history.state&&history.state.oud&&history.back()}catch(e){}}
+function vis(){if(!root)return;if(document.hidden)stopMic();else if(den!==2)start()}
+function fit(){if(!root||!tabMode)return;const b=document.getElementById("btabs");root.style.bottom=(b&&b.classList.contains("on")?b.offsetHeight:0)+"px"}
+function open(tab){if(root){if(!!tab===tabMode)return;unmount()}tabMode=!!tab;root=document.createElement("div");root.id="oudT";if(!tabMode)root.className="full";document.body.appendChild(root);document.documentElement.classList.add("oudon");done={};hist=[];selC=0;selS=-1;ui();fit();setTimeout(fit,60);addEventListener("resize",fit);start();document.addEventListener("visibilitychange",vis);
+if(!tabMode)try{history.pushState({oud:1},"");addEventListener("popstate",function h(){removeEventListener("popstate",h);if(root&&!tabMode)unmount()})}catch(e){}}
+/*OUD melodies*/
+const MELS=[
+{id:"open",t:"Открытые струны",s:"разминка: все хоры от баса вверх",gen:1},
+{id:"darb_sc",bpm:90,nodr:1,t:"Дарбуна дарбун · лад",s:"دَرْبُنَا دَرْبٌ طَوِيلٌ · нахаванд от си-бемоль в диапазоне голоса: подбирайте мелодию на слух",n:"F3 A3 Bb3 C4 Db4 Eb4 F4 Eb4 Db4 C4 Bb3 A3 Bb3:3"},
+{id:"darb_sh",bpm:88,mood:"dark",nodr:0,t:"Нахаванд от фа · фразы со скриншота",s:"упражнение по 4 фразам из ответа нейросети · с записью нашида не совпадают",n:"F3 G3 Ab3 G3 F3 Eb3 F3:2 Ab3 Bb3 C4 Bb3 Ab3 G3 Ab3:2 C4 Db4 Eb4 Db4 C4 Bb3 C4:2 Bb3 Ab3 G3 F3 G3 F3 F3:4"},
+{id:"lamma1",bpm:100,bar:10,nodr:1,t:"Лямма бада ятасанна · куплет",s:"لَمَّا بَدَا يَتَثَنَّى · мувашшах, нахаванд от соль · ритм сама`и 10/8",n:"D3 G3:2 A3:0.5 Bb3:0.5 C4:0.5 Bb3:0.5 Bb3:0.5 A3:0.5 A3:0.5 G3:0.5 G3:0.5 F#3:0.5 G3:2 D3 G3:2 A3:0.5 Bb3:0.5 C4:0.5 Bb3:0.5 Bb3:0.5 A3:0.5 A3:0.5 G3:0.5 G3:0.5 F#3:0.5 G3:2 A3:0.5 Bb3:0.5 C4:2 D4 Bb3:1.5 A3:0.5 A3:0.5 G3:0.5 G3:0.5 F#3:0.5 G3:2 A3:0.5 G3:0.5 F#3:2 G3:0.5 F3:0.5 Eb3:1.5 D3:0.5 Eb3:0.5 D3:0.5 Eb3:0.5 F3:0.5 D3:2 Eb3:0.5 D3:0.5 C3:2 D3 Bb2:1.5 A2:0.5 A2:0.5 G2:0.5 G2:0.5 F#2:0.5 G2:3"},
+{id:"lamma2",bpm:100,bar:10,nodr:1,t:"Лямма бада ятасанна · припев",s:"لَمَّا بَدَا يَتَثَنَّى · вторая часть · ритм 10/8",n:"G3:2 A3:0.5 Bb3:0.5 C4:0.5 Bb3:0.5 Bb3:0.5 A3:0.5 A3:0.5 G3:0.5 G3:0.5 F#3:0.5 G3:2 D3 G3:2 A3:0.5 Bb3:0.5 C4:0.5 Bb3:0.5 Bb3:0.5 A3:0.5 A3:0.5 G3:0.5 G3:0.5 F#3:0.5 G3:2 Bb3 Bb3:2 Bb3 Bb3:2 Bb3 A3:0.5 C4:0.5 Bb3:2 Bb3 D4:2 C4 D4:0.5 C4:0.5 Bb3:0.5 A3:0.5 Bb3:0.5 A3:0.5 G3:0.5 Bb3:0.5 A3:2 F3 G3:2 A3 Bb3:2 Bb3 A3:0.5 C4:0.5 Bb3:2 A3:0.5 Bb3:0.5 C4:2 D4 Bb3:1.5 A3:0.5 A3:0.5 G3:0.5 G3:0.5 F#3:0.5 G3:2 A3:0.5 G3:0.5 F#3:2 G3:0.5 F3:0.5 Eb3:1.5 D3:0.5 Eb3:0.5 D3:0.5 Eb3:0.5 F3:0.5 D3:2 Eb3:0.5 D3:0.5 C3:2 D3 Bb2:1.5 A2:0.5 A2:0.5 G2:0.5 G2:0.5 F#2:0.5 G2:3"},
+{id:"aa_istihlal_bt",bpm:100,bar:3,nodr:1,t:"Андалусия · Бтайхи · науба Истихляль",s:"مِيزَانُ الْبُطَايْحِي · نَوْبَةُ الِاسْتِهْلَالِ · 3/4",n:"G3:1.5 F3:1.5 A3:1.5 G3:0.25 F3:1.25 G3:1.5 F3:0.25 E3:1.25 F3:1.5 E3:1.5 G3:1.5 F3:1.5 A3:1.5 G3:0.25 F3:1.25 G3:1.5 F3:0.25 E3:1.25 F3:1.5 E3:0.25 D3:3 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:2.75 F3:1.5 E3:0.25 D3:1.25 E3:1.5 D3:0.25 C3:4.75 C4:0.5 C4:1.5 A3:0.5 G3:1.5 F3:0.5 E3:1.5 F3:0.5 G3:0.5 F3:0.5 E3 A3:0.75 A3:0.75 G3 E3:0.5 G3:0.5 F3:0.5 E3:0.75 G3:0.75 A3:0.5 G3:0.25 F3:0.25 E3:0.25 D3:0.25 C3:0.5 E3:0.5 E3:1.5 F3:0.5 G3:0.25 A3:0.25 G3:0.25 F3:0.25 E3"},
+{id:"aa_rasd_bs",bpm:120,bar:4,nodr:1,t:"Андалусия · Басит · науба Расд аз-Зейль",s:"مِيزَانُ الْبَسِيطِ · نَوْبَةُ رَصْدِ الذَّيْلِ · 4/4",n:"A3:5 G3:5 F3:0.5 E3:0.5 F3:0.5 G3:0.5 A3:0.5 Bb3:0.5 A3:0.5 G3:0.5 F3:0.5 E3:3.5 A3 A3 A3:2 G3:2 E3:2 D3:2 E3:0.25 F3:0.25 G3:4.5 F3:0.5 E3:3 D3 C3:4.5 E3 E3 E3:2 D3:2 D3 E3 D3:2 C3:1.5 A2:1.5 G2:3 A2:0.25 B2:0.25 C3:0.25 D3:0.25 E3:0.25 D3:0.25 C3:0.25 B2:0.25 A2:0.25 G2:3.75 C3 C3 C3:2 D3:1.5 E3:2 A3 A3 A3:1.5 G3:1.5 E3:1.5 D3:1.5 E3:0.25 F3:0.25"},
+{id:"aa_ghar_bs",bpm:85,bar:4,nodr:1,t:"Андалусия · Басит · науба Гариба аль-Хусейн",s:"مِيزَانُ الْبَسِيطِ · نَوْبَةُ غَرِيبَةِ الْحُسَيْنِ · 4/4",n:"D3:4 E3:4 F3:0.5 E3:0.5 D3 C3:4 G3:3 F3:0.25 E3:0.25 F3:0.25 G3:0.25 A3:0.25 Bb3:0.25 A3:0.25 G3:0.25 F3:0.25 E3:2.75 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:2.75 F3:0.25 E3:2 F3:0.5 E3:0.5 D3:0.5 C3:3 E3:0.5 E3:0.5 E3 F3 E3 F3 G3:2.5 F3:0.5 E3:2 F3:0.5 E3:0.5 D3 C3:3 Bb3:0.5 A3:0.5 G3:3 F3:0.25 E3:0.25 F3:0.25 G3:0.25 A3:0.25 Bb3:0.25 A3:0.25 G3:0.25 F3:0.25 E3:2.75 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:2.75 F3:0.25 E3:2 F3:0.5"},
+{id:"aa_hijm_bs",bpm:60,bar:4,nodr:1,t:"Андалусия · Басит · науба Хиджаз аль-Машрики",s:"مِيزَانُ الْبَسِيطِ · نَوْبَةُ الْحِجَازِ الْمَشْرِقِيِّ · 4/4",n:"F3:3 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:3 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:0.25 A3:3 G3:1.5 A3:4 Bb3:0.5 A3:0.5 G3:0.5 F3:3 C3:0.25 D3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:3 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:0.25 A3:1.5 G3:1.5 F3:1.5 E3:1.5 D3:3 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:3 F3 E3:0.25 D3:0.75 E3 D3:0.25 C3:3 D3:1.5 C3:1.5 D3:1.5 E3:0.25 F3:0.25 G3:0.25"},
+{id:"aa_istihlal_qn",bpm:85,bar:3,nodr:1,t:"Андалусия · Каим ва-нисф · науба Истихляль",s:"مِيزَانُ قَائِمٍ وَنِصْفٍ · نَوْبَةُ الِاسْتِهْلَالِ · 3/4",n:"A3:1.5 G3:0.25 F3:1.25 G3:1.5 F3:0.25 E3:1.25 F3:1.5 E3:0.25 D3:3 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:2.75 F3:1.5 E3:0.25 D3:1.25 E3:1.5 D3:0.25 C3:3.5 E3:0.5 E3:0.5 E3:1.75 F3:1.5 E3:1.5 G3:1.5 F3:1.5 A3:1.5 G3:0.25 F3:1.25 G3:1.5 F3:0.25 E3:1.25 F3:1.5 E3:0.25 D3:3 E3:0.25 F3:0.25 E3:0.25 F3:0.25 E3:0.25 F3:0.25 G3:2.75 F3:1.5 E3:0.25 D3:1.25 E3:1.5 D3:0.25 C3:2.75 A2:0.25 B2:0.25 C3:0.25 B2:0.25 C3:3 D3:2.5 F3:0.25 E3:0.25 D3:0.25 C3:0.25 B2:0.25 A2:0.25 G2:2.5 D3:2.5 F3:0.25 E3:0.25 D3:0.25 C3:0.25 B2:0.25 A2:0.25"},
+{id:"aa_hijk_bt",bpm:85,bar:4,nodr:1,t:"Андалусия · Бтайхи · науба Хиджаз аль-Кебир",s:"مِيزَانُ الْبُطَايْحِي · نَوْبَةُ الْحِجَازِ الْكَبِيرِ · 4/4",n:"C4:0.5 B3:0.5 A3:3 B3:3 B3:0.25 C4:0.25 B3:0.25 C4:0.25 B3:0.25 C4:0.25 D4:3 C4:0.5 B3:2 C4:0.25 B3:0.25 A3:0.5 G3:4 E3:0.25 F#3:0.25 G3:0.25 F#3:0.25 G3:0.25 F#3:0.25 G3:0.25 F#3:0.25 G3:3 A3:0.5 A3:0.5 A3:3 C4:0.5 B3:0.5 A3:0.5 G3:0.5 F#3:0.5 E3:3 E3:0.25 D3:0.25 E3:0.25 F#3:0.25 G3:0.25 F#3:0.25 G3:0.25 F#3:0.25 G3:1.5 E3:1.25 G3:1.5 D3:1.25 C3:2.5 F3:0.5 E3:0.5 D3:1.5 C3:0.25 B2:1.75 B2:0.25 C3:0.25 B2:0.25 C3:0.25 B2:0.25 C3:0.25 B2:0.25 C3:0.25 D3:3 F3:0.5 E3:0.5 D3:0.5 C3:0.5 B2:0.5 A2:0.5"},
+{id:"aa_maya_bs",bpm:120,bar:4,nodr:1,t:"Андалусия · Басит · науба аль-Мая",s:"مِيزَانُ الْبَسِيطِ · نَوْبَةُ الْمَايَةِ · 4/4",n:"G3:3.5 A3 B3 C4:2 B3:2 A3:2 G3:2 A3:4 Bb3:0.5 A3:0.5 G3:0.5 F3:4 E3:0.5 F3:0.5 E3:0.5 F3:0.5 E3:0.5 F3:0.5 G3:4 F3:0.5 E3:0.5 F3:0.5 G3:0.5 A3:0.5 Bb3:0.5 A3:0.5 G3:0.5 F3:0.5 E3:3 E3 E3 E3:2 F3:1.5 E3:1.5 F3:1.5 G3:1.5 E3:1.5 F3:1.5 E3 D3 C3:5 B3:5 B3:0.5 C4:0.5 B3:0.5 C4:0.5 B3:0.5 C4:0.5 D4:1.5 C4:0.5 B3:3 C4:0.5 B3:0.5 A3:0.5 G3:3.5 A3 B3 C4:2 B3:2 A3:1.5 G3:1.5 A3:3 A3:0.5"},
+{id:"rast",nodr:1,bpm:96,t:"Макам Раст от до",s:"гамма вверх и вниз · с полубемолями",n:"C3 D3 Eq3 F3 G3 A3 Bq3 C4 Bb3 A3 G3 F3 Eq3 D3 C3"},
+{id:"bay",nodr:1,bpm:96,t:"Макам Баяти от ре",s:"гамма вверх и вниз · с полубемолями",n:"D3 Eq3 F3 G3 A3 Bb3 C4 D4 C4 Bb3 A3 G3 F3 Eq3 D3"},
+{id:"hij",nodr:1,bpm:96,t:"Макам Хиджаз от ре",s:"гамма вверх и вниз",n:"D3 Eb3 F#3 G3 A3 Bb3 C4 D4 C4 Bb3 A3 G3 F#3 Eb3 D3"},
+{id:"nah",nodr:1,bpm:96,t:"Макам Нахаванд от до",s:"гамма вверх и вниз",n:"C3 D3 Eb3 F3 G3 Ab3 B3 C4 Bb3 Ab3 G3 F3 Eb3 D3 C3"},
+{id:"ode",t:"Ода к радости",s:"Бетховен · простая мелодия",bpm:112,n:"B3 B3 C4 D4 D4 C4 B3 A3 G3 G3 A3 B3 B3:1.5 A3:0.5 A3:2 B3 B3 C4 D4 D4 C4 B3 A3 G3 G3 A3 B3 A3:1.5 G3:0.5 G3:2"},
+{id:"tw",t:"Мерцай, звёздочка",s:"французская народная",bpm:108,n:"G3 G3 D4 D4 E4 E4 D4:2 C4 C4 B3 B3 A3 A3 G3:2 D4 D4 C4 C4 B3 B3 A3:2 D4 D4 C4 C4 B3 B3 A3:2 G3 G3 D4 D4 E4 E4 D4:2 C4 C4 B3 B3 A3 A3 G3:2"},
+{id:"gs",t:"Зелёные рукава",s:"английская народная",n:"A3 C4 D4 E4 F4 E4 D4 B3 G3 A3 B3 C4 A3 A3 G#3 A3 B3 G#3 E3 A3 C4 D4 E4 F4 E4 D4 B3 G3 A3 B3 C4 B3 A3 G#3 F#3 G#3 A3 A3"}];
+const FN=["открытая","указательный","средний","безымянный","мизинец"],RA={"#":"♯",b:"♭",q:"½♭",h:"½♯"};
+const pnote=s=>{const x=s.match(/^([A-G])([#bqh]?)(\d)$/),l=x[1],a=x[2],ov=+x[3];return {m:12*(ov+1)+[0,2,4,5,7,9,11]["CDEFGAB".indexOf(l)]+(a==="#"?1:a==="b"?-1:a==="q"?-.5:a==="h"?.5:0),l,a,ov}};
+const openM=c=>strM(ofC(c)[0]);
+const ruM=m=>{const n=mname(m);return NR[n[0]]+(n[1]==="♯"?"♯":"")};
+const nRu=n=>NR[n.l]+(n.a?RA[n.a]:""),nLat=n=>n.l+(n.a?RA[n.a]:"")+n.ov;
+const fing=o=>o<.25?0:o<=2.01?1:o<=3.51?2:o<=4.01?3:4;
+const hzOf=n=>st.a4*Math.pow(2,(n.m-69+strC(ofC(n.c)[0])/100)/12);
+const grade=c=>c<=8?"отлично":c<=14?"хорошо":"нормально";
+const where=n=>`${n.c+1}-й хор (${ruM(openM(n.c))}) · ${n.o<.25?"открытая струна":`палец ${fing(n.o)} — ${FN[fing(n.o)]}`}${n.hi?" · выше первой позиции":""}`;
+function place(m){let b=null;for(let c=0;c<6;c++){const o=m-openM(c);if(o>-.01&&o<5.01&&(!b||o<b.o))b={c,o}}if(!b)for(let c=5;c>=0;c--){const o=m-openM(c);if(o>0){b={c,o,hi:1};break}}return b}
+/*OUD user melodies: text format + sheet-music recognition*/
+const RUN={"до":"C","ре":"D","ми":"E","фа":"F","соль":"G","сол":"G","ля":"A","си":"B"};
+function parseOud(txt){const out={t:"",bpm:100,num:4,den:4,toks:[],err:[],bars:[]};let cur=0,bi=1,lab=null;
+const lines=String(txt||"").replace(/\r/g,"").split("\n");
+for(let ln of lines){const raw=ln.trim();if(!raw||raw.startsWith("//"))continue;
+const h=raw.match(/^(название|title|темп|tempo|bpm|размер|time)\s*[:=]\s*(.+)$/i);
+if(h){const k=h[1].toLowerCase(),v=h[2].trim();if(/назв|title/.test(k))out.t=v.slice(0,60);else if(/темп|tempo|bpm/.test(k)){const b=parseFloat(v);if(b>=20&&b<=300)out.bpm=b}else{const m=v.match(/(\d+)\s*\/\s*(\d+)/);if(m){out.num=+m[1];out.den=+m[2]}}continue}
+for(let w of raw.split(/[\s,;]+/)){if(!w)continue;if(/^@\d+$/.test(w)){lab=w.slice(1);continue}if(w==="|"||w==="||"){out.bars.push([lab||bi,cur]);bi++;cur=0;lab=null;out.toks.push("|");continue}
+let [p,d]=w.split(":");let du=d==null?1:Number(String(d).replace(",","."));
+if(d!=null&&String(d).includes("/")){const q=String(d).split("/");du=+q[0]/+q[1]}
+if(!(du>0&&du<=16)){out.err.push(`«${w}»: непонятная длительность`);continue}
+if(/^(r|п|пауза|-)$/i.test(p)){out.toks.push("R:"+(+du.toFixed(3)));cur+=du;continue}
+p=p.replace("½♭","q").replace("½♯","h").replace("𝄳","q").replace("𝄲","h").replace("♯","#").replace("♭","b");
+const rm=p.toLowerCase().match(/^(до|ре|ми|фа|соль|сол|ля|си)([#bqh]?)(\d)$/);if(rm)p=RUN[rm[1]]+rm[2]+rm[3];
+const m=p.match(/^([A-Ga-g])([#bqh]?)(\d)$/);if(!m){out.err.push(`«${w}»: не нота (пример: D4, Bb3:0.5, ре4, R:1)`);continue}
+const tok=m[1].toUpperCase()+m[2]+m[3];out.toks.push(tok+(du===1?"":":"+(+du.toFixed(3))));cur+=du}}
+if(cur>0)out.bars.push([lab||bi,cur]);
+const need=out.num*4/out.den,hasBars=out.toks.includes("|");out.bad=hasBars?out.bars.filter(([i,s])=>Math.abs(s-need)>.02).map(([i,s])=>`такт ${i}: ${+s.toFixed(2)} из ${need}`):[];
+out.notes=out.toks.filter(t=>t!=="|"&&!t.startsWith("R")).length;return out}
+function shiftOud(txt,k){return String(txt).replace(/(^|[\s|,;])([A-G]|до|ре|ми|фа|соль|сол|ля|си)([#bqh♯♭]?)(\d)(?=$|[\s:|,;])/gim,(a,pre,l,ac,o)=>pre+l+ac+Math.max(1,Math.min(7,+o+k)))}
+const umKey=()=>"oudUM_"+(me||"");
+function umList(){try{return JSON.parse(localStorage.getItem(umKey())||"[]")}catch(e){return[]}}
+function umSave(L){try{localStorage.setItem(umKey(),JSON.stringify(L))}catch(e){}}
+function umToMel(u){const p=parseOud(u.src);return {id:u.id,t:"★ "+(p.t||u.t||"Моя мелодия"),s:`моя мелодия · ${p.notes} нот · ${p.num}/${p.den}`,bpm:p.bpm,bar:p.num*4/p.den,nodr:p.num*4/p.den!==4,n:p.toks.filter(t=>t!=="|").join(" "),user:1}}
+const allMels=()=>MELS.concat(umList().map(umToMel));
+const OMR_PROMPT=`You are a careful optical music recognition (OMR) engine preparing a melody for the oud (a fretless lute). The image is ONE screenshot of sheet music; the user may send several screenshots of the same piece that overlap, repeat or skip parts, so report measure numbers exactly.
+TASK: transcribe the MAIN MELODY = the top voice of the treble staff. Ignore the bass staff, chord notes under the melody (take the highest note of a chord), chord symbols, lyrics, fingering, app buttons.
+FOR EVERY MEASURE return its number. Measure numbers are printed at the start of each system (row); count forward from them. If no number is visible, infer it and set "n_guess": true.
+NOTE TOKENS: letter + optional accidental (# or b) + octave (scientific: C4 = middle C) + ":duration" in quarter-note beats when not 1. Durations: whole 4, dotted half 3, half 2, dotted quarter 1.5, quarter 1, dotted eighth 0.75, eighth 0.5, sixteenth 0.25, triplet eighth 0.333. Rest: R:duration. Tied notes = ONE note with the summed duration (a tie crossing a barline: put the whole note in the measure where it starts and note it in "doubt").
+Apply the key signature to every note; an accidental lasts until the end of its measure; natural signs cancel the key signature.
+ARABIC / OUD NOTATION (very common in oud music): a HALF-FLAT is a flat sign with a slash or short stroke through it (or a reversed flat, or "♭" with a crossed stem) - write it as "q" (E half-flat = "Eq4"); a HALF-SHARP is a sharp with ONE vertical stroke (or "+" / "♯" with a single stem) - write it as "h" (F half-sharp = "Fh4"). Key signatures may contain half-flats (maqam Rast: B half-flat and E half-flat; Bayati: E half-flat; Sikah: E half-flat and B half-flat) - apply them to every such note. Do not confuse a half-flat with a normal flat: look for the stroke. Oud parts are usually written one octave higher than they sound - transcribe exactly AS WRITTEN; the app fixes the octave. Ignore Arabic text, rhythm names (maqsum, sama'i…), "taqsim" boxes.
+The image was pre-processed: only the melody staves were cut out, recolored black-on-white and enlarged; staves of one screenshot are stacked top to bottom in reading order.
+Do NOT expand repeats. Instead mark them per measure in "marks": "start_repeat", "end_repeat", "ending1", "ending2" (every measure under a 1st/2nd ending bracket), "segno", "coda", "to_coda", "fine", "ds_al_fine", "dc_al_fine", "ds_al_coda", "dc_al_coda".
+SELF-CHECK before answering: add up the durations of every measure and compare with the time signature (the first measure may be a shorter pickup). If a measure does not add up, re-read it; if still unsure, write why in "doubt".
+REPORT PROBLEMS in "issues" (short, in Russian): staff cut off at the screenshot edge, notes covered by buttons/banners/popups, blurry or tiny symbols, ledger lines hard to count, measures you could not read, a staff that looks like a duplicate of another staff on this image, anything suspicious about the screenshot. "confidence": 0-100 for the whole image.
+Return ONLY JSON:
+{"title":"","composer":"","bpm":null,"time":"4/4","key":"","staff":"which staff/voice was read","confidence":90,"issues":[],"measures":[{"n":1,"n_guess":false,"notes":"...","marks":[],"doubt":""}]}
+EXAMPLE (Beethoven, Ode to Joy, public domain; 4/4, D major, two sharps): {"title":"Ode to Joy","composer":"Beethoven","bpm":null,"time":"4/4","key":"D major (F#, C#)","staff":"treble, single voice","confidence":95,"issues":[],"measures":[{"n":1,"n_guess":false,"notes":"F#4 F#4 G4 A4","marks":["start_repeat"],"doubt":""},{"n":2,"n_guess":true,"notes":"A4 G4 F#4 E4","marks":[],"doubt":""},{"n":3,"n_guess":true,"notes":"D4 D4 E4 F#4","marks":[],"doubt":""},{"n":4,"n_guess":true,"notes":"F#4:1.5 E4:0.5 E4:2","marks":["end_repeat"],"doubt":""}]}
+If the image is not sheet music return {"error":"no music"}.`;
+/*OUD audio -> melody*/
+async function audDecode(file){const ab=await file.arrayBuffer(),C=window.AudioContext||window.webkitAudioContext,c=ac&&ac.state!=="closed"?ac:new C();return await new Promise((res,rej)=>{const p=c.decodeAudioData(ab.slice(0),res,rej);if(p&&p.then)p.then(res,rej)})}
+async function audMono(buf,t0,t1,SR,mode){const s=Math.max(0,Math.floor((t0||0)*buf.sampleRate)),e=Math.min(buf.length,t1>0?Math.floor(t1*buf.sampleRate):buf.length),n=e-s;if(n<buf.sampleRate*.5)throw{code:"short"};
+const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext,oc=new OC(1,Math.ceil(n/buf.sampleRate*SR),SR),b=oc.createBuffer(buf.numberOfChannels,n,buf.sampleRate);for(let ch=0;ch<buf.numberOfChannels;ch++)b.getChannelData(ch).set(buf.getChannelData(ch).subarray(s,e));
+const src=oc.createBufferSource(),hp=oc.createBiquadFilter(),lp=oc.createBiquadFilter();hp.type="highpass";hp.frequency.value=mode==="on"?1800:70;lp.type="lowpass";lp.frequency.value=mode==="on"?9000:1800;src.buffer=b;src.connect(hp);hp.connect(lp);lp.connect(oc.destination);src.start();const r=await oc.startRendering();return r.getChannelData(0)}
+function audYin(x,sr,N,lo,hi){const W=N>>1,d=new Float32Array(hi+2);for(let t=1;t<=hi+1;t++){let s=0;for(let i=0;i<W;i++){const v=x[i]-x[i+t];s+=v*v}d[t]=s}let run=0;d[0]=1;for(let t=1;t<=hi+1;t++){run+=d[t];d[t]=run?d[t]*t/run:1}
+let T=-1;for(let t=lo;t<=hi;t++){if(d[t]<.15){while(t+1<=hi&&d[t+1]<d[t])t++;T=t;break}}if(T<0)return [0,1];
+for(let n=0;n<2;n++){const T2=2*T;if(T2+2>hi)break;let bt=T2,bv=d[T2];for(let t=T2-2;t<=T2+2;t++)if(d[t]<bv){bv=d[t];bt=t}if(d[T]>.02&&bv<d[T]*.4)T=bt;else break}
+const a=d[T-1],b=d[T],c=d[T+1],dn=a+c-2*b,sh=dn?(a-c)/(2*dn):0;return [sr/(T+(Math.abs(sh)<1?sh:0)),d[T]]}
+async function audTrack(x,sr,prog){const N=1024,H=128,lo=Math.floor(sr/1000),hi=Math.min((N>>1)-2,Math.ceil(sr/65)),F=[];let k=0;const tot=Math.floor((x.length-N)/H);
+for(let s=0;s+N<x.length;s+=H){const b=x.subarray(s,s+N);let r=0;for(let i=0;i<N;i++)r+=b[i]*b[i];r=Math.sqrt(r/N);let rs=0;for(let i=384;i<640;i++)rs+=b[i]*b[i];rs=Math.sqrt(rs/256);const [f,cf]=r>.004?audYin(b,sr,N,lo,hi):[0,1];F.push({t:(s+N/2)/sr,f,cf,r,rs});if(++k%400===0){prog(k/tot);await new Promise(z=>setTimeout(z,0))}}return F}
+function audOnsets(y,sr){const H=128,Wn=256,E=[];for(let s=0;s+Wn<y.length;s+=H){let e=0;for(let i=s;i<s+Wn;i++)e+=y[i]*y[i];E.push(e/Wn)}
+const srt=E.slice().sort((a,b)=>a-b),floor=srt[Math.floor(srt.length*.3)]+1e-10,peak=srt[Math.floor(srt.length*.98)]+1e-10,O=E.map((e,i)=>{if(i<8)return 0;let m=0;for(let k=i-8;k<i;k++)m+=E[k];m/=8;return Math.max(0,Math.log((e+floor)/(m+floor)))});
+const dt=H/sr,on=[],thr=.55,gate=floor*4;let last=-1;for(let i=2;i<O.length-2;i++){if(O[i]>thr&&O[i]>=O[i-1]&&O[i]>=O[i+1]&&O[i]>=O[i-2]&&O[i]>=O[i+2]&&E[i]>gate&&E[i]>peak*.003){const t=i*dt+Wn/2/sr;if(last<0||t-last>.045){on.push(t);on.E=on.E||[];on.E.push(E[i]);last=t}}}return on}
+function audNotes2(F,on,opt){const q=opt.qt?.5:1,vo=F.filter(f=>f.f>0&&f.cf<.2);if(vo.length<20||on.length<2)return null;const v=vo.map(f=>69+12*Math.log2(f.f/440));
+const off=Math.atan2(v.reduce((a,m)=>a+Math.sin(2*Math.PI*m/q),0),v.reduce((a,m)=>a+Math.cos(2*Math.PI*m/q),0))/(2*Math.PI)*q;
+const T=F.map(f=>f.t),Mr=F.map(f=>f.f>0&&f.cf<.2?69+12*Math.log2(f.f/440)-off:null),M=Mr.map((m,i)=>{if(m==null)return null;const w=Mr.slice(Math.max(0,i-2),i+3).filter(x=>x!=null).sort((a,b)=>a-b);return w[w.length>>1]});
+const dt=T.length>1?T[1]-T[0]:.0116,idx=t=>Math.max(0,Math.min(T.length-1,Math.round((t-T[0])/dt))),med=a=>{const b=a.slice().sort((x,y)=>x-y);return b[b.length>>1]},N=[];
+for(let k=0;k<on.length;k++){const a=on[k]+.035,b=Math.min(k+1<on.length?on[k+1]:1e9,on[k]+3);const i0=idx(a),i1=idx(b);const P=[],Ti=[];for(let i=i0;i<=i1&&i<M.length;i++)if(M[i]!=null){P.push(M[i]);Ti.push(T[i])}if(P.length<3)continue;
+const segs=[];let sa=0,cm=P[0],dev=0;for(let j=1;j<P.length;j++){if(Math.abs(P[j]-cm)>.6){if(++dev>=8&&j-7-sa>=8&&P.length>=26){segs.push([sa,j-7]);sa=j-7;cm=P[j];dev=0}}else{dev=0;cm=cm*.8+P[j]*.2}}segs.push([sa,P.length]);
+segs.forEach(([x,y],si)=>{const pm=med(P.slice(x,y));N.push({s:si?Ti[x]:on[k],e:Ti[y-1]+dt,m:Math.round(pm/q)*q,raw:pm,on:!si,E:si?0:(on.E?on.E[k]:1)})})}
+for(let i=N.length-2;i>=0;i--){const a=N[i],b=N[i+1];if(Math.abs(a.m-b.m)>.01&&b.s-a.s<.1)N.splice(i,1)}
+for(let i=0;i<N.length-1;i++){let j=i;while(j+1<N.length&&Math.abs(N[j+1].m-N[i].m)<.01){const b=N[j+1],ioi=b.s-N[j].s;const rb=F[idx(b.s-.02)].r,ra=Math.max(F[idx(b.s+.03)].r,F[idx(b.s+.05)].r);if(ioi<.11||(ioi<.5&&b.E<N[i].E*.5)||ra<rb*1.12)j++;else break}if(j>i){N[i].e=Math.max(N[i].e,N[j].e);N[i].tr=1;N.splice(i+1,j-i)}}
+for(let i=0;i<N.length;i++){const nb=N.slice(Math.max(0,i-4),i).concat(N.slice(i+1,i+5)).map(n=>n.m);if(nb.length<3)continue;const md=med(nb),d=N[i].m-md;if(Math.abs(d)>6.5){if(Math.abs(d+12)<=3.5)N[i].m+=12;else if(Math.abs(d-12)<=3.5)N[i].m-=12;else if(N[i].e-N[i].s<.25){N.splice(i,1);i--}}}
+for(let i=0;i<N.length-1;i++)N[i].e=Math.max(N[i].e,Math.min(N[i+1].s,N[i].e));
+return N.length>=3?{N,off}:null}
+function audNotes(F,opt){const q=opt.qt?.5:1;let v=F.filter(f=>f.f>0&&f.cf<.2).map(f=>69+12*Math.log2(f.f/440));if(v.length<20)return null;
+const off=Math.atan2(v.reduce((a,m)=>a+Math.sin(2*Math.PI*m/q),0),v.reduce((a,m)=>a+Math.cos(2*Math.PI*m/q),0))/(2*Math.PI)*q;
+const M=F.map(f=>f.f>0&&f.cf<.2?69+12*Math.log2(f.f/440)-off:null),med=M.map((m,i)=>{if(m==null)return null;const w=M.slice(Math.max(0,i-3),i+4).filter(x=>x!=null).sort((a,b)=>a-b);return w[w.length>>1]});
+const dt=F.length>1?F[1].t-F[0].t:.0116,N=[];let cur=null;
+const push=()=>{if(cur&&cur.e-cur.s>=.07){const ps=cur.p.slice().sort((a,b)=>a-b),pm=ps[ps.length>>1];cur.m=Math.round(pm/q)*q;N.push(cur)}cur=null};
+for(let i=0;i<med.length;i++){const m=med[i],t=F[i].t,rise=i>2&&F[i].r>F[i-2].r*1.8&&F[i].r>.02;
+const r=F[i].rs;if(cur){if(r<cur.rx*.45)cur.dip=1;if(cur.dip&&m!=null&&r>cur.rx*.7&&t-cur.s>.1){push();cur={s:t,e:t+dt,p:[m],c:m,rx:r,dip:0,on:1};continue}}
+if(m==null){if(cur&&t-cur.e>.06)push();continue}
+if(cur&&Math.abs(m-cur.c)<.6&&!(rise&&t-cur.s>.12)){cur.p.push(m);cur.e=t+dt;cur.c=cur.c*.85+m*.15;cur.rx=Math.max(cur.rx,r)}else{push();cur={s:t,e:t+dt,p:[m],c:m,rx:r,dip:0}}}push();
+for(let i=N.length-1;i>0;i--){const a=N[i-1],b=N[i];if(a.m===b.m&&b.s-a.e<.05&&!b.on){a.e=b.e;N.splice(i,1)}}
+return {N,off}}
+function audTempo(N){const on=N.map(n=>n.s);let best=[0,100];for(let bpm=60;bpm<=180;bpm+=.5){const B=60/bpm;let c=0,s=0;for(const t of on){c+=Math.cos(2*Math.PI*t/B);s+=Math.sin(2*Math.PI*t/B)}const sc=Math.hypot(c,s)/on.length*Math.exp(-Math.pow(Math.log2(bpm/100),2)/(2*.25));if(sc>best[0])best=[sc,bpm]}return best[1]}
+function audText(N,bpm,name){const pcs=new Set(N.map(n=>((Math.round(n.m)%12)+12)%12)),G8=pcs.has(6)&&!pcs.has(3)?"G#":"Ab";const B=60/bpm,g=.25,qd=x=>Math.max(g,Math.round(x/B/g)*g),t0=N[0].s,out=[];let pos=0;
+N.forEach((n,i)=>{const st=Math.round((n.s-t0)/B/g)*g;if(st-pos>=.5)out.push("R:"+(+(st-pos).toFixed(2)));const nx=N[i+1],raw=nx?Math.min(n.e,nx.s)-n.s:n.e-n.s,d=qd(raw),ends=nx?Math.round((nx.s-t0)/B/g)*g:st+d,dd=Math.max(g,Math.min(d,ends-st)||d);
+const m=n.m,mi=Math.floor(m),qtr=m-mi>.25,l=["C","C","D","E","E","F","F","G",G8[0],"A","B","B"],ac=["","#","","b","","","#","",G8.slice(1),"","b",""],pc=((mi%12)+12)%12,oc=Math.floor(mi/12)-1;
+const np=((mi+1)%12+12)%12,no=Math.floor((mi+1)/12)-1;let tok=qtr?(!ac[np]?l[np]+"q"+no:l[np]+ac[np]+no):l[pc]+ac[pc]+oc;
+out.push(tok+(dd===1?"":":"+(+dd.toFixed(2))));pos=st+dd});
+return `Название: ${name}\nТемп: ${Math.round(bpm)}\nРазмер: 4/4\n// снято с аудио: сверьте на слух\n`+out.join(" ")}
+async function audRun(file,ta,stt,check,opt){stt.innerHTML="Читаю файл…";let buf;try{buf=await audDecode(file)}catch(e){stt.innerHTML='<div class="umw">Не удалось прочитать звук из файла. Подойдут mp3, m4a, wav, mp4. Для другого видео сохраните из него аудио.</div>';return}
+const dur=buf.duration,t0=+opt.t0||0,t1=+opt.t1||0;if(dur>600&&!(t1>0)){stt.innerHTML='<div class="umw">Файл длиннее 10 минут — укажите кусок «с … по …» секунд.</div>';return}
+stt.innerHTML="Готовлю звук…";let x;try{x=await audMono(buf,t0,t1,11025)}catch(e){stt.innerHTML='<div class="umw">Слишком короткий кусок.</div>';return}
+const F=await audTrack(x,11025,p=>{stt.innerHTML=`Слушаю мелодию… ${Math.round(p*100)}%`});let R=null;try{stt.innerHTML="Ищу удары риши…";const y=await audMono(buf,t0,t1,22050,"on");R=audNotes2(F,audOnsets(y,22050),opt)}catch(e){}if(!R)R=audNotes(F,opt);
+if(!R||R.N.length<3){stt.innerHTML='<div class="umw">Мелодию выделить не удалось: не слышно одного ясного голоса или инструмента.</div>';return}
+const vo=F.filter(f=>f.f>0&&f.cf<.2).length/Math.max(1,F.filter(f=>f.r>.004).length),bpm=+opt.bpm>0?+opt.bpm:audTempo(R.N),name=file.name.replace(/\.[^.]+$/,"").slice(0,40);
+ta.value=audText(R.N,bpm,name);check();const a4=Math.round(440*Math.pow(2,R.off/12));
+stt.insertAdjacentHTML("afterbegin",`<div class="umi">Снято ${R.N.length} нот за ${Math.round((t1>0?Math.min(t1,dur):dur)-t0)} с · темп ≈ ${Math.round(bpm)}${Math.abs(R.off)>.08?` · запись звучит на ${Math.round(R.off*100)} ц ${R.off>0?"выше":"ниже"} стандарта — для игры вместе с ней поставьте камертон A4 = ${a4} Гц`:""}</div>${vo<.45?'<div class="umrep">Ясная мелодия слышна лишь местами: в записи, похоже, несколько голосов или громкий аккомпанемент. Лучше всего работает соло — один голос или один инструмент.</div>':""}<div class="umrep">Автоматическая расшифровка: высоты обычно точны, а длительности и быстрые украшения — приблизительно. Прослушайте и поправьте.</div>`)}
+/*OMR image prep: find staves, drop UI, black-on-white, upscale*/
+function omrPrep(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{try{const W=im.width,H=im.height,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.drawImage(im,0,0);URL.revokeObjectURL(u);
+const d=x.getImageData(0,0,W,H).data,L=new Uint8Array(W*H);let sum=0;for(let i=0;i<W*H;i++){const v=(d[4*i]*299+d[4*i+1]*587+d[4*i+2]*114)/1000;L[i]=v;sum+=v}
+const inv=sum/(W*H)<110;const ink=new Uint8Array(W*H);for(let i=0;i<W*H;i++){const v=inv?255-L[i]:L[i];ink[i]=v<175?1:0}
+// staff lines: rows where a long horizontal run of ink exists
+const rowRun=new Float32Array(H);for(let y=0;y<H;y++){let best=0,run=0;for(let X=0;X<W;X++){if(ink[y*W+X]){run++;if(run>best)best=run}else run=0}rowRun[y]=best/W}
+const lines=[];for(let y=0;y<H;y++)if(rowRun[y]>.35){if(lines.length&&y-lines[lines.length-1].e<=1)lines[lines.length-1].e=y;else lines.push({s:y,e:y})}
+const ys=lines.map(l=>(l.s+l.e)/2),staves=[];for(let i=0;i+4<ys.length;i++){const g=[ys[i+1]-ys[i],ys[i+2]-ys[i+1],ys[i+3]-ys[i+2],ys[i+4]-ys[i+3]],mn=Math.min(...g),mx=Math.max(...g);if(mn>3&&mx<mn*1.35){staves.push({top:ys[i],bot:ys[i+4],sp:(ys[i+4]-ys[i])/4});i+=4}}
+if(!staves.length){res({blob:null,staves:0,inv});return}
+// grand staff: drop the lower staff of a close pair (bass clef of piano scores)
+const ends=staves.map(s=>{const y=Math.round(s.top);let a=-1,b=-1;for(let X=0;X<W;X++)if(ink[y*W+X]){a=X;break}for(let X=W-1;X>=0;X--)if(ink[y*W+X]){b=X;break}return [a,b]});
+const joined=(i)=>{const s=staves[i],n=staves[i+1];if(!n||n.top-s.bot>s.sp*14)return false;if(Math.abs(ends[i][0]-ends[i+1][0])>W*.03||Math.abs(ends[i][1]-ends[i+1][1])>W*.03)return false;const xa=Math.max(ends[i][0],ends[i+1][0]),xb=Math.min(ends[i][1],ends[i+1][1]);for(const X0 of [xa,xb]){for(let X=X0-4;X<=X0+6;X++){if(X<0||X>=W)continue;let c=0,t=0;for(let y=Math.round(s.bot);y<=Math.round(n.top);y++){t++;if(ink[y*W+X])c++}if(t&&c/t>.92)return true}}return false};
+const keep=[];for(let i=0;i<staves.length;i++){const s=staves[i];keep.push(s);if(joined(i)){s.grand=1;i++}}
+// x-extent of staff lines
+const ke=keep.map(s=>ends[staves.indexOf(s)]),med=a=>a.slice().sort((p,q)=>p-q)[a.length>>1];let x0=Math.min(...ke.map(e=>e[0])),x1=med(ke.map(e=>e[1]));x0=Math.max(0,x0-6);x1=Math.min(W-1,x1+10);
+const crops=keep.map((s,i)=>{const prevB=i?keep[i-1].bot:-1e9,nextT=keep[i+1]?keep[i+1].top:1e9;let t=Math.max(0,s.top-s.sp*5.5,(prevB+s.top)/2),b=Math.min(H,s.bot+s.sp*(s.grand?3.2:5),(s.bot+nextT)/2);return {t:Math.round(t),b:Math.round(b)}});
+const sc=Math.max(1,Math.min(2.5,1500/(x1-x0))),pad=14,hgt=crops.reduce((a,k)=>a+(k.b-k.t)*sc+pad,pad),o=document.createElement("canvas");o.width=Math.round((x1-x0)*sc)+2*pad;o.height=Math.round(hgt);const ox=o.getContext("2d");ox.fillStyle="#fff";ox.fillRect(0,0,o.width,o.height);
+const src=document.createElement("canvas");src.width=W;src.height=H;const sx=src.getContext("2d"),id=sx.createImageData(W,H);for(let i=0;i<W*H;i++){const v=inv?255-L[i]:L[i],q=v<150?Math.max(0,v-60):255;id.data[4*i]=id.data[4*i+1]=id.data[4*i+2]=q;id.data[4*i+3]=255}sx.putImageData(id,0,0);
+ox.imageSmoothingQuality="high";let yy=pad;crops.forEach(k=>{const h=(k.b-k.t)*sc;ox.drawImage(src,x0,k.t,x1-x0,k.b-k.t,pad,yy,(x1-x0)*sc,h);yy+=h+pad});
+o.toBlob(b=>res({blob:b,staves:keep.length,grand:keep.some(s=>s.grand),inv}),"image/jpeg",.92)}catch(e){rej(e)}};im.onerror=rej;im.src=u})}
+const OMR_FIX=(ns,time)=>`Re-read ONLY these measures of the sheet music in the image, very carefully, note by note: ${ns.join(", ")}. Time signature ${time}: the durations of each measure MUST add up exactly (a pickup measure may be shorter). Check dots, flags, beams (one beam = eighths, two = sixteenths), ties, rests, accidentals and half-flats. Same token rules as before: letter + accidental (# b q h) + octave + ":duration" in quarter beats when not 1; rests R:duration. Return ONLY JSON {"measures":[{"n":5,"notes":"...","doubt":""}]}.`;
+function omrSum(notes){return String(notes||"").trim().split(/\s+/).filter(t=>t&&t!=="|").reduce((a,t)=>a+(+(t.split(":")[1]||1)||0),0)}
+function omrMerge(res,num,den){const rep=[],byN=new Map(),need=num*4/den;
+res.forEach((r,ii)=>{if(!r||r.error){rep.push(`Лист ${ii+1}: ${r&&r.error==="no music"?"нот не найдено":"не удалось распознать"}`);return}
+if(r.confidence!=null&&r.confidence<70)rep.push(`Лист ${ii+1}: ИИ уверен лишь на ${r.confidence}%`);(r.issues||[]).forEach(x=>rep.push(`Лист ${ii+1}: ${x}`));
+(r.measures||[]).forEach(m=>{const n=+m.n;if(!(n>0))return;const e={n,notes:String(m.notes||"").trim(),marks:m.marks||[],doubt:m.doubt||"",img:ii+1,guess:!!m.n_guess};if(!byN.has(n))byN.set(n,[]);byN.get(n).push(e)})});
+const norm=s=>s.replace(/\s+/g," ").trim(),M=[];
+[...byN.keys()].sort((a,b)=>a-b).forEach(n=>{const L=byN.get(n);if(L.length>1){const same=L.every(x=>norm(x.notes)===norm(L[0].notes));rep.push(same?`Такт ${n} есть на листах ${L.map(x=>x.img).join(" и ")} — дубль скриншота, учтён один раз`:`Такт ${n} на листах ${L.map(x=>x.img).join(" и ")} прочитан по-разному — взят вариант с листа ${(L.find(x=>!x.doubt&&!x.guess)||L[0]).img}, сверьте`)}
+const e=L.find(x=>!x.doubt&&!x.guess)||L[0];e.marks=[...new Set(L.flatMap(x=>x.marks))];M.push(e)});
+if(M.length){for(let i=1;i<M.length;i++){const a=M[i-1].n,b=M[i].n;if(b-a>1)rep.push(`Не хватает ${b-a===2?`такта ${a+1}`:`тактов ${a+1}–${b-1}`} — переснимите этот кусок`)}
+M.forEach((e,i)=>{const p=parseOud("Размер: "+num+"/"+den+"\n"+e.notes),s=p.toks.reduce((a,t)=>a+(t==="|"?0:+(t.split(":")[1]||1)),0);if(Math.abs(s-need)>.02&&!(i===0&&s<need))rep.push(`Такт ${e.n}: длительностей ${+s.toFixed(2)} вместо ${need}${e.doubt?` (ИИ: ${e.doubt})`:""}`);else if(e.doubt)rep.push(`Такт ${e.n}: ${e.doubt}`)})}
+const order=[],has=(e,k)=>e.marks.includes(k);let i=0,second=false,jumped=false,repStart=0,guard=0;const done=new Set(),seg=M.findIndex(e=>has(e,"segno"));
+while(i<M.length&&guard++<5000){const e=M[i];if(has(e,"start_repeat")&&!second)repStart=i;
+if(second&&has(e,"ending1")){while(i<M.length&&has(M[i],"ending1"))i++;continue}
+order.push(e);if(jumped&&has(e,"fine"))break;
+if(has(e,"end_repeat")&&!done.has(i)&&!jumped){done.add(i);second=true;i=repStart;continue}
+if(has(e,"end_repeat"))second=false;
+if(!jumped&&(has(e,"ds_al_fine")||has(e,"dc_al_fine")||has(e,"ds_al_coda")||has(e,"dc_al_coda"))){jumped=true;second=false;i=/ds/.test(e.marks.join())&&seg>=0?seg:0;continue}
+if(jumped&&has(e,"to_coda")){const c=M.findIndex((x,k)=>k>i&&has(x,"coda"));if(c>=0){i=c;continue}}
+i++}
+const text=order.map(e=>`@${e.n} ${e.notes} |`).join("\n");return {text,rep,count:M.length,played:order.length}}
+async function omrRun(files,ta,stt,check){const res=[],blobs=[];let meta={},prepN=0;for(let i=0;i<files.length;i++){stt.innerHTML=`Распознаю лист ${i+1} из ${files.length}… (до минуты на лист)`;try{let bl=null;try{const pr=await omrPrep(files[i]);if(pr.blob&&pr.staves){bl=pr.blob;prepN++}}catch(e){}if(!bl)bl=await imgJpeg(files[i]);blobs.push(bl);const j=await hwFetch(OMR_PROMPT,bl,undefined,12000);res.push(j);if(!j.error){meta.title=meta.title||j.title;meta.bpm=meta.bpm||j.bpm;meta.time=meta.time||j.time;meta.key=meta.key||j.key}}catch(er){res.push(null);blobs.push(null)}}
+const tmq=String(meta.time||"4/4").match(/(\d+)\s*\/\s*(\d+)/)||[0,4,4],need=tmq[1]*4/tmq[2];let fixed=0;
+for(let i=0;i<res.length;i++){const r=res[i];if(!r||r.error||!blobs[i])continue;const ms=(r.measures||[]),first=ms.length?Math.min(...ms.map(m=>+m.n||1e9)):0,bad=ms.filter(m=>{const s=omrSum(m.notes);return Math.abs(s-need)>.02&&!(+m.n===first&&s<need)}).map(m=>+m.n);if(!bad.length)continue;
+stt.innerHTML=`Перепроверяю сомнительные такты на листе ${i+1}: ${bad.join(", ")}…`;try{const j=await hwFetch(OMR_FIX(bad,tmq[1]+"/"+tmq[2]),blobs[i],undefined,6000);(j.measures||[]).forEach(f=>{const m=ms.find(x=>+x.n===+f.n);if(m&&Math.abs(omrSum(f.notes)-need)<=.02){m.notes=f.notes;m.doubt=f.doubt?("перечитан: "+f.doubt):"";fixed++}})}catch(e){}}
+const tm=String(meta.time||"4/4").match(/(\d+)\s*\/\s*(\d+)/)||[0,4,4],R=omrMerge(res,+tm[1],+tm[2]);
+const head=[meta.title?`Название: ${meta.title}`:"",meta.bpm?`Темп: ${meta.bpm}`:"",`Размер: ${tm[1]}/${tm[2]}`,meta.key?`// тональность: ${meta.key}`:""].filter(Boolean).join("\n");
+ta.value=head+"\n"+R.text;check();
+stt.insertAdjacentHTML("afterbegin",`<div class="umi">${prepN?`Картинки очищены: оставлены только нотные строки мелодии (${prepN} из ${files.length} листов). `:""}${fixed?`Перечитано и исправлено тактов: ${fixed}. `:""}Распознано: ${R.count} тактов${R.played!==R.count?`, с учётом повторов звучит ${R.played}`:""}. Сверьте с листом — ИИ ошибается.</div>${R.rep.length?`<div class="umrep"><b>Отчёт проверки:</b><ul>${R.rep.map(x=>`<li>${x.replace(/</g,"&lt;")}</li>`).join("")}</ul></div>`:`<div class="umi">Замечаний нет: такты полные, дублей и пропусков не найдено.</div>`}`)}
+function imgJpeg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,2200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(),"image/jpeg",.9)};im.onerror=rej;im.src=u})}
+function umEditor(edit){const q=s=>root.querySelector(s);let ed=q(".umed");if(ed)ed.remove();ed=document.createElement("div");ed.className="umed";const u=edit||{id:"u"+Date.now().toString(36),src:""};
+ed.innerHTML=`<div class="umc"><div class="umh"><b>${edit?"Изменить мелодию":"Своя мелодия по нотам"}</b><button class="umx" aria-label="Закрыть">✕</button></div>
+<div class="umr"><label class="umb umf">📷 Распознать с фото нот<input type="file" accept="image/*" multiple hidden></label><label class="umb umf">🎵 Снять с аудио / видео<input class="uma" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.mp4,.mov,.ogg,.aac" hidden></label><button class="umb" data-a="help">Формат</button></div><div class="umr umopt"><span>Кусок записи: с</span><input class="uo0" inputmode="decimal" placeholder="0"><span>по</span><input class="uo1" inputmode="decimal" placeholder="конец"><span>сек</span><label><input type="checkbox" class="uoq"> четвертитоны</label><span>темп</span><input class="uob" inputmode="numeric" placeholder="авто"></div>
+<div class="umhelp" hidden><p><b>Как записывать.</b> Нота — буква и октава: <code>D4</code>, <code>Bb3</code>, <code>F#4</code>, полубемоль — <code>Eq4</code>; можно по-русски: <code>ре4</code>, <code>си♭3</code>. Длительность в долях после двоеточия (четверть = 1): <code>:2</code> половинная, <code>:0.5</code> восьмая, <code>:1.5</code> четверть с точкой, <code>:0.25</code> шестнадцатая. Пауза — <code>R:1</code>. Такты разделяйте <code>|</code> — тогда сайт проверит, что такты полные; <code>@12</code> перед тактом — его номер в оригинале (для отчёта). Можно выбрать сразу несколько скриншотов одного листа: сайт сошьёт их по номерам тактов, уберёт дубли, найдёт пропуски и развернёт повторы. Средняя «до» = C4; на уде удобный диапазон — от D2 до F4.</p>
+<p>Шапка (необязательно): <code>Название: …</code>, <code>Темп: 90</code>, <code>Размер: 3/4</code>. Строки с <code>//</code> — комментарии.</p><pre>Название: Упражнение
+Темп: 90
+Размер: 4/4
+D4 E4 F4 G4 | A4:2 G4:0.5 F4:0.5 E4 | D4:4</pre></div>
+<textarea class="umt" spellcheck="false" placeholder="Название: …&#10;Темп: 100&#10;Размер: 4/4&#10;D4 E4 F4:0.5 G4:0.5 A4 | …"></textarea>
+<div class="umr"><button class="umb" data-a="o-">Октава −1</button><button class="umb" data-a="o+">Октава +1</button><button class="umb" data-a="try">▶ Послушать</button></div>
+<div class="ums"></div>
+<div class="umr"><button class="umb umok" data-a="save">Сохранить</button>${edit?`<button class="umb umdel" data-a="del">Удалить</button>`:""}<button class="umb" data-a="copy">Скопировать текст</button></div></div>`;
+root.appendChild(ed);const ta=ed.querySelector(".umt"),stt=ed.querySelector(".ums");ta.value=u.src||"";
+const check=()=>{const p=parseOud(ta.value);if(!ta.value.trim()){stt.innerHTML="";return p}const hi=p.toks.filter(t=>/\d/.test(t)&&!t.startsWith("R")).map(t=>pnote(t.split(":")[0]).m),med=hi.length?hi.slice().sort((a,b)=>a-b)[hi.length>>1]:60;
+stt.innerHTML=`<b>${p.notes}</b> нот · ${p.num}/${p.den} · темп ${p.bpm}${p.err.length?`<div class="umw">Ошибки: ${p.err.slice(0,4).join("; ")}${p.err.length>4?"…":""}</div>`:""}${p.bad.length?`<div class="umw">Неполные такты: ${p.bad.slice(0,4).join("; ")}${p.bad.length>4?` и ещё ${p.bad.length-4}`:""}</div>`:""}${med>67?`<div class="umw">Мелодия высоковата для уда — нажмите «Октава −1».</div>`:med<50?`<div class="umw">Мелодия низковата — нажмите «Октава +1».</div>`:""}`;return p};
+ta.oninput=check;check();
+ed.querySelector(".umx").onclick=()=>ed.remove();
+const addGo=()=>{const p=parseOud(ta.value);if(!p.notes)return;const ms=p.toks.filter(t=>t!=="|"&&!t.startsWith("R")).map(t=>pnote(t.split(":")[0]).m).sort((a,b)=>a-b),med=ms[ms.length>>1],sh=med>67?-1:med<50?1:0;stt.insertAdjacentHTML("afterbegin",`<button class="umb umok umgo">✓ Перенести в мелодии${sh?` (октава ${sh>0?"+1":"−1"} — под уд)`:""}</button>`);stt.querySelector(".umgo").onclick=()=>{if(sh)ta.value=shiftOud(ta.value,sh);ed.querySelector('.umb[data-a="save"]').click()}};
+ed.querySelector('.uma').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(ta.value.trim()&&!confirm('Заменить текст нотами из записи?'))return;const g=c=>ed.querySelector(c);await audRun(f,ta,stt,check,{t0:g('.uo0').value.replace(',','.'),t1:g('.uo1').value.replace(',','.'),qt:g('.uoq').checked,bpm:g('.uob').value});addGo()};
+ed.querySelector('input[type=file]').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!HWAPI){stt.innerHTML='Ищу сервер ИИ…';try{await loadHwApi()}catch(er){}}if(!HWAPI){stt.innerHTML='<div class="umw">Не задан адрес сервера ИИ (тот же воркер hw-check, что проверяет ДЗ). Вставьте его адрес — сохранится для всех:</div><div class="umr"><input class="umu" placeholder="https://hw-check.имя.workers.dev" style="flex:1;min-width:0;background:#1d1e21;color:#fff;border:1px solid #3b3c42;border-radius:10px;padding:10px;font:inherit"><button class="umb umok" data-x="url">Сохранить адрес</button></div><div class="umi">Адрес — в панели Cloudflare: Workers &amp; Pages → hw-check. Если воркера ещё нет, создайте его из файла worker/index.js и добавьте секрет GEMINI_API_KEY.</div>';const bt=stt.querySelector('[data-x=url]');bt.onclick=async()=>{const u=stt.querySelector('.umu').value.trim();if(!/^https:\/\//.test(u)){bt.textContent='Нужен адрес https://…';return}HWAPI=u;try{localStorage.setItem('hwapi',JSON.stringify({url:u}))}catch(er){}if(DB)try{await DB.doc('config/hwapi').set({url:u,ts:Date.now()})}catch(er){}stt.innerHTML='<div class="umi">Адрес сохранён. Выберите фото нот ещё раз.</div>'};e.target.value='';return}if(ta.value.trim()&&!confirm('Заменить текст распознанными нотами?')){e.target.value='';return}await omrRun(fs,ta,stt,check);e.target.value='';addGo()};
+ed.querySelectorAll(".umb[data-a]").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
+if(a==="help"){const h=ed.querySelector(".umhelp");h.hidden=!h.hidden;return}
+if(a==="o-"||a==="o+"){ta.value=shiftOud(ta.value,a==="o+"?1:-1);check();return}
+if(a==="copy"){try{navigator.clipboard.writeText(ta.value)}catch(e){}b.textContent="Скопировано";return}
+if(a==="del"){umSave(umList().filter(x=>x.id!==u.id));if(st.mel===u.id)st.mel=MELS[0].id;sv();ed.remove();playStop();melLoad();melUI();return}
+const p=check();if(!p.notes){stt.innerHTML='<div class="umw">Нет ни одной ноты.</div>';return}
+const L=umList().filter(x=>x.id!==u.id);L.push({id:u.id,t:p.t||"Моя мелодия",src:ta.value});umSave(L);
+if(a==="try"){st.mel=u.id;sv();ed.remove();playStop();melLoad();melUI();setTimeout(()=>playAll(),50);return}
+st.mel=u.id;sv();ed.remove();playStop();melLoad();melUI()})}
+const curMel=()=>allMels().find(x=>x.id===st.mel)||MELS[0];
+let MN=[],MI=0,MR=[],mhT=0,mhv=[],mw=0,mmn=1,mlock=0,mpt=0,mIdle=0,mKey="";
+const melKey=()=>st.mel+"|"+pk()+"|"+JSON.stringify(st.cu[pk()]||{});
+function melLoad(){const M=curMel(),src=M.gen?[0,1,2,3,4,5].map(c=>mname(openM(c)).replace("♯","#")):M.n.split(/\s+/).filter(t=>t&&t!=="|");
+MN=[];for(const s of src){const [a,b]=s.split(":");if(/^R$/i.test(a)){if(MN.length)MN[MN.length-1].r=(MN[MN.length-1].r||0)+(+b||1);continue}let n;try{n=pnote(a)}catch(e){continue}const p=place(n.m);if(b)n.d=+b;if(p)MN.push(Object.assign(n,p))}MI=0;MR=[];mhT=0;mhv=[];mw=0;mKey=melKey()}
+const FX=n=>34+1065*(1-Math.pow(2,-n/12)),FY=c=>20+c*21;
+function fb(){const n=MN[MI],nx=MN[MI+1];let s=`<svg viewBox="0 0 360 150" class="mfs"><defs><linearGradient id="mgW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2814"/><stop offset=".5" stop-color="#7a4422"/><stop offset="1" stop-color="#4a2814"/></linearGradient></defs><rect x="30" y="6" width="330" height="128" rx="3" fill="url(#mgW)"/><rect x="27" y="4" width="7" height="132" rx="1" fill="#efe6d2"/>`;
+for(let k=1;k<=6;k++)s+=`<line x1="${FX(k).toFixed(1)}" y1="8" x2="${FX(k).toFixed(1)}" y2="132" stroke="#fff" stroke-opacity="${k===5?.22:.1}" stroke-dasharray="2 3"/>`;
+for(let k=1;k<=5;k++)s+=`<text x="${FX(k).toFixed(1)}" y="146" class="msn" text-anchor="middle">${k}</text>`;
+for(let c=0;c<6;c++){const y=FY(c),on=n&&n.c===c,cls=`mst${on?" on":""}`,w=c<2?1.9:1.4;s+=`<text x="13" y="${y+4}" class="msl${on?" on":""}" text-anchor="middle">${ruM(openM(c))}</text>`;
+s+=ofC(c).length>1?`<line class="${cls}" x1="34" y1="${y-1.7}" x2="360" y2="${y-1.7}" stroke-width="${w*.7}"/><line class="${cls}" x1="34" y1="${y+1.7}" x2="360" y2="${y+1.7}" stroke-width="${w*.7}"/>`:`<line class="${cls}" x1="34" y1="${y}" x2="360" y2="${y}" stroke-width="${w}"/>`}
+const px=o=>o<.25?30.5:FX(o);
+if(nx&&n&&!(nx.c===n.c&&Math.abs(nx.o-n.o)<.1))s+=`<circle cx="${px(nx.o).toFixed(1)}" cy="${FY(nx.c)}" r="8" fill="none" stroke="#fff" stroke-opacity=".45" stroke-dasharray="3 2"/>`;
+if(n){const x=px(n.o),y=FY(n.c),f=fing(n.o);s+=`<circle cx="${x.toFixed(1)}" cy="${y}" r="10.5" fill="#10c98a" stroke="#05251a" stroke-width="1.5"/><text x="${x.toFixed(1)}" y="${y+4.2}" class="mtg" text-anchor="middle">${f}</text><circle class="mpd" cx="-20" cy="${y}" r="5" fill="#ff9a52" stroke="#1d1e21" stroke-width="1.5" style="opacity:0"/>`}
+return s+`</svg>`}
+function melDraw(){if(!root)return;const q=s=>root.querySelector(s),M=curMel(),fin=MI>=MN.length;
+q(".mpk").innerHTML=`${M.t} <i>›</i>`;q(".mct").textContent=fin?"готово":`нота ${MI+1} из ${MN.length}`;
+if(fin){const ok=MR.filter(x=>x!=null),avg=ok.length?ok.reduce((a,b)=>a+b,0)/ok.length:0,sk=MN.length-ok.length;q(".mnt").innerHTML=`<div class="mbig">Готово ✓</div><div class="msub">${ok.length?`Средняя точность <b>${Math.round(avg)} ц</b> — ${grade(avg)}`:"Ни одна нота не засчитана"}${sk?` · пропущено: ${sk}`:""}</div>`}
+else{const n=MN[MI];q(".mnt").innerHTML=`<div class="mbig">${nRu(n)}<sub>${nLat(n)}</sub></div><div class="msub">${where(n)}</div>`}
+q(".mfb").innerHTML=fb();
+const ch=q(".mch");ch.innerHTML=MN.map((n,i)=>{const r=MR[i];return `<button class="mc${i===MI?" cur":r==null?(i<MI?" sk":""):r<=8?" g1":r<=14?" g2":" g3"}" data-i="${i}">${nRu(n)}</button>`}).join("");
+const cb=ch.querySelector(".cur");if(cb)ch.scrollLeft=cb.offsetLeft-ch.clientWidth/2+cb.offsetWidth/2;
+const nd=q(".mnd");if(nd)nd.className="mnd"}
+function melMsg(){if(!root)return;if(!MN.length)return msg("В этом строе мелодия не помещается",{sub:"Выберите другой строй во вкладке «Настройка»."});
+if(MI>=MN.length){const ok=MR.filter(x=>x!=null);return msg("Мелодия сыграна ✓",{g:1,sub:`засчитано ${ok.length} из ${MN.length}`,btn:"Ещё раз",fn:()=>{melLoad();melDraw();melMsg()}})}
+const n=MN[MI];msg(`Сыграйте: ${nRu(n)}`,{sub:where(n)+(ofC(n.c).length>1?" · обе струны пары":"")})}
+function melIdle(){if(mIdle||!root)return;mIdle=1;mhT=0;mhv=[];const pd=root.querySelector(".mpd");if(pd)pd.style.opacity=0;const nd=root.querySelector(".mnd");if(nd)nd.className="mnd";idleMsg()}
+function accept(){const v=mhv.slice().sort((a,b)=>a-b),med=v[v.length>>1]||0,prev=MN[MI];MR[MI]=med;try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}
+MI++;mhT=0;mhv=[];hist=[];mlock=performance.now()+250;const nx=MN[MI];mw=nx&&Math.abs(nx.m-prev.m)<.3?1:0;mmn=1;melDraw();
+if(MI>=MN.length)melMsg();else msg(`Попали ✓ ${Math.round(med)} ц — ${grade(med)}`,{g:1,sub:`дальше: ${nRu(nx)} · ${where(nx)}`})}
+function melShow(f){const now=performance.now();if(MI>=MN.length||now<mlock||!root)return;mIdle=0;const n=MN[MI];let c=1200*Math.log2(f/hzOf(n));while(c>600)c-=1200;while(c<-600)c+=1200;
+const q=s=>root.querySelector(s),nd=q(".mnd"),pd=q(".mpd"),ac_=Math.abs(c),cl=Math.max(-50,Math.min(50,c));
+if(nd){nd.style.left=(50+cl)+"%";nd.className="mnd a"+(ac_<=12?" g":ac_<=25?"":" w")}
+if(pd){const po=Math.max(0,Math.min(6,n.o+c/100));pd.setAttribute("cx",(po<.08?30.5:FX(po)).toFixed(1));pd.style.opacity=1}
+if(ac_<=20){if(!mhT)mhT=now;mhv.push(ac_);if(now-mhT>220||mhv.length>=6)accept();else msg(`<span class="obig" style="color:#10c98a">Держите…</span>`,{sub:`${c>0?"+":""}${Math.round(c)} ц`});return}
+mhT=0;mhv=[];
+if(ac_>=70){const tm=Math.round(12*Math.log2(f/st.a4))+69;msg(`<span class="obig">Другая нота</span>`,{w:1,sub:`звучит ${ruM(tm)}, нужна ${nRu(n)} — ${where(n)}`});return}
+const up=c>0;msg(`<span class="obig">${n.o<.25?(up?"Ослабьте струну ↓":"Подтяните струну ↑"):(up?"← ближе к головке":"ближе к корпусу →")}</span>`,{w:1,sub:`${up?"выше":"ниже"} на ${Math.round(ac_)} ц${n.o<.25?" — открытая струна расстроена, поправьте во «Настройке»":` — сдвиньте ${FN[fing(n.o)]} палец`}`})}
+let PB=null;function fadePB(){if(PB){const t=ac.currentTime;PB.g.forEach(g=>{try{g.gain.cancelScheduledValues(t);g.gain.setTargetAtTime(0,t,.03)}catch(e){}});const o=PB;setTimeout(()=>o.g.forEach(g=>{try{g.disconnect()}catch(e){}}),300);clearInterval(PB.iv);PB=null;mute=performance.now()+350}
+if(root){root.querySelectorAll(".mc.pl").forEach(b=>b.classList.remove("pl"));const a=root.querySelector('.mctl [data-a="all"]');if(a)a.innerHTML="♫ Мелодия"}}
+function playStop(){mpt++;fadePB()}
+function playAll(){if(PB){playStop();return}const E=eng();if(!E||!MN.length)return;const t=++mpt;const a0=root&&root.querySelector('.mctl [data-a="all"]');
+if(!SZ.oud){if(a0)a0.innerHTML="⏳ Загрузка…";sndReady().catch(()=>{}).then(()=>{if(t===mpt&&root)playGo(t)});return}playGo(t)}
+function playGo(t){const E=eng(),M=curMel(),bpm=(M.bpm||104)*(st.tmp||1),beat=60/bpm,acc=st.acc!==false&&!M.gen,dr=acc&&st.drm!==false&&!M.nodr,bs=acc&&st.bas!==false,ny=acc&&st.ney!==false,BL=M.bar||4;
+const ob=oudBus(),gN=ac.createGain(),gD=ac.createGain(),gP=ac.createGain();gN.connect(ob);gD.gain.value=.55;gD.connect(E.mst);gP.gain.value=.5;gP.connect(E.mst);
+const sc=[...new Set(MN.map(n=>Math.round(n.m*2)/2))].sort((a,b)=>a-b),up=m=>{for(const x of sc)if(x>m+.4&&x<m+2.6)return x;return m+2};
+const ev=[];let tt=0;const start=MI;for(let i=start;i<MN.length;i++){const n=MN[i];let d=(n.d||1)*beat;if(i===MN.length-1)d=Math.max(d,beat*3);ev.push({k:"n",i,t:tt,d,f:hzOf(n),m:n.m,last:i===MN.length-1});tt+=d+(n.r||0)*beat}
+const total=tt,bar=beat*BL,lo=Math.min(...MN.map(n=>n.m)),hi_=Math.max(...MN.map(n=>n.m)),hz=m=>st.a4*Math.pow(2,(m-69)/12);
+if(acc){const last=MN[MN.length-1],ton=((Math.round(last.m)%12)+12)%12;let bm=36+ton;if(bm<38)bm+=12;const bhz=hz(bm),fhz=hz(bm+7);
+if(ny&&!M.nony&&!M.ch)ev.push({k:"y",t:0,f:hz(bm+12),d:total+1.5});if(ny&&M.ch){for(let b=0,k=0;b<total-.01;b+=bar,k++){const r=pnote(M.ch[k%M.ch.length]).m;ev.push({k:"y",t:b,f:hz(r+24),d:bar*1.02})}ev.push({k:"y",t:total,f:hz(pnote(M.ch[0]).m+24),d:beat*4})}
+for(let b=0;b<total-.01;b+=bar){const lastBar=b+bar>=total-.01,cr=M.ch?hz(pnote(M.ch[Math.round(b/bar)%M.ch.length]).m):bhz,cf=M.ch?cr*1.4983:fhz;if(bs&&M.mood==="dark"){ev.push({k:"b",t:b,f:cr,v:.4,d:bar*.98})}else if(bs){ev.push({k:"b",t:b,f:cr,v:.42,d:bar*.5});if(b+bar/2<total)ev.push({k:"b",t:b+bar/2,f:BL===4?cf:cr,v:.3,d:bar*.48})}
+if(dr&&BL===4&&M.mood==="dark"){[[0,"D",.95],[2,"T",.45],[2.5,"D",.6],[3.5,"K",.35]].forEach(([p,kd,v])=>{const x=b+p*beat;if(x<total+.01)ev.push({k:"d",t:x,kd,v})})}
+else if(dr&&BL===4){const P=lastBar?[[0,"D",1],[.5,"T",.7],[1,"T",.6],[1.5,"T",.75],[2,"D",.95],[2.5,"T",.6],[2.75,"T",.55],[3,"T",.75],[3.25,"T",.6],[3.5,"T",.8],[3.75,"T",.85]]:[[0,"D",1],[.5,"T",.7],[1.5,"T",.8],[2,"D",.95],[3,"T",.75],[3.5,"K",.5]];
+P.forEach(([p,kd,v])=>{const x=b+p*beat;if(x<total+.01)ev.push({k:"d",t:x,kd,v})});[0,.5,1,1.5,2,2.5,3,3.5].forEach(p=>{const x=b+p*beat;if(x<total)ev.push({k:"r",t:x,v:p===0?.5:p%1?.22:.35})})}}
+if(bs)ev.push({k:"b",t:total,f:bhz,v:.55,d:0});if(dr&&BL===4)ev.push({k:"d",t:total,kd:"D",v:1})}
+ev.sort((a,b)=>a.t-b.t);const t0=ac.currentTime+.2,p0=performance.now()+200;let ei=0,shown=-1;
+const a=root&&root.querySelector('.mctl [data-a="all"]');if(a)a.innerHTML="■ Стоп";
+const tick=()=>{if(t!==mpt||!root){if(PB&&PB.t===t)fadePB();return}const now=ac.currentTime;while(ei<ev.length&&t0+ev[ei].t<now+.4){const e=ev[ei++],hum=e.k==="n"?(Math.random()-.5)*.014:0,at=t0+e.t+hum;
+if(e.k==="r"){perc(gD,54,at,e.v*.55,0);continue}
+if(e.k==="d"){if(e.kd==="D"){perc(gD,64,at,e.v*.9,-4);drum(gD,at,"D",e.v*.45)}else if(e.kd==="T")perc(gD,62,at,e.v*.75,5);else perc(gD,60,at,e.v*.5,2);continue}
+if(e.k==="y"){ney(gP,e.f,at,e.d,M.mood==="dark"?.24:.16);continue}
+if(e.k==="b"){oudS(gN,e.f,at,e.v,e.d,{pan:-.25});continue}
+const v=(M.mood==="dark"?.8:1)*(.62+.2*((e.m-lo)/Math.max(1,hi_-lo))+Math.random()*.08+((e.t%bar)<.01?.08:0)),long=e.d>=beat*1.45;
+if(long&&!e.last&&e.d>.35&&Math.random()<.7){oudS(gN,hz(up(e.m)),at-.075,v*.55,.07)}
+if(e.d>=beat*1.9&&e.d>.5){oudS(gN,e.f,at,v,e.d*.96,{vib:0});for(let x=at+.1;x<at+e.d*.88;x+=.092)oudS(gN,e.f,x,.26+Math.random()*.06,.1,{trem:1})}
+else oudS(gN,e.f,at,v,e.d*.97,{vib:e.d>.6?.0035:0})}
+const el=(performance.now()-p0)/1000;let cur=-1;for(const e of ev){if(e.k==="n"&&e.t<=el)cur=e.i}if(cur!==shown&&root){shown=cur;root.querySelectorAll(".mc").forEach((b,k)=>b.classList.toggle("pl",k===cur));const cb=root.querySelector(".mc.pl"),ch=root.querySelector(".mch");if(cb&&ch)ch.scrollLeft=cb.offsetLeft-ch.clientWidth/2+cb.offsetWidth/2}
+if(el>total+(acc?2.2:1.2)){fadePB()}};
+PB={t,g:[gN,gD,gP],iv:setInterval(tick,40)};mute=performance.now()+(total+3)*1000;tick()}
+const accRow=()=>{const M=curMel(),on=st.acc!==false;return M.gen?"":`<div class="macc"><button data-x="acc" class="${on?"on":""}">${on?"Аккомпанемент: вкл":"Аккомпанемент: выкл"}</button>${M.nodr?"":`<button data-x="drm" class="${on&&st.drm!==false?"on":""}" ${on?"":"disabled"}>🥁 Дарбука</button>`}<button data-x="bas" class="${on&&st.bas!==false?"on":""}" ${on?"":"disabled"}>Бас</button><button data-x="ney" class="${on&&st.ney!==false?"on":""}" ${on?"":"disabled"}>Най</button><button data-x="tm-">−</button><span>${Math.round((M.bpm||104)*(st.tmp||1))}</span><button data-x="tm+">+</button></div>`};
+function bindAcc(){const r=root&&root.querySelector(".macc");if(!r)return;r.querySelectorAll("button").forEach(b=>b.onclick=()=>{const x=b.dataset.x;if(x==="acc")st.acc=st.acc===false;else if(x==="drm")st.drm=st.drm===false;else if(x==="bas")st.bas=st.bas===false;else if(x==="ney")st.ney=st.ney===false;else st.tmp=Math.max(.6,Math.min(1.5,Math.round(((st.tmp||1)+(x==="tm+"?.1:-.1))*10)/10));sv();const was=!!PB;if(was)playStop();r.outerHTML=accRow();bindAcc();if(was)playAll()})}
+function melSheet(){return `<div class="gr"></div><h3>Мелодии и упражнения</h3><button class="opi umadd"><span><b>＋ Своя мелодия по нотам</b><small>вписать ноты или распознать с фото нотного листа</small></span><code>✎</code></button>${allMels().map(x=>`<button class="opi${x.id===curMel().id?" on":""}" data-m="${x.id}"><span><b>${x.t}</b><small>${x.s}</small></span><code>${x.user?`<i class="ued" data-u="${x.id}">✎ изменить</i>`:(x.gen?6:x.n.split(" ").filter(t=>!t.startsWith("R")).length)+" нот"}</code></button>`).join("")}
+<p class="ohint">Строй берётся из вкладки «Настройка» (сейчас: ${pre().t}). Гриф показан так, как вы видите его, держа уд: сверху бас, слева порожек. Зелёная точка — куда прижать струну, цифра — палец (1 указательный, 2 средний, 3 безымянный, 4 мизинец, 0 — открытая). Пунктирный кружок — следующая нота. Пунктирные линии и цифры снизу — полутоны от порожка. Оранжевая точка — куда по звуку попадает ваш палец прямо сейчас. Андалусские наубы (Марокко, традиция аль-Андалуса) взяты из нотных записей открытого корпуса Arab-Andalusian Music (MTG, Университет Помпеу Фабра) — первые фразы каждой пьесы. Нота засчитывается, если держать её в пределах ±20 центов (полубемоль — это 50 центов, поэтому их тоже можно попадать).</p>`}
+function bindSeg(){root.querySelectorAll(".omd button").forEach(b=>b.onclick=()=>{if(st.md===b.dataset.m)return;st.md=b.dataset.m;sv();playStop();hist=[];okT=0;ui()})}
+const seg=()=>`<div class="omd"><button data-m="tun" class="${st.md==="mel"?"":"on"}">Настройка</button><button data-m="mel" class="${st.md==="mel"?"on":""}">Мелодии</button></div>`;
+function melUI(){try{sndReady().catch(()=>{})}catch(e){}if(mKey!==melKey())melLoad();root.classList.add("mel");
+root.innerHTML=`<style>${CSS}${MCSS}</style><div class="ohd">${tabMode?"":`<button class="ox" aria-label="Закрыть">✕</button>`}${seg()}</div>
+<div class="mtp"><button class="mpk"></button><span class="mct"></span></div><div class="mnt"></div><div class="mfb"></div>
+<div class="mmt"><div class="mbar"><b class="mnd"></b></div><div class="mbl"><span>ниже</span><span>точно</span><span>выше</span></div></div>
+<div class="omsg"></div><div class="olv" title="уровень микрофона"><i></i></div><div class="mch"></div>${accRow()}
+<div class="mctl"><button data-a="pv" aria-label="Назад">◀</button><button data-a="hear" class="w2">🔊 Нота</button><button data-a="all" class="w2">♫ Мелодия</button><button data-a="rs" aria-label="Сначала">⟲</button><button data-a="nx" aria-label="Пропустить">▶▶</button></div>
+<div class="oshb"></div><div class="osh">${melSheet()}</div>`;
+const q=s=>root.querySelector(s);if(q(".ox"))q(".ox").onclick=close;bindSeg();
+const sh=q(".osh"),bd=q(".oshb"),cl=()=>{sh.classList.remove("on");bd.classList.remove("on")};q(".mpk").onclick=()=>{sh.classList.add("on");bd.classList.add("on")};bd.onclick=cl;
+sh.querySelectorAll(".opi").forEach(b=>b.onclick=e=>{if(b.classList.contains("umadd")){umEditor();return}const ue=e.target.closest(".ued");if(ue){const u=umList().find(x=>x.id===ue.dataset.u);if(u){umEditor(u);return}}st.mel=b.dataset.m;sv();playStop();melLoad();melUI()});
+q(".mctl").querySelectorAll("button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
+if(a==="hear"){if(MN[MI])pluckF(hzOf(MN[MI]));return}if(a==="all"){playAll();return}playStop();
+if(a==="pv"){if(MI>0){MI--;MR[MI]=undefined}}else if(a==="nx"){if(MI<MN.length){MR[MI]=null;MI++}}else if(a==="rs")melLoad();
+mhT=0;mhv=[];mw=0;hist=[];melDraw();melMsg()});
+q(".mch").onclick=e=>{const b=e.target.closest(".mc");if(!b)return;playStop();MI=+b.dataset.i;for(let i=MI;i<MN.length;i++)MR[i]=undefined;mhT=0;mhv=[];mw=0;hist=[];melDraw();melMsg()};
+bindAcc();melDraw();idleMsg()}
+const MCSS=`#oudT.mel{overflow-y:auto}
+#oudT .omd{display:flex;background:#2c2d31;border-radius:20px;padding:3px;gap:2px}
+#oudT .omd button{background:none;border:0;color:#b9bac0;font:600 14px/1 Manrope,-apple-system,sans-serif;padding:10px 14px;border-radius:17px;cursor:pointer;transition:background .15s,color .15s}
+#oudT .omd button.on{background:#fff;color:#1d1e21}
+#oudT .ox+.omd{margin-left:10px}#oudT .omd+.oau{margin-left:auto}
+#oudT .mtp{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 20px 0}
+#oudT .mpk{background:none;border:0;color:#fff;font:700 20px/1.2 Manrope,-apple-system,sans-serif;padding:0;cursor:pointer;text-align:left}
+#oudT .mpk i{color:#9b9ca2;font-style:normal}
+#oudT .mct{color:#9b9ca2;font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#oudT .mnt{padding:6px 20px 0;min-height:88px}
+#oudT .mbig{font-size:46px;font-weight:800;line-height:1.05;letter-spacing:-.01em}
+#oudT .mbig sub{font-size:17px;font-weight:600;color:#9b9ca2;margin-left:10px;vertical-align:baseline}
+#oudT .msub{font-size:16px;color:#d7d7da;margin-top:6px;line-height:1.35}#oudT .msub b{color:#10c98a}
+#oudT .mfb{padding:10px 8px 0;flex:none}#oudT .mfs{display:block;width:100%;max-width:560px;margin:0 auto;height:auto;overflow:visible}
+#oudT .mst{stroke:#d8d2c4}#oudT .mst.on{stroke:#fff;filter:drop-shadow(0 0 3px #10c98a)}
+#oudT .msl{fill:#9b9ca2;font:600 10.5px Manrope,-apple-system,sans-serif}#oudT .msl.on{fill:#10c98a;font-weight:800}
+#oudT .msn{fill:#6f7076;font:600 9px Manrope,-apple-system,sans-serif}
+#oudT .mtg{fill:#05251a;font:800 12.5px Manrope,-apple-system,sans-serif}
+#oudT .mpd{transition:cx .1s linear,opacity .2s}
+#oudT .mmt{padding:14px 28px 0;flex:none}
+#oudT .mbar{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#ff8a3d 0,#3a3b40 28%,#10c98a 40%,#10c98a 60%,#3a3b40 72%,#ff8a3d 100%)}
+#oudT .mnd{position:absolute;top:-6px;left:50%;width:4px;height:22px;margin-left:-2px;border-radius:2px;background:#fff;opacity:.2;transition:left .1s linear,background .15s}
+#oudT .mnd.a{opacity:1;background:#fff}#oudT .mnd.g{background:#10c98a;box-shadow:0 0 8px #10c98a}#oudT .mnd.w{background:#ff9a52}
+#oudT .mbl{display:flex;justify-content:space-between;font-size:12px;color:#8d8e94;margin-top:6px}
+#oudT.mel .omsg{margin-top:12px;flex:none}#oudT .omsg.g small{color:#05402c}
+#oudT .mch{display:flex;gap:6px;overflow-x:auto;padding:12px 16px 4px;flex:none;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+#oudT .mch::-webkit-scrollbar{display:none}
+#oudT .mc{flex:none;background:#2c2d31;border:0;color:#d7d7da;border-radius:12px;padding:8px 11px;font:600 14px Manrope,-apple-system,sans-serif;cursor:pointer}
+#oudT .mc.cur{background:#fff;color:#1d1e21}#oudT .mc.g1{background:#10c98a;color:#05251a}#oudT .mc.g2{background:#0e7d58;color:#e7fff5}#oudT .mc.g3{background:#7a6a2a;color:#fff}#oudT .mc.sk{background:#4a2c2c;color:#f0b8b8}#oudT .mc.pl{box-shadow:0 0 0 2px #ff9a52}
+#oudT .umed{position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.55);display:flex;align-items:flex-end}#oudT .umc{background:#26272b;width:100%;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:14px 16px 20px}#oudT .umh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:10px}#oudT .umx{background:#3b3c42;border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px}#oudT .umr{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}#oudT .umb{background:#3b3c42;border:0;color:#fff;border-radius:12px;padding:10px 12px;font:600 14px Manrope,-apple-system,sans-serif;cursor:pointer}#oudT .umok{background:#10c98a;color:#05251a}#oudT .umdel{background:#5a2a2a}#oudT .umt{width:100%;min-height:180px;background:#1d1e21;color:#fff;border:1px solid #3b3c42;border-radius:12px;padding:10px;font:14px/1.5 ui-monospace,Menlo,monospace}#oudT .ums{font-size:14px;color:#d7d7da;line-height:1.5}#oudT .umw{color:#ff9a52;margin-top:4px}#oudT .umopt{align-items:center;font-size:13px;color:#b9bac0;gap:6px}#oudT .umopt input:not([type=checkbox]){width:60px;background:#1d1e21;color:#fff;border:1px solid #3b3c42;border-radius:8px;padding:6px;font:inherit}#oudT .umopt label{display:flex;align-items:center;gap:4px}
+#oudT .umgo{width:100%;padding:14px;font-size:16px;margin:4px 0 8px}#oudT .umrep{color:#ffcf9a;margin:6px 0;font-size:13px}#oudT .umrep ul{margin:4px 0 0;padding-left:18px}#oudT .umi{color:#9fd8c4;margin-bottom:4px}#oudT .umhelp{font-size:13px;color:#c9cacf;line-height:1.5;background:#1d1e21;border-radius:12px;padding:10px;margin-bottom:8px}#oudT .umhelp code{color:#10c98a}#oudT .umhelp pre{margin:6px 0 0;color:#fff;font-size:13px}#oudT .ued{font-style:normal;color:#10c98a}#oudT .umadd{box-shadow:inset 0 0 0 1px #10c98a}
+#oudT .macc{display:flex;align-items:center;gap:6px;padding:8px 16px 0;flex:none;flex-wrap:wrap}#oudT .macc button{background:#2c2d31;border:0;color:#b9bac0;border-radius:12px;padding:8px 10px;font:600 13px Manrope,-apple-system,sans-serif;cursor:pointer}#oudT .macc button.on{background:#10c98a;color:#05251a}#oudT .macc button:disabled{opacity:.4}#oudT .macc span{min-width:30px;text-align:center;font:700 14px Manrope,sans-serif;color:#fff;font-variant-numeric:tabular-nums}
+#oudT .mctl{display:flex;gap:8px;padding:10px 16px 16px;flex:none;margin-top:auto}
+#oudT .mctl button{flex:1;min-width:0;white-space:nowrap;padding:0 6px;background:#2c2d31;border:0;color:#fff;border-radius:14px;height:48px;font:700 15px Manrope,-apple-system,sans-serif;cursor:pointer;transition:transform .1s}
+#oudT .mctl button.w2{flex:2}#oudT .mctl button:active{transform:scale(.95)}
+@media (max-height:740px){#oudT .mbig{font-size:36px}#oudT .mnt{min-height:76px}#oudT .mtp{padding-top:8px}}`;
+
+return {open,close:()=>{if(root)unmount()},on:()=>!!root,wake:()=>{try{if(ac&&ac.state!=="running")ac.resume()}catch(e){}},asleep:()=>!!(ac&&ac.state==="suspended")}})();
+
+loadHwApi();OUD.open(true);
+["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,()=>OUD.wake(),{passive:true}));
+setTimeout(()=>{if(OUD.asleep()){const t=document.createElement("div");t.textContent="Коснитесь экрана, чтобы включить звук и микрофон";t.style.cssText="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:99999;background:#10c98a;color:#05251a;font:700 15px Manrope,sans-serif;padding:12px 18px;border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.4)";document.body.appendChild(t);const rm=()=>{t.remove();document.removeEventListener("pointerdown",rm)};document.addEventListener("pointerdown",rm)}},1200);
+if("serviceWorker" in navigator&&!/^(capacitor|ionic):/.test(location.protocol)&&location.hostname!=="localhost")navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script></body></html>

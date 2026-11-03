@@ -1,0 +1,72 @@
+name: Build Oud app
+on:
+  workflow_dispatch:
+  push:
+    paths: ["oud/**", "oudshell/**", ".github/workflows/build-oud.yml"]
+permissions:
+  contents: write
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Capacitor Android
+        working-directory: oudshell
+        run: |
+          npm install
+          bash prepare.sh
+          npx cap add android
+          python3 -c "p='android/app/src/main/AndroidManifest.xml';s=open(p).read();s=s if 'RECORD_AUDIO' in s else s.replace('</manifest>','    <uses-permission android:name=\"android.permission.RECORD_AUDIO\" />\n    <uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\" />\n</manifest>');open(p,'w').write(s)"
+          pip install --break-system-packages pillow || pip install pillow || true
+          python3 - <<'PY'
+          from PIL import Image
+          im=Image.open("../oud/icon-1024.png").convert("RGB")
+          for n,s in [("mdpi",48),("hdpi",72),("xhdpi",96),("xxhdpi",144),("xxxhdpi",192)]:
+              for f in ("ic_launcher","ic_launcher_round","ic_launcher_foreground"):
+                  im.resize((s,s),Image.LANCZOS).save(f"android/app/src/main/res/mipmap-{n}/{f}.png")
+          PY
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+          npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      - name: Rename
+        run: cp oudshell/android/app/build/outputs/apk/debug/app-debug.apk Oud.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: Oud-apk, path: Oud.apk }
+      - name: Release
+        env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        run: |
+          gh release view oud-latest >/dev/null 2>&1 || gh release create oud-latest --title "Приложение «Уд»" --notes "Отдельное приложение «Уд»: Oud.apk (Android) и Oud-unsigned.ipa (iOS, нужна подпись/Sideloadly)"
+          gh release upload oud-latest Oud.apk --clobber
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Capacitor iOS
+        working-directory: oudshell
+        run: |
+          npm install
+          bash prepare.sh
+          npx cap add ios
+          /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Микрофон нужен тюнеру уда и проверке игры'" ios/App/App/Info.plist || true
+          cp ../oud/icon-1024.png ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
+          npx cap sync ios
+      - name: Archive (без подписи)
+        working-directory: oudshell/ios/App
+        run: |
+          if [ -d App.xcworkspace ]; then T="-workspace App.xcworkspace"; else T="-project App.xcodeproj"; fi
+          xcodebuild $T -scheme App -configuration Release -sdk iphoneos -archivePath build/App.xcarchive archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | tail -20
+          mkdir -p Payload && cp -R build/App.xcarchive/Products/Applications/App.app Payload/
+          zip -qry ../../../Oud-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with: { name: Oud-ipa, path: Oud-unsigned.ipa }
+      - name: Release
+        env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        run: |
+          gh release view oud-latest >/dev/null 2>&1 || gh release create oud-latest --title "Приложение «Уд»" --notes "Свежие сборки «Уд»"
+          gh release upload oud-latest Oud-unsigned.ipa --clobber
