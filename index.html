@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><script>
-window.APPV=235;
+window.APPV=236;
 (function(){
 var cap=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():true));
 window.OTA={native:cap};
@@ -6916,6 +6916,30 @@ if(q("rall"))q("rall").onclick=()=>g.querySelectorAll(".rgap").forEach(e=>e.clas
 if(q("rhid"))q("rhid").onclick=()=>g.querySelectorAll(".rgap").forEach(e=>e.classList.remove("on"));
 if(q("rvo"))q("rvo").onclick=()=>g.querySelectorAll(".rvc").forEach(e=>e.classList.add("on"));
 try{window.scrollTo(0,0)}catch(e){}}
+/*TAP: точное воспроизведение записей текстов через Web Audio (без обрезки начала после перемотки) */
+const TAPC={ctx:null,buf:{},st:{}};
+function tapCtx(){if(!TAPC.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;try{TAPC.ctx=new C()}catch(e){return null}try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}}return TAPC.ctx}
+function tapLoad(src){if(!TAPC.buf[src])TAPC.buf[src]=fetch(src).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(ab=>new Promise((res,rej)=>{const c=tapCtx();const p=c.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)}));return TAPC.buf[src]}
+/* WSOLA: смена темпа без изменения высоты голоса */
+function tapWsola(x,sr,r){const N=Math.round(sr*0.04),Hs=N>>1,Ha=Hs*r,tol=Math.round(sr*0.012),win=new Float32Array(N);for(let i=0;i<N;i++)win[i]=0.5-0.5*Math.cos(2*Math.PI*i/N);
+const outLen=Math.ceil(x.length/r)+N,y=new Float32Array(outLen),w=new Float32Array(outLen);let prev=0;
+for(let k=0;;k++){const tg=Math.round(k*Ha);if(tg+N+tol>=x.length)break;let best=0;if(k>0){const nat=prev+Hs;let bc=-Infinity;for(let d=-tol;d<=tol;d+=4){const p=tg+d;if(p<0||p+Hs>=x.length)continue;let c=0;for(let i=0;i<Hs;i+=8)c+=x[p+i]*x[nat+i];if(c>bc){bc=c;best=d}}}
+const pos=Math.max(0,tg+best),o=k*Hs;for(let i=0;i<N&&pos+i<x.length;i++){y[o+i]+=x[pos+i]*win[i];w[o+i]+=win[i]}prev=pos}
+for(let i=0;i<outLen;i++)if(w[i]>1e-3)y[i]/=w[i];return y.subarray(0,Math.ceil(x.length/r))}
+function tapRate(src,b,r){if(r===1)return Promise.resolve(b);const k=src+"@"+r;if(!TAPC.st[k])TAPC.st[k]=new Promise(res=>setTimeout(()=>{const c=tapCtx(),n=b.length,x=new Float32Array(n);for(let ch=0;ch<b.numberOfChannels;ch++){const d=b.getChannelData(ch);for(let i=0;i<n;i++)x[i]+=d[i]/b.numberOfChannels}
+const y=tapWsola(x,b.sampleRate,r),o=c.createBuffer(1,y.length,b.sampleRate);o.getChannelData(0).set(y);res(o)},30));return TAPC.st[k]}
+function tapNew(src){const c=tapCtx();if(!c||!window.fetch)return new Audio(src);
+const P={src,playbackRate:1,preservesPitch:true,paused:true,ended:false,readyState:0,onloadedmetadata:null,_off:0,_t0:0,_n:null,_r:1,_b:null,_g:0,_fb:null};
+const stopN=()=>{if(P._n){P._n.onended=null;try{P._n.stop()}catch(e){}try{P._n.disconnect()}catch(e){}P._n=null}};
+Object.defineProperty(P,"currentTime",{get(){if(P._fb)return P._fb.currentTime;if(P.paused||!P._n)return P._off;return P._off+Math.max(0,c.currentTime-P._t0)*P._r},set(v){if(P._fb){P._fb.currentTime=v;return}const was=!P.paused;stopN();P._off=Math.max(0,v);P.ended=false;if(was){P.paused=true;P.play()}}});
+P.load=()=>{tapLoad(src).then(b=>{P._b=b;P.readyState=4;if(P.onloadedmetadata)P.onloadedmetadata()}).catch(()=>{P._fb=new Audio(src);P._fb.preload="auto";P.readyState=4;if(P.onloadedmetadata)P.onloadedmetadata()})};
+P.play=()=>{if(P._fb){P._fb.playbackRate=P.playbackRate;try{P._fb.preservesPitch=true}catch(e){}P.paused=false;return P._fb.play()}const g=++P._g,r=+P.playbackRate||1;P.paused=false;P.ended=false;try{c.resume()}catch(e){}
+if(!P._b){P.load();return new Promise(res=>{const f=P.onloadedmetadata;P.onloadedmetadata=()=>{P.onloadedmetadata=f;if(g===P._g&&!P.paused){P._g--;res(P.play())}else res()}})}
+const showWait=r!==1&&!TAPC.st[src+"@"+r];if(showWait){const m=document.getElementById("tvm");if(m)m.textContent="Готовлю запись в темпе "+String(r).replace(".",",")+"× — пару секунд…"}
+return tapRate(src,P._b,r).then(B=>{if(showWait){const m=document.getElementById("tvm");if(m)m.textContent=""}if(g!==P._g||P.paused)return;stopN();const n=c.createBufferSource();n.buffer=B;n.connect(c.destination);P._r=r;P._t0=c.currentTime;n.onended=()=>{if(P._n!==n)return;P._off=P._off+(c.currentTime-P._t0)*r;P._n=null;P.paused=true;P.ended=true};P._n=n;n.start(0,Math.min(B.duration,P._off/r))})};
+P.pause=()=>{if(P._fb){P._fb.pause();P.paused=true;return}if(!P.paused)P._off=P.currentTime;P._g++;stopN();P.paused=true};
+Object.defineProperty(P,"duration",{get(){return P._fb?P._fb.duration:P._b?P._b.duration:NaN}});
+return P}
 function txtv(){tstop();show("txt");const g=$("txt");g.innerHTML=`<button class="lnk" id="tbk">← Назад</button><h2>Тексты<small class="ar2">النُّصُوصُ</small></h2><p class="mu">Диалоги и тексты учебника с полной огласовкой, озвучкой, переводом и подсказками к каждому слову.</p><div class="menu" id="tml"></div>`;
 $("tbk").onclick=()=>{home();show("menu")};
 const TXL=TX.filter(t=>yr(me)===1?t.y===1:t.y!==1);TXL.forEach((t,n)=>{if(lk(t.k))return;const b=document.createElement("button");b.className="cat";b.innerHTML=`<span class="n">${yr(me)===1?n+1:n+3}</span><span class="tx"><b>${t.t}</b><span class="ar2">${t.ar||D[t.t]||""}</span><span class="mu">${t.s}</span></span>`;b.onclick=()=>txt1(t);$("tml").appendChild(b)});
@@ -6978,9 +7002,9 @@ const mark=n=>{els.forEach((e,k)=>e.classList.toggle("on",k===n));if(els[n])els[
 const say=(n,id)=>{if(id!==TRUN||n>=segs.length){mark(-1);return}mark(n);const u=new SpeechSynthesisUtterance(segs[n].t);const v=TV[+$("tvs").value];u.lang=v?v.lang:"ar-SA";if(v)u.voice=v;u.rate=+$("trt").value;
 u.onend=()=>{if(id!==TRUN)return;TTM=setTimeout(()=>say(n+1,id),segs[n].e!=="|"?1100:550)};u.onerror=()=>{if(id===TRUN)$("tvm").textContent="Не удалось воспроизвести. Проверьте, что звук включён."};speechSynthesis.speak(u)};
 const au=AU[t.k];let A=null;const recOn=()=>!!au&&$("tsrc")&&$("tsrc").value==="rec";
-const playRec=(n,single)=>{tstop();const id=TRUN;if(!A){A=new Audio(au.src);window.__A=A}
+const playRec=(n,single)=>{tstop();const id=TRUN;if(!A){A=tapNew(au.src);window.__A=A}
 window.__AON=true;A.playbackRate=+$("tsp").value;try{A.preservesPitch=true}catch(e){}
-const seek=()=>{A.currentTime=Math.max(0,au.at[n][0]-(n?0.3:0));const p=A.play();if(p&&p.catch)p.catch(()=>{$("tvm").textContent="Не удалось воспроизвести запись. Проверьте звук и нажмите ещё раз."})};
+const seek=()=>{A.currentTime=Math.max(0,au.at[n][0]-(n?0.25:0));const p=A.play();if(p&&p.catch)p.catch(()=>{$("tvm").textContent="Не удалось воспроизвести запись. Проверьте звук и нажмите ещё раз."})};
 if(A.readyState<1){A.onloadedmetadata=seek;A.load()}else seek();
 let last=-2;mark(n);last=n;
 window.__AT=setInterval(()=>{if(id!==TRUN){clearInterval(window.__AT);return}const tt=A.currentTime,L=au.at[au.at.length-1][1];
@@ -7289,6 +7313,7 @@ hi:[["اِسْتَمِرُّوا!","Продолжайте!"],["السَّلَا
 const TCHSVG=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 64C5 50 17 46 32 46s27 4 27 18z" fill="#f6f1e7" stroke="#cfc6b4" stroke-width="1"/><path d="M25.5 46.5 32 55l6.5-8.5" fill="none" stroke="#cfc6b4" stroke-width="1.2"/><rect x="28" y="38" width="8" height="10" rx="3" fill="#d9a67c"/><path d="M13 47l4-17 6 .5-1 15z M51 47l-4-17-6 .5 1 15z" fill="#fff" stroke="#d9d2c3" stroke-width=".8"/><ellipse cx="32" cy="30" rx="13" ry="15" fill="#e7b98f"/><path d="M16 31C13 12 24 7 32 7s19 5 16 24c-1-7-4-12-16-12S17 24 16 31z" fill="#fff" stroke="#d9d2c3" stroke-width=".9"/><path d="M17 15C24 10 40 10 47 15l-.4 3.2C40 14 24 14 17.4 18.2z" fill="#262626"/><path d="M23 37.6Q32 34 41 37.6Q32 40.2 23 37.6zM21.5 38.5Q32 56 42.5 38.5Q43 49 32 52 21 49 21.5 38.5z" fill="#2a1d16"/><g class="tcheek"><circle cx="21.5" cy="35" r="3" fill="#d6342b" opacity=".5"/><circle cx="42.5" cy="35" r="3" fill="#d6342b" opacity=".5"/></g><g fill="rgba(255,255,255,.3)" stroke="#202020" stroke-width="1.4"><circle cx="25.5" cy="30.5" r="4.6"/><circle cx="38.5" cy="30.5" r="4.6"/></g><path d="M30.1 30.2h3.8" stroke="#202020" stroke-width="1.3"/><g class="te" fill="#1a1a1a"><circle cx="25.5" cy="30.8" r="1.6"/><circle cx="38.5" cy="30.8" r="1.6"/></g><g class="teye2" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round"><path d="M23.2 31.4q2.3-3 4.6 0M36.2 31.4q2.3-3 4.6 0"/></g><path class="tbl" d="M20.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tbr" d="M34.5 23.2h9" stroke="#262626" stroke-width="2.1" stroke-linecap="round"/><path class="tm tm1" d="M29 44.2h6" stroke="#e8c9b4" stroke-width="1.7" stroke-linecap="round" fill="none"/><path class="tm tm2" d="M28.3 46q3.7-4 7.4 0" stroke="#e8c9b4" stroke-width="1.8" stroke-linecap="round" fill="none"/><path class="tm tm3" d="M28 43.2q4 6 8 0z" fill="#fff" stroke="#e8c9b4" stroke-width="1" stroke-linejoin="round"/><g class="tx2" fill="#fff" stroke="#c4c4c4" stroke-width=".8"><circle cx="12" cy="13" r="3.4"/><circle cx="52" cy="13" r="3.4"/></g><g class="ts" fill="#f3b61f"><path d="M8 15l1.6 3.4 3.4 1.6-3.4 1.6L8 25l-1.6-3.4L3 20l3.4-1.6z"/><path d="M56 6l1.2 2.6L60 10l-2.8 1.2L56 14l-1.2-2.8L52 10l2.8-1.4z"/></g></svg>`;
 const TNEWS=[
 {n:17,a:"2",d:"23 октября",t:"Карточки форм: сначала перевод",w:"Главный экран → «Все породы подобноправильных глаголов для контрольной»",f:"Все породы подобноправильных глаголов для контрольной",go:()=>fmv(),x:"В разделе «Все породы подобноправильных глаголов для контрольной» карточка теперь начинается с русского перевода, затем глагол по-арабски и остальные формы по порядку."},
+{n:132,a:"*",d:"5 ноября",t:"Точный звук в текстах",w:"Записи текстов теперь проигрываются через новый плеер: при переходе к любому отрезку звук начинается точно с нужного места, без «съеденного» начала. Темп 0,75× и 1,25× сохраняет высоту голоса.",x:"Тексты: новый точный плеер записей."},
 {n:131,a:"*",d:"5 ноября",t:"Запись не обрезает начало",w:"При переходе к отрезку текста запись теперь начинается чуть раньше — первый звук больше не съедается.",x:"Тексты: начало отрезка в записи больше не обрезается."},
 {n:130,a:"*",d:"5 ноября",t:"Тексты без огласовок",w:"В каждом тексте над арабским появился переключатель «С огласовками / Без огласовок». Выбор запоминается, подсказки к словам работают в обоих режимах.",x:"Тексты: переключатель «с огласовками / без огласовок»."},
 {n:129,a:"2",d:"4 ноября",t:"Уд: новый дизайн «Чёрное дерево»",w:"Только у Димы: тюнер и мелодии уда в тёмном дереве с латунью. Кнопки струн больше не наезжают друг на друга, подписи на грифе не перекрываются. Свои мелодии хранятся надёжнее и переживают обновления, их можно сохранить в файл и загрузить обратно."},{n:128,a:"2",d:"4 ноября",t:"Уд работает без интернета",w:"Только у Димы: приложение «Уд» полностью работает офлайн — тюнер, мелодии и звук. При запуске с интернетом оно само скачивает новую версию и предлагает «Обновить»."},{n:127,a:"2",d:"3 ноября",t:"Уд — отдельное приложение",w:"Только у Димы: тюнер и мелодии уда теперь есть и отдельным приложением «Уд» — без входа на сайт, работает без интернета: arab-tours.github.io/cartochki/oud/ (можно «Добавить на экран Домой») и сборки Oud.apk / Oud-unsigned.ipa в релизе «Приложение Уд» на GitHub.",x:"Отдельное приложение «Уд»."},
