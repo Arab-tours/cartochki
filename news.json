@@ -1,16 +1,20 @@
 {
 "date": "2026-11-05",
-"ru": "Наследный принц Дубая шейх Хамдан объявил первых шести лауреатов новой премии Dubai-it — среди них Emirates NBD, DMCC и онлайн-ритейлер Ounass.",
-"head": "Шейх Хамдан объявил первых лауреатов премии Dubai-it",
-"ar": "الشَّيْخُ حَمْدَان بْنُ مُحَمَّدٍ يُعْلِنُ أَوَّلَ الفَائِزِينَ بِجَائِزَةِ «دُبَيّ إِت»",
+"ru": "В Шардже открылась 45-я Международная книжная ярмарка с Оманом в роли почётного гостя; правитель Шарджи представил 143-томную Всеобщую арабскую энциклопедию и новую премию Харуна ар-Рашида.",
+"head": "В Шардже открылась 45-я книжная ярмарка, гость — Оман",
+"ar": "اِفْتِتَاحُ مَعْرِضِ الشَّارِقَةِ الدَّوْلِيِّ لِلْكِتَابِ الخَامِسِ وَالأَرْبَعِينَ بِضَيْفِ شَرَفٍ سُلْطَنَةِ عُمَانَ",
 "src": [
 {
-"n": "Gulf News, 04.11",
-"u": "https://gulfnews.com/uae/government/sheikh-hamdan-announces-six-dubai-it-award-winners-1.500736141"
+"n": "Sharjah24, 04.11",
+"u": "https://sharjah24.ae/en/Articles/2026/11/04/KMR6"
 },
 {
-"n": "Khaleej Times, 04.11",
-"u": "https://www.khaleejtimes.com/uae/sheikh-hamdan-announces-dubai-it-award-winners-in-6-categories"
+"n": "UAE Vartha, 04.11",
+"u": "https://english.uaevartha.com/sharjah-ruler-opens-45th-international-book-fair-launches-major-arabic-works/"
+},
+{
+"n": "ARN News Centre (WAM), 04.11",
+"u": "https://www.arnnewscentre.ae/news/lifestyle/sharjah-international-book-fair-opens-with-oman-as-guest-of-honour/"
 }
 ],
 "mourn": null
