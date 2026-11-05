@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06101C">
+<title>ВСЭК 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300..700&family=Rubik:wght@300..700&family=Inter:wght@400..900&family=Lora:ital,wght@1,400..600&display=swap">
+<style>
+:root{--bg:#0B111C}
+*{box-sizing:border-box}
+html{overflow-x:hidden}
+html,body{margin:0;background:var(--bg);color:#F2EEE6;font-family:'Rubik',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body:not(.feedmode){height:100vh;overflow:hidden}
+
+/* ---------- slide base (1920x1080 canvas) ---------- */
+.slide{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;margin:0}
+.slide *{box-sizing:border-box;margin:0}
+.slide div:not([style*="display"]){display:flex;flex-direction:column}
+.slide ul{padding-left:1.1em}
+.slide li{margin:0 0 .25em}
+.slide b{font-weight:600}
+.slide table{border-collapse:collapse;width:100%}
+.slide th,.slide td{padding:.45em .6em;text-align:left;vertical-align:top;border-bottom:1px solid rgba(26,34,51,.14)}
+.slide th{font-weight:600}
+.slide aside{display:none}
+.slide img{display:block}
+.slide>:not([style*="position:absolute"]):not(aside){position:relative}
+x-icon{display:inline-block;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+x-icon[name="Lock"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8 11V7a4 4 0 0 1 8 0v4'/></svg>")}
+x-icon[name="Link"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/><path d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/></svg>")}
+x-icon[name="Globe"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/></svg>")}
+x-icon[name="Lightning"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M13 2 4 14h7l-1 8 9-12h-7z'/></svg>")}
+x-icon[name="Activity"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12h4l3-8 4 16 3-8h4'/></svg>")}
+x-icon[name="Warning"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3 2 21h20z'/><path d='M12 10v5M12 18h0'/></svg>")}
+@keyframes epulse{0%,100%{opacity:.55}50%{opacity:1}}
+#stage .slide.on svg circle[fill^="url"]{animation:epulse 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){#stage .slide.on svg circle[fill^="url"]{animation:none}}
+
+
+/* ---------- present mode ---------- */
+#view{position:fixed;inset:0;overflow:hidden}
+body.feedmode #view{display:none}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:#06101C}
+body.feedmode #stage{display:none}
+#stage .slide{visibility:hidden;will-change:transform,opacity}
+#stage .slide.on{visibility:visible}
+
+/* builds */
+[data-build-in].pre{opacity:0}
+[data-build-in].pre.k-rise{transform:translateY(70px)}
+[data-build-in].pre.k-drop{transform:translateY(-70px)}
+[data-build-in].pre.k-left{transform:translateX(-90px)}
+[data-build-in].pre.k-right{transform:translateX(90px)}
+[data-build-in].pre.k-scale{transform:scale(.55)}
+[data-build-in].pre.k-pop{transform:scale(.8)}
+[data-build-in].run{transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
+[data-build-in].run.k-pop{transition:opacity .5s ease,transform .6s cubic-bezier(.3,1.6,.5,1)}
+
+/* site fx */
+.kbwrap{position:absolute;overflow:hidden}
+.kbwrap img{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;transform-origin:55% 35%}
+#stage .slide.on .kbwrap img{animation:kb 14s cubic-bezier(.25,.1,.25,1) forwards}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.09)}}
+[data-step].pre{opacity:0;transform:scale(.96)}
+[data-step].run{transition:opacity .5s ease,transform .6s cubic-bezier(.3,1.6,.5,1)}
+tr.flash td{animation:flash 1.4s ease}
+@keyframes flash{0%{background:#F7B9A8}100%{background:transparent}}
+#lock{position:fixed;inset:0;z-index:100;background:#0F1624;display:none;align-items:center;justify-content:center;padding:24px;text-align:center}
+#lock.show{display:flex}
+#lock .box{max-width:520px;font:17px/1.55 'Rubik',Arial,sans-serif;color:#C9D1DE}
+#lock h2{font:600 30px/1.2 'Oswald',Arial,sans-serif;color:#F2EEE6;margin:0 0 14px}
+#lock .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#D9412F;margin-right:8px;vertical-align:middle}
+#lock.wait .dot{background:#E8B84A;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+#netw{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:40;background:rgba(15,22,36,.85);color:#E8B84A;font:13px 'Rubik',Arial,sans-serif;padding:6px 12px;border-radius:999px;display:none}
+/* chrome */
+.ui{position:fixed;z-index:20;display:flex;gap:8px;align-items:center;transition:opacity .4s}
+#tools{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
+.btn{appearance:none;border:1px solid rgba(242,238,230,.18);background:rgba(15,22,36,.72);color:#F2EEE6;font:500 14px/1 'Rubik',Arial,sans-serif;padding:10px 14px;border-radius:999px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-decoration:none;white-space:nowrap}
+.btn:hover{background:rgba(43,78,140,.85)}
+#count{left:max(16px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));font:500 14px 'Rubik',Arial,sans-serif;color:rgba(242,238,230,.6)}
+#bar{position:fixed;left:0;bottom:0;height:3px;background:#FFB21E;z-index:21;transition:width .5s ease}
+body.idle .ui{opacity:0;pointer-events:none}
+body.feedmode #count,body.feedmode #bar,body.feedmode #fs{display:none}
+#notes{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);width:min(900px,92vw);max-height:40vh;overflow:auto;background:rgba(15,22,36,.94);border:1px solid rgba(242,238,230,.15);border-radius:16px;padding:18px 22px;font:16px/1.5 'Rubik',Arial,sans-serif;color:#E5E1D8;z-index:30;display:none}
+#notes.show{display:block}
+body.feedmode #notes{display:none!important}
+#hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:25;background:rgba(15,22,36,.9);border-radius:16px;padding:16px 22px;font:15px/1.5 'Rubik',Arial,sans-serif;color:#E5E1D8;text-align:center;pointer-events:none;opacity:0;transition:opacity .5s}
+#hint.show{opacity:1}
+
+/* ---------- feed mode (phones, portrait) ---------- */
+#feed{display:none}
+body.feedmode #feed{display:block;padding:calc(64px + env(safe-area-inset-top)) 0 40px}
+#feed .card{width:720px;margin:0 auto 28px;border-radius:28px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+#feed .slide{position:relative!important;width:720px!important;height:auto!important;min-height:0;padding:56px 44px!important;gap:28px!important;justify-content:flex-start!important}
+#feed .kbwrap{position:relative!important;height:440px!important;border-radius:18px}
+#feed table{table-layout:fixed}
+#feed td,#feed th{overflow-wrap:anywhere;hyphens:auto;padding:.4em .35em!important}
+#feed .num{position:absolute;right:28px;top:22px;font:600 22px 'Oswald',Arial,sans-serif;opacity:.45}
+</style>
+</head>
+<body>
+<div id="view"><div id="stage">
+<section class="slide" data-i="0" id="s-e-cover" data-transition="fade" style="background:#06101C;color:#E9F1F8;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<div data-deco style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(circle at 78% 38%, #12345A 0%, #06101C 58%)"></div>
+<svg data-deco aria-label="" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0.9"><defs><radialGradient id="gl"><stop offset="0" stop-color="#FFB21E" stop-opacity="0.85"/><stop offset="1" stop-color="#FFB21E" stop-opacity="0"/></radialGradient></defs><g stroke="#2ED3F0" stroke-opacity="0.35" stroke-width="1.6"><line x1="856" y1="-36" x2="1017" y2="-42"/><line x1="1017" y1="-42" x2="987" y2="166"/><line x1="1109" y1="-35" x2="1209" y2="-39"/><line x1="1109" y1="-35" x2="1085" y2="177"/><line x1="1109" y1="-35" x2="1198" y2="190"/><line x1="1209" y1="-39" x2="1198" y2="190"/><line x1="1368" y1="-22" x2="1451" y2="-52"/><line x1="1451" y1="-52" x2="1576" y2="-21"/><line x1="1451" y1="-52" x2="1607" y2="202"/><line x1="1576" y1="-21" x2="1746" y2="-67"/><line x1="1576" y1="-21" x2="1607" y2="202"/><line x1="1746" y1="-67" x2="1892" y2="-12"/><line x1="1746" y1="-67" x2="1728" y2="179"/><line x1="1892" y1="-12" x2="1992" y2="-33"/><line x1="1892" y1="-12" x2="1893" y2="222"/><line x1="987" y1="166" x2="1085" y2="177"/><line x1="987" y1="166" x2="968" y2="398"/><line x1="987" y1="166" x2="1129" y2="418"/><line x1="1085" y1="177" x2="1198" y2="190"/><line x1="1198" y1="190" x2="1260" y2="417"/><line x1="1353" y1="213" x2="1484" y2="200"/><line x1="1484" y1="200" x2="1444" y2="407"/><line x1="1893" y1="222" x2="2006" y2="204"/><line x1="846" y1="408" x2="968" y2="398"/><line x1="968" y1="398" x2="1129" y2="418"/><line x1="1129" y1="418" x2="1260" y2="417"/><line x1="1129" y1="418" x2="1080" y2="641"/><line x1="1129" y1="418" x2="1203" y2="630"/><line x1="1393" y1="445" x2="1380" y2="637"/><line x1="1444" y1="407" x2="1638" y2="422"/><line x1="1444" y1="407" x2="1487" y2="653"/><line x1="1638" y1="422" x2="1768" y2="418"/><line x1="1638" y1="422" x2="1703" y2="665"/><line x1="1768" y1="418" x2="1823" y2="432"/><line x1="1768" y1="418" x2="1703" y2="665"/><line x1="1823" y1="432" x2="1826" y2="651"/><line x1="829" y1="646" x2="1020" y2="671"/><line x1="829" y1="646" x2="896" y2="906"/><line x1="1020" y1="671" x2="970" y2="911"/><line x1="1020" y1="671" x2="1087" y2="882"/><line x1="1203" y1="630" x2="1260" y2="897"/><line x1="1380" y1="637" x2="1487" y2="653"/><line x1="1380" y1="637" x2="1327" y2="917"/><line x1="1583" y1="670" x2="1703" y2="665"/><line x1="1583" y1="670" x2="1627" y2="878"/><line x1="1583" y1="670" x2="1716" y2="862"/><line x1="1703" y1="665" x2="1826" y2="651"/><line x1="1958" y1="642" x2="1960" y2="894"/><line x1="896" y1="906" x2="970" y2="911"/><line x1="896" y1="906" x2="850" y2="1117"/><line x1="896" y1="906" x2="1019" y2="1119"/><line x1="970" y1="911" x2="1087" y2="882"/><line x1="1087" y1="882" x2="1260" y2="897"/><line x1="1260" y1="897" x2="1327" y2="917"/><line x1="1260" y1="897" x2="1209" y2="1099"/><line x1="1260" y1="897" x2="1389" y2="1139"/><line x1="1327" y1="917" x2="1389" y2="1139"/><line x1="1460" y1="873" x2="1627" y2="878"/><line x1="1460" y1="873" x2="1463" y2="1101"/><line x1="1627" y1="878" x2="1716" y2="862"/><line x1="1627" y1="878" x2="1625" y2="1146"/><line x1="1716" y1="862" x2="1824" y2="893"/><line x1="1824" y1="893" x2="1960" y2="894"/><line x1="1824" y1="893" x2="1885" y2="1126"/><line x1="1960" y1="894" x2="1974" y2="1096"/><line x1="1463" y1="1101" x2="1625" y2="1146"/><line x1="1625" y1="1146" x2="1708" y2="1147"/><line x1="1708" y1="1147" x2="1885" y2="1126"/><line x1="1885" y1="1126" x2="1974" y2="1096"/></g><g fill="#2ED3F0" fill-opacity="0.7"><circle cx="856" cy="-36" r="3.5"/><circle cx="1017" cy="-42" r="3.5"/><circle cx="1109" cy="-35" r="3.5"/><circle cx="1209" cy="-39" r="3.5"/><circle cx="1368" cy="-22" r="3.5"/><circle cx="1451" cy="-52" r="3.5"/><circle cx="1576" cy="-21" r="3.5"/><circle cx="1746" cy="-67" r="3.5"/><circle cx="1892" cy="-12" r="3.5"/><circle cx="1992" cy="-33" r="3.5"/><circle cx="834" cy="163" r="3.5"/><circle cx="987" cy="166" r="3.5"/><circle cx="1198" cy="190" r="3.5"/><circle cx="1353" cy="213" r="3.5"/><circle cx="1484" cy="200" r="3.5"/><circle cx="1607" cy="202" r="3.5"/><circle cx="1728" cy="179" r="3.5"/><circle cx="1893" cy="222" r="3.5"/><circle cx="2006" cy="204" r="3.5"/><circle cx="846" cy="408" r="3.5"/><circle cx="968" cy="398" r="3.5"/><circle cx="1129" cy="418" r="3.5"/><circle cx="1260" cy="417" r="3.5"/><circle cx="1393" cy="445" r="3.5"/><circle cx="1444" cy="407" r="3.5"/><circle cx="1638" cy="422" r="3.5"/><circle cx="1768" cy="418" r="3.5"/><circle cx="1823" cy="432" r="3.5"/><circle cx="2001" cy="410" r="3.5"/><circle cx="829" cy="646" r="3.5"/><circle cx="1020" cy="671" r="3.5"/><circle cx="1080" cy="641" r="3.5"/><circle cx="1203" cy="630" r="3.5"/><circle cx="1380" cy="637" r="3.5"/><circle cx="1487" cy="653" r="3.5"/><circle cx="1583" cy="670" r="3.5"/><circle cx="1703" cy="665" r="3.5"/><circle cx="1826" cy="651" r="3.5"/><circle cx="1958" cy="642" r="3.5"/><circle cx="896" cy="906" r="3.5"/><circle cx="1087" cy="882" r="3.5"/><circle cx="1260" cy="897" r="3.5"/><circle cx="1327" cy="917" r="3.5"/><circle cx="1460" cy="873" r="3.5"/><circle cx="1716" cy="862" r="3.5"/><circle cx="1960" cy="894" r="3.5"/><circle cx="850" cy="1117" r="3.5"/><circle cx="1019" cy="1119" r="3.5"/><circle cx="1115" cy="1142" r="3.5"/><circle cx="1209" cy="1099" r="3.5"/><circle cx="1389" cy="1139" r="3.5"/><circle cx="1463" cy="1101" r="3.5"/><circle cx="1625" cy="1146" r="3.5"/><circle cx="1708" cy="1147" r="3.5"/><circle cx="1885" cy="1126" r="3.5"/><circle cx="1974" cy="1096" r="3.5"/></g><circle cx="1085" cy="177" r="22" fill="url(#gl)"/><circle cx="1085" cy="177" r="6" fill="#FFB21E"/><circle cx="970" cy="911" r="22" fill="url(#gl)"/><circle cx="970" cy="911" r="6" fill="#FFB21E"/><circle cx="1627" cy="878" r="22" fill="url(#gl)"/><circle cx="1627" cy="878" r="6" fill="#FFB21E"/><circle cx="1824" cy="893" r="22" fill="url(#gl)"/><circle cx="1824" cy="893" r="6" fill="#FFB21E"/></svg>
+<div data-deco style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(90deg, #06101C 0%, rgba(6,16,28,0.92) 38%, rgba(6,16,28,0) 72%)"></div>
+<p style="position:absolute;left:128px;top:128px;width:900px;font-size:26px;font-weight:600;letter-spacing:6px;color:#2ED3F0">МИРОВАЯ ЭНЕРГЕТИКА · 2026</p>
+<h1 data-build-in="rise order 1 auto" style="position:absolute;left:120px;top:210px;width:1100px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:240px;font-weight:900;line-height:0.95;letter-spacing:-8px;color:#E9F1F8">ВСЭК<br><span style="color:#FFB21E">2026</span></h1>
+<p data-build-in="fade order 2 auto" style="position:absolute;left:128px;top:690px;width:1100px;font-family:'Lora', Georgia, serif;font-style:italic;font-size:48px;line-height:1.25;color:#E9F1F8">От деклараций — к жёстким сценариям</p>
+<p data-build-in="fade order 3 auto" style="position:absolute;left:128px;top:790px;width:860px;font-size:28px;line-height:1.45;color:#8EA5BD">Собрание Всемирного энергетического совета: что меняется и что это значит для нас</p>
+<div style="position:absolute;left:128px;top:928px;width:1664px;height:2px;background:#1C3350"></div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:26px;letter-spacing:2px;color:#8EA5BD"><span style="color:#E9F1F8">Спикер 1</span> контекст  ·  <span style="color:#E9F1F8">Спикер 2</span> повестка  ·  <span style="color:#E9F1F8">Спикер 3</span> решения  ·  <span style="color:#E9F1F8">Спикер 4</span> действия</p>
+<aside>[Спикер 1] Добрый день. Наш доклад — о собрании ВСЭК 2026: почему это событие называют поворотным и что оно меняет в мировой энергетике.</aside>
+</section>
+<section class="slide" data-i="1" id="s-e-context" data-transition="fade" style="background:#06101C;color:#E9F1F8;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<svg data-deco aria-label="" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0.35"><defs><radialGradient id="gl"><stop offset="0" stop-color="#FFB21E" stop-opacity="0.85"/><stop offset="1" stop-color="#FFB21E" stop-opacity="0"/></radialGradient></defs><g stroke="#2ED3F0" stroke-opacity="0.35" stroke-width="1.6"><line x1="-80" y1="623" x2="-47" y2="702"/><line x1="157" y1="626" x2="403" y2="594"/><line x1="403" y1="594" x2="583" y2="640"/><line x1="403" y1="594" x2="378" y2="700"/><line x1="583" y1="640" x2="648" y2="726"/><line x1="828" y1="604" x2="1111" y2="618"/><line x1="828" y1="604" x2="863" y2="751"/><line x1="1111" y1="618" x2="1326" y2="619"/><line x1="1111" y1="618" x2="1090" y2="753"/><line x1="1326" y1="619" x2="1537" y2="599"/><line x1="1326" y1="619" x2="1292" y2="746"/><line x1="1537" y1="599" x2="1764" y2="642"/><line x1="1537" y1="599" x2="1522" y2="754"/><line x1="1764" y1="642" x2="1982" y2="634"/><line x1="1764" y1="642" x2="1782" y2="704"/><line x1="1982" y1="634" x2="1952" y2="711"/><line x1="-47" y1="702" x2="186" y2="733"/><line x1="-47" y1="702" x2="-25" y2="832"/><line x1="186" y1="733" x2="378" y2="700"/><line x1="186" y1="733" x2="176" y2="824"/><line x1="378" y1="700" x2="394" y2="829"/><line x1="648" y1="726" x2="863" y2="751"/><line x1="648" y1="726" x2="609" y2="841"/><line x1="863" y1="751" x2="853" y2="860"/><line x1="1090" y1="753" x2="1292" y2="746"/><line x1="1090" y1="753" x2="1087" y2="862"/><line x1="1090" y1="753" x2="1327" y2="865"/><line x1="1292" y1="746" x2="1540" y2="816"/><line x1="1522" y1="754" x2="1782" y2="704"/><line x1="1782" y1="704" x2="1781" y2="864"/><line x1="1782" y1="704" x2="2011" y2="840"/><line x1="1952" y1="711" x2="2011" y2="840"/><line x1="-25" y1="832" x2="-44" y2="927"/><line x1="176" y1="824" x2="394" y2="829"/><line x1="176" y1="824" x2="192" y2="948"/><line x1="394" y1="829" x2="377" y2="918"/><line x1="394" y1="829" x2="647" y2="973"/><line x1="853" y1="860" x2="1087" y2="862"/><line x1="1087" y1="862" x2="1327" y2="865"/><line x1="1327" y1="865" x2="1284" y2="960"/><line x1="1540" y1="816" x2="1781" y2="864"/><line x1="1540" y1="816" x2="1555" y2="917"/><line x1="1540" y1="816" x2="1762" y2="917"/><line x1="1781" y1="864" x2="2011" y2="840"/><line x1="1781" y1="864" x2="1762" y2="917"/><line x1="2011" y1="840" x2="1997" y2="934"/><line x1="377" y1="918" x2="647" y2="973"/><line x1="377" y1="918" x2="628" y2="1024"/><line x1="647" y1="973" x2="815" y2="962"/><line x1="815" y1="962" x2="1067" y2="923"/><line x1="1067" y1="923" x2="1284" y2="960"/><line x1="1067" y1="923" x2="1082" y2="1031"/><line x1="1284" y1="960" x2="1555" y2="917"/><line x1="1555" y1="917" x2="1762" y2="917"/><line x1="1555" y1="917" x2="1513" y2="1080"/><line x1="1762" y1="917" x2="1997" y2="934"/><line x1="-31" y1="1081" x2="-49" y2="1166"/><line x1="167" y1="1082" x2="171" y2="1167"/><line x1="379" y1="1027" x2="628" y2="1024"/><line x1="379" y1="1027" x2="427" y2="1160"/><line x1="628" y1="1024" x2="824" y2="1046"/><line x1="628" y1="1024" x2="827" y2="1148"/><line x1="824" y1="1046" x2="1082" y2="1031"/><line x1="824" y1="1046" x2="827" y2="1148"/><line x1="824" y1="1046" x2="1110" y2="1161"/><line x1="1082" y1="1031" x2="1265" y2="1074"/><line x1="1265" y1="1074" x2="1513" y2="1080"/><line x1="1265" y1="1074" x2="1304" y2="1131"/><line x1="1513" y1="1080" x2="1783" y2="1045"/><line x1="1513" y1="1080" x2="1520" y2="1165"/><line x1="1783" y1="1045" x2="1977" y2="1053"/><line x1="1783" y1="1045" x2="1717" y2="1167"/><line x1="1783" y1="1045" x2="1990" y2="1134"/><line x1="1977" y1="1053" x2="1990" y2="1134"/><line x1="-49" y1="1166" x2="171" y2="1167"/><line x1="171" y1="1167" x2="427" y2="1160"/><line x1="615" y1="1173" x2="827" y2="1148"/><line x1="827" y1="1148" x2="1110" y2="1161"/><line x1="1110" y1="1161" x2="1304" y2="1131"/><line x1="1304" y1="1131" x2="1520" y2="1165"/><line x1="1520" y1="1165" x2="1717" y2="1167"/></g><g fill="#2ED3F0" fill-opacity="0.7"><circle cx="-80" cy="623" r="3.5"/><circle cx="157" cy="626" r="3.5"/><circle cx="403" cy="594" r="3.5"/><circle cx="583" cy="640" r="3.5"/><circle cx="828" cy="604" r="3.5"/><circle cx="1111" cy="618" r="3.5"/><circle cx="1326" cy="619" r="3.5"/><circle cx="1537" cy="599" r="3.5"/><circle cx="1764" cy="642" r="3.5"/><circle cx="1982" cy="634" r="3.5"/><circle cx="-47" cy="702" r="3.5"/><circle cx="186" cy="733" r="3.5"/><circle cx="378" cy="700" r="3.5"/><circle cx="863" cy="751" r="3.5"/><circle cx="1090" cy="753" r="3.5"/><circle cx="1292" cy="746" r="3.5"/><circle cx="1522" cy="754" r="3.5"/><circle cx="1782" cy="704" r="3.5"/><circle cx="1952" cy="711" r="3.5"/><circle cx="-25" cy="832" r="3.5"/><circle cx="176" cy="824" r="3.5"/><circle cx="394" cy="829" r="3.5"/><circle cx="609" cy="841" r="3.5"/><circle cx="853" cy="860" r="3.5"/><circle cx="1087" cy="862" r="3.5"/><circle cx="1327" cy="865" r="3.5"/><circle cx="1540" cy="816" r="3.5"/><circle cx="1781" cy="864" r="3.5"/><circle cx="2011" cy="840" r="3.5"/><circle cx="-44" cy="927" r="3.5"/><circle cx="377" cy="918" r="3.5"/><circle cx="815" cy="962" r="3.5"/><circle cx="1067" cy="923" r="3.5"/><circle cx="1997" cy="934" r="3.5"/><circle cx="-31" cy="1081" r="3.5"/><circle cx="379" cy="1027" r="3.5"/><circle cx="628" cy="1024" r="3.5"/><circle cx="824" cy="1046" r="3.5"/><circle cx="1082" cy="1031" r="3.5"/><circle cx="1265" cy="1074" r="3.5"/><circle cx="1513" cy="1080" r="3.5"/><circle cx="1783" cy="1045" r="3.5"/><circle cx="1977" cy="1053" r="3.5"/><circle cx="171" cy="1167" r="3.5"/><circle cx="427" cy="1160" r="3.5"/><circle cx="615" cy="1173" r="3.5"/><circle cx="1110" cy="1161" r="3.5"/><circle cx="1304" cy="1131" r="3.5"/><circle cx="1717" cy="1167" r="3.5"/><circle cx="1990" cy="1134" r="3.5"/></g><circle cx="648" cy="726" r="22" fill="url(#gl)"/><circle cx="648" cy="726" r="6" fill="#FFB21E"/><circle cx="192" cy="948" r="22" fill="url(#gl)"/><circle cx="192" cy="948" r="6" fill="#FFB21E"/><circle cx="647" cy="973" r="22" fill="url(#gl)"/><circle cx="647" cy="973" r="6" fill="#FFB21E"/><circle cx="1284" cy="960" r="22" fill="url(#gl)"/><circle cx="1284" cy="960" r="6" fill="#FFB21E"/><circle cx="1555" cy="917" r="22" fill="url(#gl)"/><circle cx="1555" cy="917" r="6" fill="#FFB21E"/><circle cx="1762" cy="917" r="22" fill="url(#gl)"/><circle cx="1762" cy="917" r="6" fill="#FFB21E"/><circle cx="167" cy="1082" r="22" fill="url(#gl)"/><circle cx="167" cy="1082" r="6" fill="#FFB21E"/><circle cx="-49" cy="1166" r="22" fill="url(#gl)"/><circle cx="-49" cy="1166" r="6" fill="#FFB21E"/><circle cx="827" cy="1148" r="22" fill="url(#gl)"/><circle cx="827" cy="1148" r="6" fill="#FFB21E"/><circle cx="1520" cy="1165" r="22" fill="url(#gl)"/><circle cx="1520" cy="1165" r="6" fill="#FFB21E"/></svg>
+<p style="position:absolute;left:128px;top:56px;width:1300px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;letter-spacing:3px;color:#8EA5BD"><span style="color:#2ED3F0;font-weight:700">01 КОНТЕКСТ</span> <span style="color:#1C3350">—</span> <span style="color:#8EA5BD;font-weight:500">02 ПОВЕСТКА</span> <span style="color:#1C3350">—</span> <span style="color:#8EA5BD;font-weight:500">03 РЕШЕНИЯ</span> <span style="color:#1C3350">—</span> <span style="color:#8EA5BD;font-weight:500">04 ДЕЙСТВИЯ</span></p><p style="position:absolute;left:1480px;top:46px;width:312px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;color:#06101C;background:#2ED3F0;padding:8px 0px;border-radius:999px">СПИКЕР 1</p>
+<div style="display:flex;flex-direction:row;gap:64px;align-items:center;margin-top:40px"><div style="flex:1.15;display:flex;flex-direction:column;gap:32px"><p style="font-size:26px;font-weight:600;letter-spacing:6px;color:#2ED3F0">ПОВОРОТНЫЙ МОМЕНТ</p><h2 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:92px;font-weight:800;line-height:1.02;letter-spacing:-2px;color:#E9F1F8">От «перехода» —<br>к <span style="color:#FFB21E">«выживанию»</span><br>энергосистем</h2><p style="font-family:'Lora', Georgia, serif;font-style:italic;font-size:36px;line-height:1.35;color:#8EA5BD">«Это не просто ежегодная сверка часов»</p></div><div style="flex:1;display:flex;flex-direction:column;gap:20px"><div style="display:flex;flex-direction:column;gap:10px;padding:28px 32px;background:#0D1A2B;border:1px solid #1C3350;border-radius:20px"><p style="font-size:24px;font-weight:700;letter-spacing:4px;color:#3DDC97">КЛИМАТ</p><p style="font-size:30px;line-height:1.35;color:#E9F1F8">Энергосистемы впервые обсуждают в логике устойчивости к ударам</p></div><div style="display:flex;flex-direction:column;gap:10px;padding:28px 32px;background:#0D1A2B;border:1px solid #1C3350;border-radius:20px"><p style="font-size:24px;font-weight:700;letter-spacing:4px;color:#FF5A5F">ГЕОПОЛИТИКА</p><p style="font-size:30px;line-height:1.35;color:#E9F1F8">Поставки и цепочки стали вопросом безопасности</p></div><div style="display:flex;flex-direction:column;gap:10px;padding:28px 32px;background:#0D1A2B;border:1px solid #1C3350;border-radius:20px"><p style="font-size:24px;font-weight:700;letter-spacing:4px;color:#FFB21E">2026 → 2031</p><p style="font-size:30px;line-height:1.35;color:#E9F1F8">Собрание задаёт тон на следующее пятилетие</p></div></div></div>
+<p data-build-in="rise order 1" style="position:absolute;left:128px;top:900px;width:1664px;font-size:32px;font-weight:700;line-height:1.3;color:#06101C;background:#FFB21E;padding:22px 36px;border-radius:16px">Главная новость года для всех, кто работает в энергетике</p>
+<aside>[Спикер 1] Коллеги, в 2026 году Всемирный энергетический совет (ВСЭК) проводит своё собрание в условиях тектонических сдвигов в мировой энергетике. Это не просто ежегодная сверка часов. Впервые за последние годы на повестке стоит вопрос не столько «перехода», сколько «выживания» энергосистем в условиях климатических и геополитических вызовов. Собрание 2026 года задаст тон на следующее пятилетие: мы переходим от деклараций к жёстким сценариям. Это новость номер один для всех, кто работает в энергетике.</aside>
+</section>
+<section class="slide" data-i="2" id="s-e-agenda" data-transition="fade" style="background:#F2F5F8;color:#0A1626;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="position:absolute;left:128px;top:56px;width:1300px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;letter-spacing:3px;color:#3B4B5E"><span style="color:#3B4B5E;font-weight:500">01 КОНТЕКСТ</span> <span style="color:#D6DEE7">—</span> <span style="color:#0B7FA0;font-weight:700">02 ПОВЕСТКА</span> <span style="color:#D6DEE7">—</span> <span style="color:#3B4B5E;font-weight:500">03 РЕШЕНИЯ</span> <span style="color:#D6DEE7">—</span> <span style="color:#3B4B5E;font-weight:500">04 ДЕЙСТВИЯ</span></p><p style="position:absolute;left:1480px;top:46px;width:312px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;color:#E9F1F8;background:#0B7FA0;padding:8px 0px;border-radius:999px">СПИКЕР 2</p>
+<h2 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:76px;font-weight:800;line-height:1.05;letter-spacing:-1.5px;color:#0A1626;margin-top:24px">Три болевые точки повестки</h2>
+<div style="display:flex;flex-direction:row;gap:32px"><div data-build-in="rise order 1" style="position:relative;flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;padding:40px 40px 44px;border-radius:24px;border-top:10px solid #E8890C;box-shadow:0px 18px 44px rgba(10,22,38,0.10)"><div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between"><p style="font-size:80px;font-weight:900;line-height:1;letter-spacing:-2px;color:#E8890C">01</p><x-icon name="Lock" style="color:#E8890C;width:64px;height:64px"></x-icon></div><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:40px;font-weight:800;line-height:1.12;color:#0A1626">Энергетическая безопасность</h3><p style="font-size:28px;line-height:1.42;color:#3B4B5E">Во главе угла — надёжность поставок, а не только «зелёная» энергия</p></div><div data-build-in="rise order 2" style="position:relative;flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;padding:40px 40px 44px;border-radius:24px;border-top:10px solid #0B7FA0;box-shadow:0px 18px 44px rgba(10,22,38,0.10)"><div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between"><p style="font-size:80px;font-weight:900;line-height:1;letter-spacing:-2px;color:#0B7FA0">02</p><x-icon name="Link" style="color:#0B7FA0;width:64px;height:64px"></x-icon></div><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:40px;font-weight:800;line-height:1.12;color:#0A1626">Интеграция рынков</h3><p style="font-size:28px;line-height:1.42;color:#3B4B5E">Новые трансграничные коридоры и гармонизация стандартов</p></div><div data-build-in="rise order 3" style="position:relative;flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;padding:40px 40px 44px;border-radius:24px;border-top:10px solid #C2410C;box-shadow:0px 18px 44px rgba(10,22,38,0.10)"><div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between"><p style="font-size:80px;font-weight:900;line-height:1;letter-spacing:-2px;color:#C2410C">03</p><x-icon name="Globe" style="color:#C2410C;width:64px;height:64px"></x-icon></div><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:40px;font-weight:800;line-height:1.12;color:#0A1626">Технологический суверенитет</h3><p style="font-size:28px;line-height:1.42;color:#3B4B5E">Цепочки поставок критических минералов и компонентов для ВИЭ</p></div></div>
+<p data-build-in="fade order 4" style="position:absolute;left:128px;top:880px;width:1664px;font-family:'Lora', Georgia, serif;font-style:italic;font-size:44px;line-height:1.2;color:#0A1626">«Это уже не просто экология — <span style="color:#C2410C">это геополитика</span>»</p>
+<aside>[Спикер 2] Если мы посмотрим на расширенную повестку, то она бьёт по трём болевым точкам. Первое — энергетическая безопасность. После кризисов последних лет ВСЭК ставит во главу угла не просто «зелёную» энергию, а надёжность поставок. Второе — интеграция рынков. Обсуждается создание новых трансграничных коридоров и гармонизация стандартов. И третье — технологический суверенитет. Впервые так остро ставится вопрос о цепочках поставок критических минералов и компонентов для ВИЭ. Это уже не просто экология, это геополитика.</aside>
+</section>
+<section class="slide" data-i="3" id="s-e-decisions" data-transition="fade" style="background:#06101C;color:#E9F1F8;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;padding:128px 128px 150px;display:flex;flex-direction:column;gap:40px">
+<div data-deco style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(circle at 92% 8%, #10304F 0%, #06101C 50%)"></div>
+<p style="position:absolute;left:128px;top:56px;width:1300px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;letter-spacing:3px;color:#8EA5BD"><span style="color:#8EA5BD;font-weight:500">01 КОНТЕКСТ</span> <span style="color:#1C3350">—</span> <span style="color:#8EA5BD;font-weight:500">02 ПОВЕСТКА</span> <span style="color:#1C3350">—</span> <span style="color:#2ED3F0;font-weight:700">03 РЕШЕНИЯ</span> <span style="color:#1C3350">—</span> <span style="color:#8EA5BD;font-weight:500">04 ДЕЙСТВИЯ</span></p><p style="position:absolute;left:1480px;top:46px;width:312px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;color:#06101C;background:#2ED3F0;padding:8px 0px;border-radius:999px">СПИКЕР 3</p>
+<div style="display:flex;flex-direction:row;align-items:end;justify-content:space-between;gap:40px;margin-top:24px"><h2 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:72px;font-weight:800;line-height:1.05;letter-spacing:-1.5px;color:#E9F1F8">Что ждут от итоговых документов</h2><p style="font-size:24px;font-weight:700;letter-spacing:3px;color:#FFB21E;border:2px solid #FFB21E;padding:10px 22px;border-radius:999px;white-space:nowrap">ОЖИДАЕТСЯ · ПО ПРЕДВАРИТЕЛЬНЫМ ДАННЫМ</p></div>
+<div style="display:flex;flex-direction:column;gap:18px"><div data-build-in="left order 1" style="display:flex;flex-direction:row;align-items:center;gap:36px;padding:26px 36px;background:#0D1A2B;border:1px solid #1C3350;border-left:8px solid #2ED3F0;border-radius:18px"><p style="width:90px;font-size:60px;font-weight:900;line-height:1;color:#2ED3F0">1</p><div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:38px;font-weight:800;line-height:1.15;color:#E9F1F8">Дорожная карта энергоперехода 2.0</h3><p style="font-size:27px;line-height:1.35;color:#8EA5BD">В отличие от версии 2020 года — конкретные сроки и обязательства стран</p></div></div><div data-build-in="left order 2" style="display:flex;flex-direction:row;align-items:center;gap:36px;padding:26px 36px;background:#0D1A2B;border:1px solid #1C3350;border-left:8px solid #FFB21E;border-radius:18px"><p style="width:90px;font-size:60px;font-weight:900;line-height:1;color:#FFB21E">2</p><div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:38px;font-weight:800;line-height:1.15;color:#E9F1F8">Хартия о критических материалах</h3><p style="font-size:27px;line-height:1.35;color:#8EA5BD">Правила для цепочек поставок минералов и компонентов</p></div></div><div data-build-in="left order 3" style="display:flex;flex-direction:row;align-items:center;gap:36px;padding:26px 36px;background:#0D1A2B;border:1px solid #1C3350;border-left:8px solid #3DDC97;border-radius:18px"><p style="width:90px;font-size:60px;font-weight:900;line-height:1;color:#3DDC97">3</p><div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:38px;font-weight:800;line-height:1.15;color:#E9F1F8">Пилотные водородные хабы</h3><p style="font-size:27px;line-height:1.35;color:#8EA5BD">Запуск первых проектов</p></div></div><div data-build-in="left order 4" style="display:flex;flex-direction:row;align-items:center;gap:36px;padding:26px 36px;background:#0D1A2B;border:1px solid #1C3350;border-left:8px solid #A78BFA;border-radius:18px"><p style="width:90px;font-size:60px;font-weight:900;line-height:1;color:#A78BFA">4</p><div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:38px;font-weight:800;line-height:1.15;color:#E9F1F8">Фонд для развивающихся стран</h3><p style="font-size:27px;line-height:1.35;color:#8EA5BD">Поддержка адаптации их энергосистем</p></div></div></div>
+<p style="position:absolute;left:128px;bottom:52px;width:1664px;font-size:28px;font-weight:600;color:#E9F1F8">Итог: <span style="color:#FFB21E">рамочные, но обязательные к исполнению</span> резолюции</p>
+<aside>[Спикер 3] Что мы ждём от итоговых документов? По предварительным данным, ВСЭК 2026 года готовит обновлённую «Дорожную карту энергетического перехода 2.0». Главное отличие от версии 2020 года — это привязка к конкретным срокам и обязательствам стран. Ожидается принятие Хартии о критических материалах и запуск пилотных проектов по водородным хабам. Также будет объявлено о создании фонда поддержки развивающихся стран для адаптации их энергосистем. Это рамочные, но обязательные к исполнению резолюции.</aside>
+</section>
+<section class="slide" data-i="4" id="s-e-us" data-transition="fade" style="background:#F2F5F8;color:#0A1626;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="position:absolute;left:128px;top:56px;width:1300px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;letter-spacing:3px;color:#3B4B5E"><span style="color:#3B4B5E;font-weight:500">01 КОНТЕКСТ</span> <span style="color:#D6DEE7">—</span> <span style="color:#3B4B5E;font-weight:500">02 ПОВЕСТКА</span> <span style="color:#D6DEE7">—</span> <span style="color:#3B4B5E;font-weight:500">03 РЕШЕНИЯ</span> <span style="color:#D6DEE7">—</span> <span style="color:#0B7FA0;font-weight:700">04 ДЕЙСТВИЯ</span></p><p style="position:absolute;left:1480px;top:46px;width:312px;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;color:#E9F1F8;background:#0B7FA0;padding:8px 0px;border-radius:999px">СПИКЕР 4</p>
+<h2 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:76px;font-weight:800;line-height:1.05;letter-spacing:-1.5px;color:#0A1626;margin-top:24px">Что это значит для нас</h2>
+<div style="display:flex;flex-direction:row;gap:32px"><div style="flex:1;display:flex;flex-direction:column;gap:22px"><p style="font-size:26px;font-weight:700;letter-spacing:4px;color:#0B7FA0">ПРАВИЛА ИГРЫ МЕНЯЮТСЯ — ИНВЕСТИРОВАТЬ В</p><div style="display:flex;flex-direction:row;gap:24px"><div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;padding:34px 36px;border-radius:22px;border:1px solid #D6DEE7;box-shadow:0px 14px 36px rgba(10,22,38,0.08)"><x-icon name="Lightning" style="color:#E8890C;width:56px;height:56px"></x-icon><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:38px;font-weight:800;line-height:1.15;color:#0A1626">Накопители энергии</h3><p style="font-size:27px;line-height:1.4;color:#3B4B5E">Гибкость и устойчивость системы</p></div><div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;padding:34px 36px;border-radius:22px;border:1px solid #D6DEE7;box-shadow:0px 14px 36px rgba(10,22,38,0.08)"><x-icon name="Activity" style="color:#0B7FA0;width:56px;height:56px"></x-icon><h3 style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:38px;font-weight:800;line-height:1.15;color:#0A1626">Цифровые двойники сетей</h3><p style="font-size:27px;line-height:1.4;color:#3B4B5E">Модель сети для управления и планирования</p></div></div><div style="display:flex;flex-direction:row;align-items:center;gap:22px;background:#FFE9E6;padding:24px 30px;border-radius:18px;border-left:8px solid #FF5A5F"><x-icon name="Warning" style="color:#D93B3F;width:48px;height:48px"></x-icon><p style="flex:1;font-size:28px;line-height:1.35;color:#0A1626"><b>Риск:</b> не встроимся в новые стандарты — окажемся за бортом глобальных цепочек</p></div></div><div data-build-in="pop order 1" style="width:520px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;background:#06101C;padding:44px;border-radius:26px"><p style="font-size:24px;font-weight:700;letter-spacing:4px;color:#FFB21E">ПРЕДЛОЖЕНИЕ</p><p style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:44px;font-weight:800;line-height:1.15;color:#E9F1F8">Рабочая группа по мониторингу решений ВСЭК</p><p style="font-size:27px;line-height:1.4;color:#8EA5BD">и подготовка предложений к следующему циклу — <span style="color:#2ED3F0">уже сейчас</span></p></div></div>
+<aside>[Спикер 4] И самое важное — как это касается нас. Новости с ВСЭК 2026 означают, что правила игры меняются: приоритет смещается в сторону гибких и устойчивых решений. Для нас это сигнал к пересмотру внутренней стратегии: нужно инвестировать в накопители энергии и цифровые двойники сетей. Если мы не встроимся в новые стандарты, которые будут заданы на этом собрании, мы рискуем оказаться за бортом глобальных цепочек. Поэтому предлагаю уже сейчас сформировать рабочую группу по мониторингу решений ВСЭК и подготовке предложений к следующему циклу.</aside>
+</section>
+<section class="slide" data-i="5" id="s-e-end" data-transition="fade" style="background:#06101C;color:#E9F1F8;font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:36px">
+<div data-deco style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(circle at 50% 120%, #12345A 0%, #06101C 60%)"></div>
+<svg data-deco aria-label="" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0.6"><defs><radialGradient id="gl"><stop offset="0" stop-color="#FFB21E" stop-opacity="0.85"/><stop offset="1" stop-color="#FFB21E" stop-opacity="0"/></radialGradient></defs><g stroke="#2ED3F0" stroke-opacity="0.35" stroke-width="1.6"><line x1="-85" y1="571" x2="154" y2="559"/><line x1="-85" y1="571" x2="-95" y2="650"/><line x1="-85" y1="571" x2="144" y2="637"/><line x1="154" y1="559" x2="326" y2="578"/><line x1="154" y1="559" x2="144" y2="637"/><line x1="326" y1="578" x2="575" y2="561"/><line x1="326" y1="578" x2="382" y2="652"/><line x1="756" y1="544" x2="922" y2="552"/><line x1="756" y1="544" x2="727" y2="686"/><line x1="756" y1="544" x2="956" y2="663"/><line x1="922" y1="552" x2="956" y2="663"/><line x1="1170" y1="534" x2="1390" y2="544"/><line x1="1390" y1="544" x2="1552" y2="533"/><line x1="1390" y1="544" x2="1344" y2="632"/><line x1="1552" y1="533" x2="1600" y2="644"/><line x1="1814" y1="574" x2="2009" y2="567"/><line x1="1814" y1="574" x2="2016" y2="684"/><line x1="2009" y1="567" x2="2016" y2="684"/><line x1="-95" y1="650" x2="144" y2="637"/><line x1="144" y1="637" x2="382" y2="652"/><line x1="382" y1="652" x2="526" y2="679"/><line x1="382" y1="652" x2="319" y2="759"/><line x1="526" y1="679" x2="577" y2="742"/><line x1="727" y1="686" x2="788" y2="783"/><line x1="727" y1="686" x2="953" y2="752"/><line x1="956" y1="663" x2="1152" y2="659"/><line x1="1152" y1="659" x2="1344" y2="632"/><line x1="1152" y1="659" x2="1406" y2="753"/><line x1="1344" y1="632" x2="1406" y2="753"/><line x1="1600" y1="644" x2="1797" y2="643"/><line x1="1600" y1="644" x2="1536" y2="736"/><line x1="1797" y1="643" x2="2016" y2="684"/><line x1="1797" y1="643" x2="1793" y2="790"/><line x1="150" y1="774" x2="319" y2="759"/><line x1="150" y1="774" x2="123" y2="867"/><line x1="319" y1="759" x2="528" y2="840"/><line x1="577" y1="742" x2="788" y2="783"/><line x1="577" y1="742" x2="528" y2="840"/><line x1="1406" y1="753" x2="1335" y2="879"/><line x1="1793" y1="790" x2="1980" y2="759"/><line x1="1793" y1="790" x2="1790" y2="871"/><line x1="1980" y1="759" x2="2010" y2="887"/><line x1="-56" y1="875" x2="123" y2="867"/><line x1="-56" y1="875" x2="-67" y2="989"/><line x1="-56" y1="875" x2="179" y2="965"/><line x1="123" y1="867" x2="352" y2="867"/><line x1="352" y1="867" x2="528" y2="840"/><line x1="352" y1="867" x2="377" y2="959"/><line x1="528" y1="840" x2="543" y2="945"/><line x1="948" y1="866" x2="927" y2="978"/><line x1="1149" y1="836" x2="1185" y2="959"/><line x1="1335" y1="879" x2="1593" y2="852"/><line x1="1335" y1="879" x2="1394" y2="933"/><line x1="1593" y1="852" x2="1790" y2="871"/><line x1="1790" y1="871" x2="2010" y2="887"/><line x1="1790" y1="871" x2="1770" y2="940"/><line x1="2010" y1="887" x2="1947" y2="950"/><line x1="-67" y1="989" x2="179" y2="965"/><line x1="-67" y1="989" x2="-30" y2="1089"/><line x1="-67" y1="989" x2="163" y2="1059"/><line x1="179" y1="965" x2="163" y2="1059"/><line x1="377" y1="959" x2="554" y2="1074"/><line x1="543" y1="945" x2="785" y2="940"/><line x1="543" y1="945" x2="554" y2="1074"/><line x1="785" y1="940" x2="720" y2="1043"/><line x1="785" y1="940" x2="986" y2="1078"/><line x1="927" y1="978" x2="1185" y2="959"/><line x1="927" y1="978" x2="986" y2="1078"/><line x1="1185" y1="959" x2="1394" y2="933"/><line x1="1394" y1="933" x2="1554" y2="947"/><line x1="1554" y1="947" x2="1770" y2="940"/><line x1="1554" y1="947" x2="1599" y2="1048"/><line x1="1554" y1="947" x2="1779" y2="1047"/><line x1="1770" y1="940" x2="1947" y2="950"/><line x1="1770" y1="940" x2="1779" y2="1047"/><line x1="163" y1="1059" x2="329" y2="1088"/><line x1="163" y1="1059" x2="108" y2="1166"/><line x1="163" y1="1059" x2="359" y2="1181"/><line x1="554" y1="1074" x2="720" y2="1043"/><line x1="554" y1="1074" x2="558" y2="1145"/><line x1="720" y1="1043" x2="986" y2="1078"/><line x1="986" y1="1078" x2="991" y2="1138"/><line x1="1193" y1="1066" x2="1362" y2="1065"/><line x1="1193" y1="1066" x2="1133" y2="1136"/><line x1="1362" y1="1065" x2="1332" y2="1157"/><line x1="1362" y1="1065" x2="1545" y2="1182"/><line x1="1599" y1="1048" x2="1779" y2="1047"/><line x1="1599" y1="1048" x2="1788" y2="1138"/><line x1="1779" y1="1047" x2="2000" y2="1031"/><line x1="1779" y1="1047" x2="1788" y2="1138"/><line x1="1779" y1="1047" x2="1983" y2="1149"/><line x1="2000" y1="1031" x2="1983" y2="1149"/><line x1="359" y1="1181" x2="558" y2="1145"/><line x1="558" y1="1145" x2="749" y2="1188"/><line x1="991" y1="1138" x2="1133" y2="1136"/><line x1="1133" y1="1136" x2="1332" y2="1157"/><line x1="1788" y1="1138" x2="1983" y2="1149"/></g><g fill="#2ED3F0" fill-opacity="0.7"><circle cx="154" cy="559" r="3.5"/><circle cx="326" cy="578" r="3.5"/><circle cx="756" cy="544" r="3.5"/><circle cx="922" cy="552" r="3.5"/><circle cx="1170" cy="534" r="3.5"/><circle cx="1390" cy="544" r="3.5"/><circle cx="1552" cy="533" r="3.5"/><circle cx="1814" cy="574" r="3.5"/><circle cx="2009" cy="567" r="3.5"/><circle cx="-95" cy="650" r="3.5"/><circle cx="144" cy="637" r="3.5"/><circle cx="382" cy="652" r="3.5"/><circle cx="526" cy="679" r="3.5"/><circle cx="727" cy="686" r="3.5"/><circle cx="956" cy="663" r="3.5"/><circle cx="1152" cy="659" r="3.5"/><circle cx="1344" cy="632" r="3.5"/><circle cx="1600" cy="644" r="3.5"/><circle cx="1797" cy="643" r="3.5"/><circle cx="2016" cy="684" r="3.5"/><circle cx="-41" cy="776" r="3.5"/><circle cx="150" cy="774" r="3.5"/><circle cx="319" cy="759" r="3.5"/><circle cx="788" cy="783" r="3.5"/><circle cx="953" cy="752" r="3.5"/><circle cx="1160" cy="753" r="3.5"/><circle cx="1406" cy="753" r="3.5"/><circle cx="1536" cy="736" r="3.5"/><circle cx="1793" cy="790" r="3.5"/><circle cx="1980" cy="759" r="3.5"/><circle cx="-56" cy="875" r="3.5"/><circle cx="123" cy="867" r="3.5"/><circle cx="352" cy="867" r="3.5"/><circle cx="528" cy="840" r="3.5"/><circle cx="744" cy="886" r="3.5"/><circle cx="948" cy="866" r="3.5"/><circle cx="1149" cy="836" r="3.5"/><circle cx="1335" cy="879" r="3.5"/><circle cx="1593" cy="852" r="3.5"/><circle cx="2010" cy="887" r="3.5"/><circle cx="-67" cy="989" r="3.5"/><circle cx="179" cy="965" r="3.5"/><circle cx="377" cy="959" r="3.5"/><circle cx="543" cy="945" r="3.5"/><circle cx="785" cy="940" r="3.5"/><circle cx="1185" cy="959" r="3.5"/><circle cx="1394" cy="933" r="3.5"/><circle cx="1770" cy="940" r="3.5"/><circle cx="1947" cy="950" r="3.5"/><circle cx="163" cy="1059" r="3.5"/><circle cx="329" cy="1088" r="3.5"/><circle cx="554" cy="1074" r="3.5"/><circle cx="720" cy="1043" r="3.5"/><circle cx="986" cy="1078" r="3.5"/><circle cx="1193" cy="1066" r="3.5"/><circle cx="1362" cy="1065" r="3.5"/><circle cx="1599" cy="1048" r="3.5"/><circle cx="1779" cy="1047" r="3.5"/><circle cx="2000" cy="1031" r="3.5"/><circle cx="-46" cy="1187" r="3.5"/><circle cx="108" cy="1166" r="3.5"/><circle cx="359" cy="1181" r="3.5"/><circle cx="558" cy="1145" r="3.5"/><circle cx="749" cy="1188" r="3.5"/><circle cx="991" cy="1138" r="3.5"/><circle cx="1133" cy="1136" r="3.5"/><circle cx="1332" cy="1157" r="3.5"/><circle cx="1788" cy="1138" r="3.5"/><circle cx="1983" cy="1149" r="3.5"/></g><circle cx="-85" cy="571" r="22" fill="url(#gl)"/><circle cx="-85" cy="571" r="6" fill="#FFB21E"/><circle cx="575" cy="561" r="22" fill="url(#gl)"/><circle cx="575" cy="561" r="6" fill="#FFB21E"/><circle cx="577" cy="742" r="22" fill="url(#gl)"/><circle cx="577" cy="742" r="6" fill="#FFB21E"/><circle cx="1790" cy="871" r="22" fill="url(#gl)"/><circle cx="1790" cy="871" r="6" fill="#FFB21E"/><circle cx="927" cy="978" r="22" fill="url(#gl)"/><circle cx="927" cy="978" r="6" fill="#FFB21E"/><circle cx="1554" cy="947" r="22" fill="url(#gl)"/><circle cx="1554" cy="947" r="6" fill="#FFB21E"/><circle cx="-30" cy="1089" r="22" fill="url(#gl)"/><circle cx="-30" cy="1089" r="6" fill="#FFB21E"/><circle cx="1545" cy="1182" r="22" fill="url(#gl)"/><circle cx="1545" cy="1182" r="6" fill="#FFB21E"/></svg>
+<p style="font-size:26px;font-weight:600;letter-spacing:6px;color:#2ED3F0;margin-top:120px">ВСЭК 2026</p>
+<h1 data-build-in="rise order 1 auto" style="font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;font-size:150px;font-weight:900;line-height:1;letter-spacing:-5px;color:#E9F1F8">Спасибо<br>за внимание</h1>
+<p data-build-in="fade order 2 auto" style="font-size:40px;font-weight:700;letter-spacing:1px;color:#E9F1F8"><span style="color:#2ED3F0">Контекст</span> <span style="color:#1C3350">→</span> <span style="color:#FFB21E">Повестка</span> <span style="color:#1C3350">→</span> <span style="color:#3DDC97">Решения</span> <span style="color:#1C3350">→</span> <span style="color:#A78BFA">Действия</span></p>
+<p data-build-in="fade order 3 auto" style="font-family:'Lora', Georgia, serif;font-style:italic;font-size:40px;color:#FFB21E">Готовы ответить на вопросы</p>
+<aside>[Спикер 4] Спасибо за внимание. Мы готовы ответить на ваши вопросы.</aside>
+</section>
+</div></div>
+<div id="feed"></div>
+
+<div id="tools" class="ui">
+  <a class="btn" href="prezent-menu.html" title="К выбору доклада">← Доклады</a>
+  <button class="btn" id="mode" type="button">Лента</button>
+  <button class="btn" id="fs" type="button" title="Полный экран (F)">⛶</button>
+</div>
+<div id="count" class="ui"></div>
+<div id="bar"></div>
+<div id="notes"></div>
+<div id="lock" class="show wait"><div class="box"><h2><span class="dot"></span><span id="lockt">Подключение…</span></h2><div id="lockd">Проверяю, не открыта ли презентация на другом устройстве.</div><button id="lockbtn" type="button" style="display:none;margin-top:18px;appearance:none;border:none;background:#2B4E8C;color:#fff;font:600 16px Rubik,Arial,sans-serif;padding:12px 20px;border-radius:999px;cursor:pointer">Подключиться снова</button></div></div>
+<div id="netw"></div>
+<div id="hint">→ / пробел / тап справа — дальше<br>← / тап слева — назад · F — полный экран · N — заметки</div>
+
+<script>
+(function(){
+const stage=document.getElementById('stage');
+const S=[...stage.querySelectorAll('.slide')];
+const N=S.length;
+const feed=document.getElementById('feed');
+const body=document.body;
+let cur=-1,busy=false,manual=null,feedBuilt=false;
+
+/* ---------- scaling ---------- */
+function fit(){
+  const w=document.documentElement.clientWidth||innerWidth,h=innerHeight,s=Math.min(w/1920,h/1080);
+  stage.style.transform=`translate(${-960*s}px,${-540*s}px) scale(${s})`;
+  if(feedBuilt) feed.style.zoom=Math.min(1,(w-24)/720);
+}
+
+/* ---------- builds ---------- */
+const BS='[data-build-in],[data-step]';
+function parseB(el){if(el.hasAttribute('data-step'))return{k:el.dataset.step||'pop',o:90,click:true};const t=(el.getAttribute('data-build-in')||'fade').split(/\s+/);let o=1;const i=t.indexOf('order');if(i>=0)o=+t[i+1]||1;return{k:t[0],o,click:!t.includes('auto')}}
+function arm(root){root.querySelectorAll(BS).forEach(el=>{const{k}=parseB(el);el.classList.remove('run');el.classList.add('pre','k-'+k)})}
+function show(el){el.classList.add('run');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('pre')));if(el.tagName==='TR'){el.classList.add('flash')}}
+function play(root,base,all){
+  [...root.querySelectorAll(BS)].forEach(el=>{const{o,click}=parseB(el);if(click&&!all)return;setTimeout(()=>show(el),(base||0)+(all&&click?0:(o-1)*380))});
+}
+function reveal(root,onlyAuto){root.querySelectorAll(BS).forEach(el=>{if(onlyAuto&&parseB(el).click)return;el.classList.remove('pre','run')})}
+function nextClick(root){const c=[...root.querySelectorAll(BS)].filter(el=>el.classList.contains('pre')&&parseB(el).click).sort((a,b)=>parseB(a).o-parseB(b).o);return c[0]||null}
+
+/* ---------- site effects (present mode only) ---------- */
+const FX={
+  's-approval':s=>{
+    const bars=[...s.querySelectorAll('[data-bar]')];
+    bars.forEach((b,i)=>{const last=i===bars.length-1,d=350+i*110+(last?450:0);
+      b.style.transformOrigin='50% 100%';
+      b.animate([{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:last?900:650,delay:d,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});
+      const lab=b.previousElementSibling,dat=b.nextElementSibling;
+      [lab,dat].forEach(x=>x&&x.animate([{opacity:0},{opacity:1}],{duration:400,delay:d+250,fill:'backwards'}));});
+    const n=s.querySelector('[data-count]');if(n){const from=+n.dataset.count,to=parseInt(n.textContent),t0=performance.now()+500,dur=4500;
+      n.textContent=from+'%';const tick=now=>{const k=Math.min(1,Math.max(0,(now-t0)/dur)),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;n.textContent=Math.round(from+(to-from)*e)+'%';if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+  },
+  's-court':s=>{
+    const p=s.querySelector('[data-split]');if(!p)return;
+    if(!p.dataset.done){p.innerHTML='<span style="display:inline-block">6</span><span style="display:inline-block">:</span><span style="display:inline-block">3</span>';p.dataset.done=1}
+    const [a,c,b]=p.children;
+    a.animate([{transform:'translateX(-260px)',opacity:0},{transform:'none',opacity:1}],{duration:900,delay:250,easing:'cubic-bezier(.2,.9,.2,1)',fill:'backwards'});
+    b.animate([{transform:'translateX(260px)',opacity:0},{transform:'none',opacity:1}],{duration:900,delay:250,easing:'cubic-bezier(.2,.9,.2,1)',fill:'backwards'});
+    c.animate([{opacity:0,transform:'scale(.3)'},{opacity:1,transform:'none'}],{duration:500,delay:950,easing:'cubic-bezier(.3,1.6,.5,1)',fill:'backwards'});
+  }
+};
+function kbWrap(){S.forEach(s=>s.querySelectorAll('img[data-kb]').forEach(img=>{const w=document.createElement('div');w.className='kbwrap';w.style.position='absolute';['left','top','width','height'].forEach(k=>w.style[k]=img.style[k]);img.parentNode.insertBefore(w,img);w.appendChild(img);
+  // move build to wrapper so fade still plays
+  w.setAttribute('data-build-in',img.getAttribute('data-build-in'));img.removeAttribute('data-build-in')}))}
+
+/* ---------- transitions ---------- */
+const DUR=750;
+function anim(el,frames,dur,ease){return el.animate(frames,{duration:dur||DUR,easing:ease||'cubic-bezier(.65,0,.35,1)',fill:'none'})}
+function toStage(r){const sr=stage.getBoundingClientRect(),s=sr.width/1920;return{x:(r.left-sr.left)/s,y:(r.top-sr.top)/s,w:r.width/s,h:r.height/s}}
+function rectIn(el){return toStage(el.getBoundingClientRect())}
+function glyph(el){const r=document.createRange();r.selectNodeContents(el);return toStage(r.getBoundingClientRect())}
+
+function go(n,instant){
+  if(n<0||n>=N||n===cur||busy)return;
+  const prev=cur>=0?S[cur]:null,next=S[n],fwd=n>cur;
+  let type=prev?(fwd?prev.dataset.transition:next.dataset.transition)||'fade':'none';
+  if(instant)type='none';
+  next.classList.add('on');if(fwd||!prev){arm(next)}else{reveal(next)}
+  if(fwd&&FX[next.id])FX[next.id](next);
+  cur=n;ui();
+  try{history.replaceState(null,'','#'+(n+1))}catch(e){}
+  if(!prev||type==='none'){S.forEach(x=>{if(x!==next)x.classList.remove('on')});play(next,150);return}
+  busy=true;
+  const done=()=>{prev.classList.remove('on');prev.style.zIndex='';next.style.zIndex='';busy=false};
+  next.style.zIndex=2;prev.style.zIndex=1;
+  if(type==='push'){
+    anim(next,[{transform:`translateX(${fwd?100:-100}%)`},{transform:'translateX(0)'}]);
+    anim(prev,[{transform:'translateX(0)'},{transform:`translateX(${fwd?-100:100}%)`}]).onfinish=done;
+    play(next,DUR*0.6);
+  }else if(type==='magic'){
+    const pairs=[...next.querySelectorAll('[data-magic]')].map(b=>[prev.querySelector(`[data-magic="${b.dataset.magic}"]`),b]).filter(p=>p[0]);
+    const rs=pairs.map(([a,b])=>[glyph(a),glyph(b),rectIn(b),getComputedStyle(a).opacity,getComputedStyle(b).opacity]);
+    anim(next,[{opacity:0},{opacity:1}],900);
+    anim(prev,[{opacity:1},{opacity:0}],900).onfinish=done;
+    pairs.forEach(([a,b],i)=>{const[ga,gb,eb,oa,ob]=rs[i];const k=ga.h/gb.h;
+      b.style.transformOrigin=`${gb.x-eb.x}px ${gb.y-eb.y}px`;
+      anim(b,[{transform:`translate(${ga.x-gb.x}px,${ga.y-gb.y}px) scale(${k})`,opacity:oa},{transform:'translate(0,0) scale(1)',opacity:ob}],1000,'cubic-bezier(.7,0,.2,1)');
+      a.style.visibility='hidden';setTimeout(()=>a.style.visibility='',1000)});
+    play(next,500);
+  }else{
+    anim(next,[{opacity:0},{opacity:1}]);
+    anim(prev,[{opacity:1},{opacity:0}]).onfinish=done;
+    play(next,DUR*0.5);
+  }
+}
+function step(d){
+  if(busy)return;
+  if(d>0&&cur>=0){
+    const cs=S[cur];
+    const pendAuto=[...cs.querySelectorAll(BS)].some(el=>el.classList.contains('pre')&&!parseB(el).click);
+    if(pendAuto){reveal(cs,true);return}
+    const nc=nextClick(cs);if(nc){show(nc);return}
+  }
+  go(cur+d);
+}
+/* ---------- ui ---------- */
+const count=document.getElementById('count'),bar=document.getElementById('bar'),notes=document.getElementById('notes');
+function ui(){count.textContent=(cur+1)+' / '+N;bar.style.width=((cur+1)/N*100)+'%';const a=S[cur].querySelector('aside');notes.textContent=a?a.textContent:'';}
+let idleT;function wake(){body.classList.remove('idle');clearTimeout(idleT);if(!body.classList.contains('feedmode'))idleT=setTimeout(()=>body.classList.add('idle'),2600)}
+['mousemove','touchstart','keydown'].forEach(e=>addEventListener(e,wake,{passive:true}));
+
+addEventListener('keydown',e=>{
+  if(body.classList.contains('feedmode')||lockEl.classList.contains('show'))return;
+  const k=e.key;
+  if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(k)){e.preventDefault();step(1)}
+  else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(k)){e.preventDefault();step(-1)}
+  else if(k==='Home')go(0,true);else if(k==='End')go(N-1,true);
+  else if(k==='f'||k==='F'||k==='а'||k==='А')fsToggle();
+  else if(k==='n'||k==='N'||k==='т'||k==='Т')notes.classList.toggle('show');
+});
+stage.addEventListener('click',e=>{if(body.classList.contains('feedmode'))return;step(e.clientX<innerWidth*0.3?-1:1)});
+let tx=null,ty=null;
+addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+addEventListener('touchend',e=>{if(tx===null||body.classList.contains('feedmode'))return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){e.preventDefault();step(dx<0?1:-1)}tx=null},{passive:false});
+
+function fsToggle(){const d=document;if(!d.fullscreenElement&&!d.webkitFullscreenElement){(d.documentElement.requestFullscreen||d.documentElement.webkitRequestFullscreen||function(){}).call(d.documentElement)}else{(d.exitFullscreen||d.webkitExitFullscreen).call(d)}}
+document.getElementById('fs').onclick=e=>{e.stopPropagation();fsToggle()};
+document.getElementById('mode').onclick=e=>{e.stopPropagation();manual=body.classList.contains('feedmode')?'present':'feed';setMode(manual)};
+
+/* ---------- feed (phone) ---------- */
+function px(v){return parseFloat(v)||0}
+function buildFeed(){
+  S.forEach((src,i)=>{
+    const s=src.cloneNode(true);s.removeAttribute('id');s.classList.remove('on');s.style.visibility='visible';
+    s.querySelectorAll('aside,[data-magic],[data-deco]').forEach(x=>x.remove());
+    s.querySelectorAll('[data-bg]').forEach(x=>{s.style.background=x.style.background;x.remove()});
+    s.style.display='flex';s.style.flexDirection='column';s.style.alignItems='stretch';
+    s.querySelectorAll('*').forEach(el=>{
+      const st=el.style;if(!st)return;
+      if(st.position==='absolute'){st.position='static';st.left=st.top=st.right=st.bottom='';st.transform='';if(el.tagName!=='IMG'&&!el.hasAttribute('data-bar'))st.width='';}
+      if(el.tagName==='IMG'){st.width='100%';st.height='440px';st.borderRadius='18px';st.objectFit='cover';st.objectPosition='50% 35%'}
+      if(px(st.width)>600&&el.tagName!=='IMG')st.width='';
+      if(px(st.height)>300&&!el.hasAttribute('data-bar')&&el.tagName!=='IMG')st.height='';
+      if(el.hasAttribute('data-bar')){st.width='100%';st.maxWidth='44px';st.height=Math.round(px(st.height)*0.62)+'px'}
+      if(st.display==='flex'&&!el.hasAttribute('data-keeprow')&&(st.flexDirection===''||st.flexDirection==='row')){st.flexDirection='column';if(px(st.gap)>32)st.gap='24px'}
+      if(el.hasAttribute('data-keeprow')&&px(st.gap)>24)st.gap='14px';
+      if(st.display==='grid'){st.gridTemplateColumns='1fr';st.gap='18px'}
+      if(st.width==='560px')st.width='';
+      const fs=px(st.fontSize);if(fs){const len=(el.textContent||'').trim().length;const cap=len<=6?170:(len<=30?96:84);if(fs>cap)st.fontSize=cap+'px';}
+      if(st.textAlign==='right')st.textAlign='left';
+    });
+    // tables a bit smaller
+    s.querySelectorAll('table').forEach(t=>t.style.fontSize='20px');
+    const card=document.createElement('div');card.className='card';
+    const num=document.createElement('div');num.className='num';num.textContent=(i+1)+' / '+N;
+    s.appendChild(num);card.appendChild(s);feed.appendChild(card);
+    arm(s);
+  });
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){play(en.target,120,true);io.unobserve(en.target)}}),{threshold:.25});
+  feed.querySelectorAll('.slide').forEach(s=>io.observe(s));
+  feedBuilt=true;fit();
+}
+
+function setMode(m){
+  const f=m==='feed';
+  body.classList.toggle('feedmode',f);
+  document.getElementById('mode').textContent=f?'Показ':'Лента';
+  if(f){if(!feedBuilt)buildFeed();body.classList.remove('idle');
+    const c=feed.children[Math.max(cur,0)];if(c)setTimeout(()=>c.scrollIntoView({block:'start'}),30)}
+  else{wake()}
+  fit();
+}
+function auto(){if(manual)return;const want=innerWidth<innerHeight&&innerWidth<900?'feed':'present';if(body.classList.contains('feedmode')!==(want==='feed'))setMode(want)}
+addEventListener('resize',()=>{fit();auto()});
+
+
+/* ---------- одно устройство + пульт ---------- */
+const FB='https://arabic-819da-default-rtdb.firebaseio.com',PATH=FB+'/config/prezent_energy';
+let me='';try{me=localStorage.getItem('pz_dev')||'';if(!me){me='d'+Math.random().toString(36).slice(2,10);localStorage.setItem('pz_dev',me)}}catch(e){me='d'+Math.random().toString(36).slice(2,10)}
+let ST={},off=0,mine=false,lastCmd=null,started=false,kickedLocal=false;
+const DEVL=(()=>{const u=navigator.userAgent;const os=/iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac OS X|Macintosh/.test(u)?'Mac':/Linux/.test(u)?'Linux':'устройство';const br=/YaBrowser/.test(u)?'Яндекс Браузер':/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/Firefox\//.test(u)?'Firefox':/Chrome\//.test(u)?'Chrome':/Safari\//.test(u)?'Safari':'браузер';return os+' · '+br})();
+const lockEl=document.getElementById('lock'),lockT=document.getElementById('lockt'),lockD=document.getElementById('lockd'),netw=document.getElementById('netw');
+const FRESH=25000;window.__pz=()=>({me,mine,ST:JSON.parse(JSON.stringify(ST)),off,cur});
+async function api(path,method,body,keep){const r=await fetch(PATH+path+'.json',{method:method||'GET',body:body===undefined?undefined:JSON.stringify(body),keepalive:!!keep,cache:'no-store'});if(!r.ok)throw new Error('db '+r.status);return r.json()}
+async function syncClock(){const t0=Date.now();const v=await fetch(FB+'/config/prezent_t.json',{method:'PUT',body:JSON.stringify({'.sv':'timestamp'})}).then(r=>r.json());off=v-(t0+Date.now())/2}
+const now=()=>Date.now()+off;
+function alive(st){return st&&st.owner&&st.hb&&now()-st.hb<FRESH}
+const lockBtn=document.getElementById('lockbtn');
+function block(title,desc,wait,btn){lockEl.classList.add('show');lockEl.classList.toggle('wait',!!wait);lockT.textContent=title;lockD.textContent=desc;lockBtn.style.display=btn?'inline-block':'none'}
+lockBtn.onclick=async()=>{kickedLocal=false;block('Подключение…','',true);try{ST=(await api(''))||{}}catch(e){}onState()};
+function unblock(){lockEl.classList.remove('show')}
+function clicksDone(){if(cur<0)return 0;return [...S[cur].querySelectorAll(BS)].filter(el=>parseB(el).click&&!el.classList.contains('pre')).length}
+let pubKey='';
+function publish(force){if(!mine)return;const k=cur+':'+clicksDone();if(!force&&k===pubKey)return;pubKey=k;api('','PATCH',{slide:cur,step:clicksDone(),hb:{'.sv':'timestamp'}}).catch(()=>{})}
+setInterval(()=>publish(false),250);
+setInterval(()=>{if(mine)api('','PATCH',{hb:{'.sv':'timestamp'}}).catch(()=>{})},8000);
+function runCmd(c){
+  if(!c||!c.id||c.id===lastCmd)return;lastCmd=c.id;if(!mine)return;
+  if(body.classList.contains('feedmode')){manual='present';setMode('present')}
+  const exec=()=>{if(busy){setTimeout(exec,120);return}
+    if(c.a==='next')step(1);else if(c.a==='prev')step(-1);else if(c.a==='go'&&typeof c.n==='number')go(c.n,false);
+    setTimeout(()=>publish(true),60)};
+  exec();
+}
+function applyEv(path,data){
+  if(path==='/'){ST=data||{};return}
+  const ks=path.split('/').filter(Boolean);let o=ST;
+  for(let i=0;i<ks.length-1;i++){if(typeof o[ks[i]]!=='object'||o[ks[i]]===null)o[ks[i]]={};o=o[ks[i]]}
+  if(data===null)delete o[ks[ks.length-1]];else o[ks[ks.length-1]]=data;
+}
+function onState(){
+  if(ST.kicked===me&&ST.owner!==me&&(mine||!kickedLocal)){mine=false;kickedLocal=true}
+  if(kickedLocal){block('Устройство отключено','Показ на этом устройстве отключили из пульта управления. Чтобы снова открыть презентацию здесь, нажмите кнопку.',false,true);return}
+  if(mine&&ST.owner!==me&&ST.owner){mine=false}
+  if(ST.owner&&ST.owner!==me&&alive(ST)){if(mine){mine=false}block('Презентация открыта на другом устройстве','Показ идёт с другого устройства. Одновременно презентацию можно открыть только на одном. Если то устройство закрыто, подождите полминуты: страница подключится сама.',true);return}
+  if(!mine){claim();return}
+  if(ST.cmd)runCmd(ST.cmd);
+}
+let claiming=false;
+async function claim(){
+  if(claiming||kickedLocal)return;claiming=true;
+  try{
+    const pre=(await api(''))||{};if(pre.owner&&pre.owner!==me&&alive(pre)){ST=pre;claiming=false;onState();return}
+    await api('','PATCH',{owner:me,dev:DEVL,kicked:null,hb:{'.sv':'timestamp'},slide:Math.max(cur,0),step:clicksDone()});
+    await new Promise(r=>setTimeout(r,700));
+    const st=await api('');
+    if(st&&st.owner===me){mine=true;ST=st;lastCmd=st.cmd&&st.cmd.id;unblock();publish(true)}
+    else{ST=st||{};onState()}
+  }catch(e){}finally{claiming=false}
+}
+function listen(){
+  let es=null,poll=null,fails=0;
+  const startPoll=()=>{if(poll)return;poll=setInterval(async()=>{try{ST=(await api(''))||{};netw.style.display='none';onState()}catch(e){netw.textContent='Нет связи с сервером — пульт временно не работает';netw.style.display='block'}},1500)};
+  try{
+    es=new EventSource(PATH+'.json');
+    es.addEventListener('put',e=>{const d=JSON.parse(e.data);applyEv(d.path,d.data);netw.style.display='none';fails=0;onState()});
+    es.addEventListener('patch',e=>{const d=JSON.parse(e.data);for(const k in d.data)applyEv((d.path==='/'?'':d.path)+'/'+k,d.data[k]);onState()});
+    es.onerror=()=>{fails++;if(fails>3){es.close();startPoll()}};
+  }catch(e){startPoll()}
+  setInterval(()=>{if(!mine&&!kickedLocal&&!alive(ST))claim()},5000);
+}
+async function initSync(){
+  const failOpen=setTimeout(()=>{if(!mine&&!(ST.owner&&ST.owner!==me)){unblock();netw.textContent='Сервер недоступен — показ без пульта';netw.style.display='block'}},5000);
+  try{await syncClock();ST=(await api(''))||{};lastCmd=ST.cmd&&ST.cmd.id;
+    if(ST.owner&&ST.owner!==me&&alive(ST)){clearTimeout(failOpen);onState()}
+    else{await claim();clearTimeout(failOpen)}
+  }catch(e){}
+  listen();
+}
+addEventListener('pagehide',()=>{if(mine){try{fetch(PATH+'.json',{method:'PATCH',keepalive:true,body:JSON.stringify({owner:null})})}catch(e){}}});
+
+/* ---------- start ---------- */
+kbWrap();fit();
+const h=parseInt((location.hash||'').slice(1));
+go(h>=1&&h<=N?h-1:0);
+auto();
+if(!body.classList.contains('feedmode')){const hint=document.getElementById('hint');setTimeout(()=>hint.classList.add('show'),900);setTimeout(()=>hint.classList.remove('show'),4200)}
+wake();
+initSync();
+})();
+</script>
+</body>
+</html>

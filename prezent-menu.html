@@ -18,7 +18,7 @@ if(new URLSearchParams(location.search).get('panel')){
   const l=document.createElement('link');l.rel='manifest';l.href='pult.webmanifest';document.head.appendChild(l);
 }
 </script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Rubik:wght@400;500;600&family=Rubik+Dirt&family=Unbounded:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Rubik:wght@400;500;600&family=Rubik+Dirt&family=Unbounded:wght@700;800&family=Inter:wght@800&display=swap">
 <style>
 :root{--bg:#0B111C;--ink:#F2EEE6;--mut:#9AA6BA;--line:rgba(242,238,230,.12)}
 *{box-sizing:border-box}
@@ -44,6 +44,7 @@ h1{font:700 clamp(40px,7vw,72px)/1 'Oswald',Arial,sans-serif;margin:0}
 .who{font-size:15px;color:#D4D9E2}
 .card{cursor:pointer}.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.go{color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px}.go.alt{background:rgba(242,238,230,.14)!important;border:1px solid rgba(242,238,230,.35)}.go:focus-visible{outline:3px solid #E8B84A;outline-offset:2px}
 .trump .go{background:#2B4E8C}.kartel .go{background:#E5007D}
+.energy{background:#06101C}.energy .num{color:#2ED3F0}.energy .t{font:800 36px/1.05 'Inter','Rubik',Arial,sans-serif;letter-spacing:-.5px}.energy .t span{color:#FFB21E}.energy .go{background:#0B7FA0}
 @media (prefers-reduced-motion:reduce){.card,.card img{transition:none}}
 </style>
 </head>
@@ -60,11 +61,15 @@ h1{font:700 clamp(40px,7vw,72px)/1 'Oswald',Arial,sans-serif;margin:0}
       <img src="prezent-kartel.jpg" alt="">
       <div class="in"><span class="num">Доклад 02</span><h2 class="t">Картели: Медельин и Лос-Сетас</h2><span class="who">Тучнин Дмитрий · Рыбаков Егор</span><span class="acts"><a class="go" id="g2" href="prezent-kartel.html">Открыть →</a></span></div>
     </div>
+    <div class="card energy" id="c3" data-href="prezent-energy.html" data-prep="prezent-prep.html?d=energy">
+      <img src="prezent-energy.jpg" alt="">
+      <div class="in"><span class="num">Доклад 03</span><h2 class="t">ВСЭК <span>2026</span>: от деклараций к сценариям</h2><span class="who">Спикеры 1–4</span><span class="acts"><a class="go" id="g3" href="prezent-energy.html">Открыть →</a></span></div>
+    </div>
   </div>
 </div>
 <script>
 const panel=!!new URLSearchParams(location.search).get('panel');
-const PANEL={c1:'prezent-panel.html',c2:'prezent-kartel-panel.html'};
+const PANEL={c1:'prezent-panel.html',c2:'prezent-kartel-panel.html',c3:'prezent-energy-panel.html'};
 document.querySelectorAll('.card').forEach(c=>{
   const main=c.querySelector('.go');
   if(panel){

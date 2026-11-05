@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B111C">
 <title>Подготовка к докладу</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300..700&family=Rubik:wght@300..700&family=Rubik+Dirt&family=Unbounded:wght@400..900&family=Fira+Sans+Condensed:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300..700&family=Rubik:wght@300..700&family=Rubik+Dirt&family=Unbounded:wght@400..900&family=Fira+Sans+Condensed:wght@400;600;800&family=Inter:wght@400..900&family=Lora:ital,wght@1,400..600&display=swap">
 <style>
 :root{--bg:#0B111C;--card:#141D2E;--line:rgba(242,238,230,.12);--ink:#F2EEE6;--mut:#9AA6BA;--acc:#E8B84A;--me:#1F2D47}
 *{box-sizing:border-box}
@@ -50,6 +50,13 @@ body.big .blk{font-size:21px}
 .slide th{font-weight:600}
 .slide aside{display:none}
 .slide img{display:block}
+x-icon{display:inline-block;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+x-icon[name="Lock"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8 11V7a4 4 0 0 1 8 0v4'/></svg>")}
+x-icon[name="Link"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/><path d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/></svg>")}
+x-icon[name="Globe"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/></svg>")}
+x-icon[name="Lightning"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M13 2 4 14h7l-1 8 9-12h-7z'/></svg>")}
+x-icon[name="Activity"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12h4l3-8 4 16 3-8h4'/></svg>")}
+x-icon[name="Warning"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3 2 21h20z'/><path d='M12 10v5M12 18h0'/></svg>")}
 .slide>:not([style*="position:absolute"]):not(aside){position:relative}
 </style>
 </head>
@@ -68,7 +75,7 @@ body.big .blk{font-size:21px}
 <main id="list"></main>
 <script>
 (function(){
-const DECKS={trump:{file:'prezent-panel.html',title:'Трамп: институты и личность'},kartel:{file:'prezent-kartel-panel.html',title:'Картели: Медельин и Лос-Сетас'}};
+const DECKS={trump:{file:'prezent-panel.html',title:'Трамп: институты и личность'},kartel:{file:'prezent-kartel-panel.html',title:'Картели: Медельин и Лос-Сетас'},energy:{file:'prezent-energy-panel.html',title:'ВСЭК 2026'}};
 const q=new URLSearchParams(location.search),key=DECKS[q.get('d')]?q.get('d'):'trump',D=DECKS[key];
 const $=id=>document.getElementById(id);
 document.title='Подготовка · '+D.title;$('ttl').textContent=D.title;
