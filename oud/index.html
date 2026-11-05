@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
 <style>html,body{margin:0;height:100%;background:#15110d;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}body{font-family:Manrope,-apple-system,system-ui,sans-serif}.otoast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);box-sizing:border-box;background:#10c98a;color:#05251a;font:700 15px Manrope,sans-serif;padding:10px 10px 10px 18px;border-radius:24px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translate(-50%,100%);transition:opacity .4s ease,transform .4s ease}.otoast.on{opacity:1;transform:translate(-50%,0)}.otoast span{padding:4px 8px 4px 0}.otoast button{min-height:40px;padding:0 16px;border:0;border-radius:20px;background:#05251a;color:#fff;font:700 14px Manrope,sans-serif;-webkit-tap-highlight-color:transparent;transition:transform .16s cubic-bezier(.23,1,.32,1)}.otoast button:active{transform:scale(.97)}@media (prefers-reduced-motion:reduce){.otoast{transform:translate(-50%,0);transition:opacity .2s ease}}</style>
 </head><body>
-<script type="text/plain" id="app">/* Уд v238 — собрано из index.html скриптом oud/build.py, не правьте вручную */
-window.OUDV=238;
+<script type="text/plain" id="app">/* Уд v239 — собрано из index.html скриптом oud/build.py, не правьте вручную */
+window.OUDV=239;
 
 const D={};let me="oud";let DB=null;let HWAPI="";
 const ld=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
@@ -669,7 +669,7 @@ if(!m||!h.includes("window.OUDV="+nv+";"))return;new Function(m[1]);
 await otaPut({v:nv,html:h,at:Date.now()});oudToast("Готова новая версия Уда","Обновить",()=>location.reload())}catch(e){}}
 setTimeout(otaCheck,2500);window.addEventListener("online",()=>setTimeout(otaCheck,1500));
 </script>
-<script>(function(){var V=238;
+<script>(function(){var V=239;
 function run(){var s=document.createElement("script");s.textContent=document.getElementById("app").textContent;document.body.appendChild(s)}
 var app=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 if(!window.indexedDB){run();return}

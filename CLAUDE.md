@@ -27,4 +27,4 @@
 ## Проверка
 - Перед push загрузите страницу в браузере (playwright) и убедитесь, что нет ошибок `pageerror`.
 - Автономный курс для начинающих (учётки `kurs1`…`kurs3`) и анимация рука’а: исходники в `kurs/` (`kurs1-5.js`, `kurs.css`, `rqs.json`). В `index.html` вставляется между `/*KURS-BEGIN*/…/*KURS-END*/` и `/*KURS-CSS-BEGIN*/…/*KURS-CSS-END*/` командой `python3 kurs/apply.py` — правьте исходники в `kurs/`, а не сам блок в `index.html`.
-- Раздел «Срез 2: подготовка» и «1 том Яковенко» (2 курс): исходник `srez/sz2.js`, вставка в `index.html` между `/*SZ2-BEGIN*/…/*SZ2-END*/` командой `python3 srez/apply.py`.
+- Разделы «Срез 2: подготовка», «1 том Яковенко», «2 том Яковенко» (2 курс): исходники `srez/sz2.js`, `srez/tom2.js`, лексика 2 тома — `srez/tom2/u1..u6.txt` → `python3 srez/tom2/build.py` → `srez/t2data.js`, вставка в `index.html` между `/*SZ2-BEGIN*/…/*SZ2-END*/` командой `python3 srez/apply.py`.
