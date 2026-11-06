@@ -15,5 +15,6 @@ L.forEach((c,i)=>{const pc=c.w.length?Math.round(lrn(S,c)/c.w.length*100):0;mi("
 let sets=g==="t2_all"?T2ALL():T2L[+g.slice(3)];if(g!=="t2_all"&&k!=="")sets=[sets[+k]];const seen={},r=[];sets.forEach(c=>c.w.forEach(w=>{if(!seen[w.a]){seen[w.a]=1;r.push(w)}}));const q=nz($("dq").value.trim());return q?r.filter(w=>nzc(w.a).includes(q)||rlc(w.r).includes(q)):r}}
 
 /* Тексты 2 тома (srez/t2texts.js → T2X) в разделе «Тексты» 2 курса */
+if(typeof AU!=="undefined"&&typeof T2AU!=="undefined")Object.keys(T2AU).forEach(k=>{if(!AU[k])AU[k]=T2AU[k]});
 if(typeof TX!=="undefined"&&typeof T2X!=="undefined"){T2X.forEach(t=>{if(!TX.some(x=>x.k===t.k))TX.push(t)});
 if(typeof txtv==="function"){const _t2txtv=txtv;txtv=function(){_t2txtv.apply(this,arguments);try{const l=$("tml");if(!l)return;const tt=new Set(T2X.map(t=>t.t));const f=[...l.children].find(b=>{const x=b.querySelector("b");return x&&tt.has(x.textContent)});if(f){const h=document.createElement("h3");h.className="t2xh";h.innerHTML='2 том Яковенко <small class="ar2">الْجُزْءُ الثَّانِي</small>';h.style.margin="18px 4px 6px";l.insertBefore(h,f)}}catch(e){}}}}

@@ -3,6 +3,9 @@
 import re,json,os,sys
 R=os.path.dirname(os.path.abspath(__file__));sys.path.insert(0,R)
 from texts import T
+try:
+    from texts2 import T2;T=sorted(T+T2,key=lambda t:t['u'])
+except ImportError:pass
 H=re.compile(r'[ً-ْٰـ]')
 st=lambda w:H.sub('',w).replace('أ','ا').replace('إ','ا').replace('آ','ا').replace('ى','ي').replace('ة','ه')
 def pausal(w):
@@ -47,6 +50,11 @@ for l in open(os.path.join(R,'extra.txt'),encoding='utf8'):
         if ' ' not in k:lex[k]=(a.strip(),r.strip())
     k=st(a.strip())
     lex[k]=(a.strip(),r.strip())
+EX={}
+for l in open(os.path.join(R,'extra.txt'),encoding='utf8'):
+    if '|' in l:
+        a,r=l.rstrip('\n').rsplit('|',1)
+        if ' · ' not in a and ' ' not in a.strip():EX[a.strip()]=(a.strip(),r.strip())
 form={}
 for name in ['TW','TW4','TW6']:
     m=re.search(r'const '+name+r'=(\{.*?\});',src,re.S)
@@ -76,7 +84,7 @@ for t in T:
     S=segs(t['ar'])
     for s in S:
         ws=s[0].split()
-        if ws:
+        if ws and not t.get('np'):
             last=ws[-1];tail=''
             mm=re.match(r'^(.*?)([«»"()،:]*)$',last);last,tail=mm.group(1),mm.group(2)
             ws[-1]=pausal(last)+tail
@@ -96,6 +104,7 @@ for t in T:
             c=w.replace('،','').strip('«»():')
             if not c or c in tw:continue
             tot+=1
+            if c in EX:tw[c]=[EX[c][0],'',EX[c][1],1];continue
             F=form.get(st(c))
             if F:tw[c]=[F[0],F[1],F[2],0];continue
             L=look(c)
