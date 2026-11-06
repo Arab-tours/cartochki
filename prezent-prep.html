@@ -75,7 +75,7 @@ x-icon[name="Warning"]{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w
 <main id="list"></main>
 <script>
 (function(){
-const DECKS={trump:{file:'prezent-panel.html',title:'Трамп: институты и личность'},kartel:{file:'prezent-kartel-panel.html',title:'Картели: Медельин и Лос-Сетас'},energy:{file:'prezent-energy-panel.html',title:'ВСЭК 2026'}};
+const DECKS={trump:{file:'prezent-panel.html',title:'Трамп: институты и личность'},kartel:{file:'prezent-kartel-panel.html',title:'Картели: Медельин и Лос-Сетас'},energy:{file:'prezent-energy-panel.html',title:'8th GECF Summit 2026'}};
 const q=new URLSearchParams(location.search),key=DECKS[q.get('d')]?q.get('d'):'trump',D=DECKS[key];
 const $=id=>document.getElementById(id);
 document.title='Подготовка · '+D.title;$('ttl').textContent=D.title;
