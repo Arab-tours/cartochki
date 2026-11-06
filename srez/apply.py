@@ -2,7 +2,7 @@
 """Вставляет srez/sz2.js в index.html между /*SZ2-BEGIN*/ и /*SZ2-END*/ (идемпотентно) и правит меню home(). Запуск из корня: python3 srez/apply.py"""
 import os,re
 R=os.path.dirname(os.path.abspath(__file__));P=os.path.join(R,'..','index.html')
-s=open(P,encoding='utf8').read();js=open(os.path.join(R,'sz2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2data.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2texts.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2audio.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'tom2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'pp.js'),encoding='utf8').read()
+s=open(P,encoding='utf8').read();js=open(os.path.join(R,'sz2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2data.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2texts.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2audio.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'tom2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'pp.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'dial.js'),encoding='utf8').read()
 assert '</script' not in js.lower() and '</head>' not in js
 B,E='/*SZ2-BEGIN*/','/*SZ2-END*/';blk=B+'\n'+js+'\n'+E
 if B in s:i=s.index(B);j=s.index(E,i)+len(E);s=s[:i]+blk+s[j:]
