@@ -2,7 +2,7 @@
 """Вставляет srez/sz2.js в index.html между /*SZ2-BEGIN*/ и /*SZ2-END*/ (идемпотентно) и правит меню home(). Запуск из корня: python3 srez/apply.py"""
 import os,re
 R=os.path.dirname(os.path.abspath(__file__));P=os.path.join(R,'..','index.html')
-s=open(P,encoding='utf8').read();js=open(os.path.join(R,'sz2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2data.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2texts.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2audio.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'tom2.js'),encoding='utf8').read()
+s=open(P,encoding='utf8').read();js=open(os.path.join(R,'sz2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2data.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2texts.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'t2audio.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'tom2.js'),encoding='utf8').read()+'\n'+open(os.path.join(R,'pp.js'),encoding='utf8').read()
 assert '</script' not in js.lower() and '</head>' not in js
 B,E='/*SZ2-BEGIN*/','/*SZ2-END*/';blk=B+'\n'+js+'\n'+E
 if B in s:i=s.index(B);j=s.index(E,i)+len(E);s=s[:i]+blk+s[j:]
@@ -23,4 +23,7 @@ if 'cur&&cur.z2' not in s:
     assert s.count(bk)==1;s=s.replace(bk,bk+'if(cur&&cur.z2){cur===Z2W?srez2():z2list(cur);show("menu");return}')
 a1='mk(BK(),home);C.forEach'
 if a1 in s:s=s.replace(a1,'mk(BK(),()=>T1ON?tom1():home());C.forEach')
+h3='mi("tom2",U("٢","2 том Яковенко","хамзованные глаголы: слова уроков 1–6",""),tom2);'
+if h3 in s and 'mi("pp",U(' not in s:s=s.replace(h3,h3+'\nmi("pp",U("✎","Самостоятельная: полит. перевод","подчёркнутая лексика уроков 6–7",""),ppv);',1)
+if 'cur&&cur.pp' not in s and 'if(cur&&cur.t2){' in s:s=s.replace('if(cur&&cur.t2){','if(cur&&cur.pp){ppv();show("menu");return}if(cur&&cur.t2){',1)
 open(P,'w',encoding='utf8').write(s);print('ok',len(js),bool(old_home))
