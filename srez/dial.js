@@ -100,7 +100,7 @@ const dlVk=t=>{t=String(t||"").replace(/ـ/g,"").replace(/ٰ/g,"َ").replace(/^�
 const dlHead=a=>String(a||"").split(/\s[·(،/]|[·(،/…]/)[0].replace(/[«»"]/g,"").trim();
 const DLS={},DLV={};DLRAW.split("\n").forEach(l=>{let [h,g,e,v]=l.split("|");const strict=h[0]==="!";if(strict)h=h.slice(1);const o={h,g:(g||"").trim(),e:(e||"").trim(),l:(v||"").trim()};DLV[dlVk(h)]=o;if(!strict)DLS[dlSk(h)]=o});
 function dlFind(a){const h=dlHead(a);if(!h)return null;return DLV[dlVk(h)]||null}
-function dlGet(){try{if(S&&S.dl!=null)return S.dl}catch(e){}try{const v=localStorage.getItem("dl:"+me);if(v!=null)return v}catch(e){}return null}
+function dlGet(){try{if(S&&S.dl!=null)return S.dl}catch(e){}try{const v=localStorage.getItem("dl:"+me);if(v!=null){try{if(S&&S.dl==null){S.dl=v;save()}}catch(e){}return v}}catch(e){}return null}
 function dlSet(v){try{if(S){S.dl=v;save()}}catch(e){}try{localStorage.setItem("dl:"+me,v)}catch(e){}}
 function dlHTML(a){const k=dlGet();if(!k||k==="0"||!DLN[k])return"";const o=dlFind(a);if(!o||!o[k])return"";return`<div class="dlx"><span class="dln">${DLN[k]}:</span> <bdi class="ar">${esc(o[k])}</bdi></div>`}
 if(!document.getElementById("dlcss")){const st=document.createElement("style");st.id="dlcss";st.textContent=`
@@ -123,8 +123,8 @@ const cur0=dlGet(),ov=document.createElement("div");ov.className="dlov";ov.setAt
 const op=(k,t,s)=>`<button class="dlopt${k==="0"?" no":""}${cur0===k?" on":""}" data-k="${k}"><b>${t}</b>${s?`<small>${s}</small>`:""}</button>`;
 ov.innerHTML=`<div class="dlbox"><h3>Диалект — по желанию</h3><p>Это дополнительно: в карточках и словаре мелким шрифтом под словом появится, как оно звучит в выбранном диалекте, — только там, где диалект отличается от литературного языка. Учить это не обязательно.</p>
 <div class="dlex">Например, <bdi class="ar">الْآنَ</bdi> «сейчас» → халиджи <bdi class="ar">الْحِينْ</bdi>, египетский <bdi class="ar">دِلْوَقْتِي</bdi>, левантийский <bdi class="ar">هَلَّقْ</bdi></div>
-${op("g","Халиджи","страны Залива: ОАЭ, Кувейт, Катар, Бахрейн, КСА")}${op("e","Египетский","")}${op("l","Левантийский","Сирия, Ливан, Палестина, Иордания")}${op("0","Не нужно — без диалектов","")}
-<p style="margin:10px 0 0;font-size:12px">Изменить выбор можно в меню «Ещё» → «Диалект».</p></div>`;
+${dlOpts(cur0)}
+<p style="margin:10px 0 0;font-size:12px">Выбор сохранится. Изменить его можно в «Ещё» → «Настройки».</p></div>`;
 ov.querySelectorAll(".dlopt").forEach(b=>b.onclick=()=>{dlSet(b.dataset.k);ov.remove();dlRefresh()});
 ov.onclick=e=>{if(e.target===ov&&cur0!=null)ov.remove()};document.body.appendChild(ov)}
 function dlRefresh(){try{if(deck&&deck[i]&&document.getElementById("face")&&$("face").offsetParent)draw()}catch(e){}try{const b=$("dres");if(b)b.querySelectorAll(".dr").forEach(r=>{delete r.dataset.dl;const x=r.querySelector(".dlx");if(x)x.remove()});dlDict()}catch(e){}try{dlSheet()}catch(e){}}
@@ -133,10 +133,18 @@ function dlRefresh(){try{if(deck&&deck[i]&&document.getElementById("face")&&$("f
 /* словарь */
 function dlDict(){const b=$("dres");if(!b)return;const k=dlGet();if(!k||k==="0")return;b.querySelectorAll(".dr:not([data-dl])").forEach(r=>{r.dataset.dl=1;const a=r.querySelector(".ar");if(!a)return;const h=dlHTML(a.textContent);if(h)a.insertAdjacentHTML("afterend",h)})}
 {let mo=null;const _dsr=dsr;dsr=function(){const r=_dsr.apply(this,arguments);try{const b=$("dres");if(b&&!mo){mo=new MutationObserver(()=>{clearTimeout(mo.t);mo.t=setTimeout(dlDict,30)});mo.observe(b,{childList:true,subtree:true})}dlDict()}catch(e){}return r}}
-/* меню «Ещё» → «Диалект» */
-function dlSheet(){const sh=$("sheet");if(!sh||!me)return;let b=sh.querySelector(".dlsb");if(!b){b=document.createElement("button");b.className="dlsb";b.onclick=()=>{closeSheet();dlAsk(true)};const g=[...sh.querySelectorAll("button")].find(x=>/Выйти/.test(x.textContent));g?sh.insertBefore(b,g):sh.appendChild(b)}
-const k=dlGet();b.innerHTML=ic("Диалект")+"Диалект: "+(DLN[k]||"нет")+`<small>اللَّهْجَةُ</small>`}
-IC["Диалект"]='<path d="M4 5h11v8H9l-4 3v-3H4z"/><path d="M15 9h5v8h-1v3l-3-3h-5v-2"/>';
+/* настройки: «Ещё» → «Настройки» */
+function dlOpts(cur0){const op=(k,t,sub)=>`<button class="dlopt${k==="0"?" no":""}${cur0===k?" on":""}" data-k="${k}" aria-pressed="${cur0===k}"><b>${t}</b>${sub?`<small>${sub}</small>`:""}</button>`;
+return op("g","Халиджи","страны Залива: ОАЭ, Кувейт, Катар, Бахрейн, КСА")+op("e","Египетский","")+op("l","Левантийский","Сирия, Ливан, Палестина, Иордания")+op("0","Не нужно — без диалектов","")}
+function setv(){T1ON=false;cur=0;closeSheet();menu.innerHTML="";crumb([{t:"Карточки",f:()=>{home();show("menu")}},{t:"Настройки"}]);
+menu.insertAdjacentHTML("beforeend",`<h2 class="pt">Настройки<small class="ar2">الْإِعْدَادَاتُ</small></h2>
+<div class="kucard dlset"><h3 style="margin:0 0 4px">Диалект</h3><p class="mu" style="margin:0 0 8px">Дополнительно, мелким шрифтом: в карточках и словаре под словом — как оно звучит в диалекте, только если отличается от литературного.</p><div id="dlsl">${dlOpts(dlGet())}</div><p class="mu" id="dlok" style="margin:6px 2px 0;min-height:1.4em" aria-live="polite"></p></div>`);
+const bind=()=>$("dlsl").querySelectorAll(".dlopt").forEach(b=>b.onclick=()=>{dlSet(b.dataset.k);$("dlsl").innerHTML=dlOpts(b.dataset.k);bind();$("dlok").textContent="Сохранено: "+(DLN[b.dataset.k]||"без диалектов");dlRefresh()});bind();show("menu");try{scrollTo(0,0)}catch(e){}}
+function dlSheet(){const sh=$("sheet");if(!sh||!me)return;let b=sh.querySelector(".dlsb");if(!b){b=document.createElement("button");b.className="dlsb";b.onclick=()=>{closeSheet();setv()};const g=[...sh.querySelectorAll("button")].find(x=>/Выйти/.test(x.textContent));g?sh.insertBefore(b,g):sh.appendChild(b)}
+b.innerHTML=ic("Настройки")+"Настройки"+`<small>الْإِعْدَادَاتُ</small>`}
+IC["Настройки"]='<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>';
 {const _bt=bt;bt=function(){const r=_bt.apply(this,arguments);try{dlSheet()}catch(e){}return r}}
+/* выбор хранится в прогрессе аккаунта (S.dl) и на устройстве; при слиянии прогресса с сервером не теряется */
+{const _m=mergeS;mergeS=function(a,b){const r=_m(a,b);try{if(r&&r.dl==null){const v=(a&&a.dl!=null)?a.dl:(b&&b.dl!=null)?b.dl:null;if(v!=null)r.dl=v}}catch(e){}return r}}
 /* спросить один раз после входа */
-{const _login=login;login=async function(){const r=await _login.apply(this,arguments);let n=0;const tr=()=>{if(!me||dlGet()!=null)return;const busy=[...document.querySelectorAll('[id*=tour],[class*=tour],.kuvid,#upd,.updm')].some(e=>e.offsetParent);if(busy&&n++<20){setTimeout(tr,3000);return}dlAsk()};setTimeout(tr,1800);return r}}
+{const _login=login;login=async function(){const r=await _login.apply(this,arguments);let n=0;const tr=()=>{if(!me||dlGet()!=null)return;const busy=[...document.querySelectorAll('#tourb,#tourh,#tourt,.kuvid,#upd,.updm')].some(e=>e.offsetParent);if(busy&&n++<200){setTimeout(tr,3000);return}dlAsk()};setTimeout(tr,3500);return r}}
