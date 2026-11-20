@@ -1,0 +1,6 @@
+const V="oud-v240",F=["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "snd/oud.json", "snd/ney.json", "snd/perc.json"];
+self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>Promise.all(F.map(u=>c.add(u).catch(()=>{})))).then(()=>self.skipWaiting()))});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener("fetch",e=>{const r=e.request;if(r.method!=="GET")return;const u=new URL(r.url);if(u.origin!==location.origin&&!/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname))return;
+if(r.mode==="navigate"){e.respondWith(new Promise(ok=>{let fin=false;const fb=()=>caches.match("index.html").then(h=>{if(h&&!fin){fin=true;ok(h)}});const tm=setTimeout(fb,3500);fetch(r).then(x=>{clearTimeout(tm);if(x.ok){const c=x.clone();caches.open(V).then(h=>h.put("index.html",c))}if(!fin){fin=true;ok(x)}}).catch(()=>{clearTimeout(tm);caches.match("index.html").then(h=>{if(!fin){fin=true;ok(h||Response.error())}})})}));return}
+e.respondWith(caches.match(r).then(h=>h||fetch(r).then(x=>{if(x.ok||x.type==="opaque"){const c=x.clone();caches.open(V).then(k=>k.put(r,c))}return x})))});
